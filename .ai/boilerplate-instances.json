@@ -1,0 +1,22 @@
+{
+  "description": "Registry of projects using this boilerplate",
+  "hub": {
+    "repo": "your-username/claude-code-boilerplate",
+    "is_source": true
+  },
+  "instances": [
+    {
+      "path": "/Users/carmenborrelli/Documents/sites/claude-code-boilerplate",
+      "name": "claude-code-boilerplate",
+      "type": "source",
+      "registered": "2025-12-03",
+      "last_active": "2025-12-03",
+      "version": "0.1.0"
+    }
+  ],
+  "stats": {
+    "total_instances": 1,
+    "upstream_candidates_submitted": 0,
+    "upstream_candidates_merged": 0
+  }
+}

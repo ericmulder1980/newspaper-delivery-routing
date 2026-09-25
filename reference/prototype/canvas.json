@@ -1,0 +1,125 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Building.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "3 · Flat inzoomen",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "1 · Looproute (klikbaar)",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Street.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "2 · Straatdeel",
+      "w": 390,
+      "x": 470,
+      "y": 0
+    },
+    "Setup.dc.html": {
+      "x": 0,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "A · Welkom (klikbaar)",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "SetupRoute.dc.html": {
+      "x": 470,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "B · Wijk aanmaken",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "SetupStreet.dc.html": {
+      "x": 940,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "C · Straat toevoegen",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "SetupNumbers.dc.html": {
+      "x": 1410,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "D · Nummers controleren",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "SetupFlat.dc.html": {
+      "x": 1880,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "E · Flat maken",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "SetupList.dc.html": {
+      "x": 2350,
+      "y": 1250,
+      "w": 390,
+      "h": 844,
+      "title": "F · Looproute ordenen",
+      "is_interactive": true,
+      "radius": 36
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-25T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "title": {
+      "kind": "title1",
+      "maxW": 1330,
+      "text": "Krantenwijk — looproute",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "setupTitle": {
+      "x": 0,
+      "y": 990,
+      "text": "Instellen — eerste start",
+      "kind": "title1",
+      "maxW": 2740
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Street.dc.html",
+    "Building.dc.html",
+    "Setup.dc.html",
+    "SetupRoute.dc.html",
+    "SetupStreet.dc.html",
+    "SetupNumbers.dc.html",
+    "SetupFlat.dc.html",
+    "SetupList.dc.html"
+  ],
+  "pages": [],
+  "title": "Krantenwijk – Route mock-up"
+}

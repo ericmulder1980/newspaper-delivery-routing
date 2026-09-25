@@ -1,0 +1,63 @@
+{
+  "name": "claude-code-boilerplate",
+  "version": "0.1.0",
+  "source": {
+    "type": "github",
+    "repo": "songbirddigital/claude-code-boilerplate",
+    "branch": "master"
+  },
+  "last_sync": null,
+  "managed_files": [
+    ".claude/agents/*",
+    ".claude/skills/*",
+    ".claude/commands/*",
+    ".ai/feedback/.gitkeep",
+    ".ai/sessions/.gitkeep",
+    ".ai/tasks/*/.gitkeep",
+    ".ai/annealing/*/.gitkeep"
+  ],
+  "customized": [],
+  "upstream_candidates": [],
+  "instances": {
+    "tracking_enabled": true,
+    "registry_file": ".ai/boilerplate-instances.json"
+  },
+  "sync": {
+    "auto_check": false,
+    "notify_on_updates": true,
+    "prefer_local_on_conflict": true
+  },
+  "customizations": {
+    "greeting": {
+      "format": "full",
+      "enabled": true
+    },
+    "session_defaults": {
+      "verbosity": "full",
+      "guardians": "all",
+      "apprentice": "on",
+      "annealing": "active",
+      "external_review": "enabled",
+      "session_docs": "full",
+      "sync_check": "skip",
+      "skip_menu": false
+    },
+    "verbosity": {
+      "default": "full",
+      "apprentice_mode": true,
+      "feature_highlights": true,
+      "guardian_announcements": true,
+      "annealing_mentions": true
+    }
+  },
+  "custom_components": {
+    "guardians": [],
+    "skills": [],
+    "commands": []
+  },
+  "usage_tracking": {
+    "session_count": 0,
+    "settings_skipped_count": 0,
+    "last_customization_prompt": null
+  }
+}

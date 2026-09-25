@@ -1,0 +1,9 @@
+# Process Feedback Logs
+
+This directory contains workflow friction and improvement notes.
+Files are created as feedback is logged.
+
+Common files:
+- overrides.md (gate override decisions)
+- feature-completion.md (feature completion friction)
+- session-management.md (handoff issues)

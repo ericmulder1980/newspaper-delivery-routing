@@ -1,0 +1,86 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.(env|pem|key|p12)$|\\.env\\.|credentials|secrets|id_rsa|id_ed25519|\\.npmrc|\\.pypirc' && echo 'Blocked: sensitive file' >&2 && exit 2 || exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit:*.ts|Edit:*.tsx|Edit:*.js|Edit:*.jsx|Edit:*.json|Edit:*.css|Edit:*.md",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v prettier >/dev/null && prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "guardians": {
+    "enabled": [
+      "security",
+      "typescript",
+      "architecture",
+      "test",
+      "performance",
+      "docs",
+      "accessibility",
+      "api",
+      "database"
+    ],
+    "triggers": {
+      "pre-commit": true,
+      "pr-creation": true,
+      "manual": true
+    },
+    "gates": {
+      "require_zero_issues": true,
+      "allow_override": true
+    },
+    "file_detection": {
+      "*.sql": ["database"],
+      "*.prisma": ["database"],
+      "migrations/**": ["database"],
+      "api/**": ["api", "security"],
+      "routes/**": ["api"],
+      "auth/**": ["security"],
+      "*.ts": ["typescript"],
+      "*.tsx": ["typescript", "accessibility"],
+      "*.jsx": ["accessibility"],
+      "*.test.*": ["test"],
+      "*.spec.*": ["test"],
+      "__tests__/**": ["test"],
+      ".claude/skills/**/*.md": ["docs", "architecture"],
+      ".claude/agents/*.md": ["docs", "architecture"],
+      "*.md": ["docs"],
+      "docs/**": ["docs"],
+      "*.css": ["accessibility"],
+      "*.scss": ["accessibility"]
+    },
+    "model_allocation": {
+      "haiku": ["typescript", "test", "docs"],
+      "sonnet": ["security", "architecture", "performance", "accessibility", "api", "database"]
+    }
+  },
+  "external_reviewers": {
+    "primary": "codex",
+    "secondary": "gemini",
+    "require_approval": false
+  },
+  "annealing": {
+    "weekly_review": true,
+    "auto_apply": false,
+    "rollback_enabled": true
+  },
+  "apprentice_mode": {
+    "base_enabled": true,
+    "detailed_skill": "apprentice-mode"
+  }
+}

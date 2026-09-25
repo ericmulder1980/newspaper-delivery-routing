@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Krantenwijk – instellen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background-color: #0C0D0E; background-image: {{carbonImg}}; background-size: 20px 20px; background-position: 0 5px, 10px 0, 0 10px, 10px 5px, 0 0, 0 0; color: #F4F1EA; font-family: 'Barlow', system-ui, sans-serif">
+
+  <div style="height: 104px; box-sizing: border-box; padding: 20px 20px 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="height: 54px; display: flex; align-items: center; justify-content: space-between">
+      <sc-if value="{{canBack}}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{goBack}}" style="height: 54px; padding: 0 18px 0 10px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 4px; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+          Terug
+        </button>
+      </sc-if>
+      <sc-if value="{{noBack}}" hint-placeholder-val="{{ true }}">
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.05em; text-transform: uppercase">Krantenwijk<span style="display: inline-block; margin-left: 8px; padding: 2px 8px 0; border-radius: 6px; background: #E8FF00; color: #0E0F11; font-style: italic">#07</span></div>
+      </sc-if>
+      <div style="font-size: 16px; font-weight: 600; color: #A7A9AE">Stap {{stepNo}} / 4</div>
+    </div>
+    <div aria-hidden="true" style="display: flex; gap: 6px">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="4">
+        <span style="flex-grow: 1; height: 6px; border-radius: 3px; background: {{b.bg}}"></span>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{isName}}" hint-placeholder-val="{{ true }}">
+  <div style="height: 740px; display: flex; flex-direction: column">
+    <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 28px 20px 16px; display: flex; flex-direction: column; gap: 20px">
+      <div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Welkom</div>
+        <h1 style="margin: 4px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 56px; line-height: 0.95; text-transform: uppercase">Hoe mogen we je noemen?</h1>
+      </div>
+      <p style="margin: 0; font-size: 18px; line-height: 1.45; color: #C9CBCF">Krantenwijk houdt je looproute, straten en huisnummers overzichtelijk bij. Eerst even kennismaken.</p>
+      <div>
+        <label for="setup-name" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Naam of bijnaam</label>
+        <input id="setup-name" type="text" autocomplete="off" placeholder="Bijv. Sam" value="{{name}}" onChange="{{setName}}" style="width: 100%; box-sizing: border-box; height: 68px; padding: 0 18px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 24px">
+        <div style="margin-top: 8px; font-size: 15px; color: #A7A9AE">Wordt alleen op dit toestel bewaard.</div>
+      </div>
+    </div>
+    <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+      <button onClick="{{goRoute}}" disabled="{{nameInvalid}}" style="width: 100%; height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; opacity: {{nameOpacity}}; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 34px; letter-spacing: 0.04em; cursor: pointer">Volgende</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isRoute}}" hint-placeholder-val="{{ false }}">
+  <div style="height: 740px; display: flex; flex-direction: column">
+    <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 28px 20px 16px; display: flex; flex-direction: column; gap: 20px">
+      <div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Je wijk</div>
+        <h1 style="margin: 4px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 56px; line-height: 0.95; text-transform: uppercase">Hoi {{greetName}}!</h1>
+      </div>
+      <p style="margin: 0; font-size: 18px; line-height: 1.45; color: #C9CBCF">Geef je wijk een naam. Daarna voeg je de straten toe in de volgorde waarin je loopt.</p>
+      <div>
+        <label for="setup-route" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Naam van de wijk</label>
+        <input id="setup-route" type="text" autocomplete="off" placeholder="Bijv. Wijk 07" value="{{routeName}}" onChange="{{setRouteName}}" style="width: 100%; box-sizing: border-box; height: 68px; padding: 0 18px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 24px">
+      </div>
+      <div>
+        <label for="setup-town" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Plaats <span style="font-weight: 400; color: #A7A9AE">(optioneel)</span></label>
+        <input id="setup-town" type="text" autocomplete="off" placeholder="Plaatsnaam" value="{{town}}" onChange="{{setTown}}" style="width: 100%; box-sizing: border-box; height: 68px; padding: 0 18px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 24px">
+      </div>
+    </div>
+    <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+      <button onClick="{{goFirstStreet}}" disabled="{{routeInvalid}}" style="width: 100%; height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; opacity: {{routeOpacity}}; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 34px; letter-spacing: 0.04em; cursor: pointer">Straten toevoegen</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isStreet}}" hint-placeholder-val="{{ false }}">
+  <div style="height: 740px; display: flex; flex-direction: column">
+    <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 22px 20px 16px; display: flex; flex-direction: column; gap: 18px">
+      <div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Straatdeel {{segNo}}</div>
+        <h1 style="margin: 4px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 48px; line-height: 0.95; text-transform: uppercase">Straat toevoegen</h1>
+      </div>
+
+      <div>
+        <label for="setup-street" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Straatnaam</label>
+        <input id="setup-street" type="text" autocomplete="off" placeholder="Bijv. Kerkstraat" value="{{fStreet}}" onChange="{{setStreet}}" style="width: 100%; box-sizing: border-box; height: 68px; padding: 0 18px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 24px">
+        <sc-if value="{{hasSugg}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px">
+            <span style="font-size: 15px; color: #A7A9AE">Eerder gebruikt:</span>
+            <sc-for list="{{sugg}}" as="sg" hint-placeholder-count="1">
+              <button onClick="{{sg.pick}}" style="height: 48px; padding: 0 16px; border-radius: 12px; background: #F4F1EA; color: #0E0F11; border: 0; font-family: inherit; font-weight: 700; font-size: 18px; cursor: pointer">{{sg.name}}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+
+      <div>
+        <div id="side-label" style="margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Welke kant loop je in dit deel?</div>
+        <div role="group" aria-labelledby="side-label" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{sides}}" as="sd" hint-placeholder-count="3">
+            <button onClick="{{sd.pick}}" aria-pressed="{{sd.pressed}}" style="height: 64px; border-radius: 14px; background: {{sd.bg}}; color: {{sd.fg}}; border: 2px solid {{sd.border}}; font-family: inherit; font-weight: 700; font-size: 19px; cursor: pointer">{{sd.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="margin-bottom: 8px; font-weight: 600; font-size: 17px; color: #E4E5E7">Huisnummers, in looprichting</div>
+        <div style="display: flex; align-items: flex-end; gap: 8px">
+          <div style="flex-grow: 1; min-width: 0">
+            <label for="setup-from" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Van</label>
+            <input id="setup-from" type="text" inputmode="numeric" autocomplete="off" placeholder="2" value="{{fFrom}}" onChange="{{setFrom}}" style="width: 100%; box-sizing: border-box; height: 76px; padding: 0 12px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 46px">
+          </div>
+          <button onClick="{{swap}}" aria-label="Looprichting omdraaien" style="flex-shrink: 0; width: 60px; height: 76px; border-radius: 14px; background: #1E2126; border: 1px solid #3A3D43; color: #F4F1EA; display: flex; align-items: center; justify-content: center; cursor: pointer">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+          </button>
+          <div style="flex-grow: 1; min-width: 0">
+            <label for="setup-to" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Tot en met</label>
+            <input id="setup-to" type="text" inputmode="numeric" autocomplete="off" placeholder="24" value="{{fTo}}" onChange="{{setTo}}" style="width: 100%; box-sizing: border-box; height: 76px; padding: 0 12px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 46px">
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{hasPreview}}" hint-placeholder-val="{{ true }}">
+        <div style="background: #1E2126; border: 1px solid #2E3137; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+          <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 26px; line-height: 1.1">{{previewCount}} adressen · {{dirWord}}</div>
+          <div style="font-size: 17px; color: #C9CBCF">{{previewSample}}</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{hasWarn}}" hint-placeholder-val="{{ false }}">
+        <div role="status" style="border: 2px solid #E8FF00; border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; font-size: 17px; line-height: 1.35">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F4F1EA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+          <span>{{warnText}}</span>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+      <button onClick="{{goNumbers}}" disabled="{{streetInvalid}}" style="width: 100%; height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; opacity: {{streetOpacity}}; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 34px; letter-spacing: 0.04em; cursor: pointer">Nummers controleren</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isNumbers}}" hint-placeholder-val="{{ false }}">
+  <div style="height: 740px; display: flex; flex-direction: column">
+    <div style="padding: 22px 20px 10px; display: flex; flex-direction: column; gap: 8px">
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Straatdeel {{segNo}} · controleren</div>
+      <h1 style="margin: 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 48px; line-height: 0.95; text-transform: uppercase">{{fStreet}}</h1>
+      <div style="font-size: 17px; color: #A7A9AE">{{sideLabel}} · {{rangeLabel}} · {{addrCount}} adressen</div>
+      <p style="margin: 4px 0 0; font-size: 16px; line-height: 1.4; color: #C9CBCF">Tik op een nummer om het aan te passen. Stickers stel je later per straat in.</p>
+    </div>
+    <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 16px">
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{tiles}}" as="t" hint-placeholder-count="12">
+          <button onClick="{{t.tap}}" aria-label="{{t.aria}}" style="min-height: 88px; box-sizing: border-box; border-radius: 14px; background: {{t.bg}}; border: 2px {{t.bstyle}} {{t.border}}; color: {{t.fg}}; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-family: inherit; cursor: pointer">
+            <span style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 40px; line-height: 1; text-decoration: {{t.deco}}">{{t.label}}</span>
+            <span style="font-size: 13px; font-weight: 700; line-height: 1.1; text-align: center; color: {{t.subColor}}">{{t.sub}}</span>
+          </button>
+        </sc-for>
+        <button onClick="{{openAdd}}" aria-label="Nummer toevoegen" style="min-height: 88px; box-sizing: border-box; border-radius: 14px; background: transparent; border: 2px dashed #E8FF00; color: #F4F1EA; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-family: inherit; cursor: pointer">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          <span style="font-size: 13px; font-weight: 700">Toevoegen</span>
+        </button>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px 20px 22px; border-top: 1px solid #22252A">
+      <button onClick="{{goStreet}}" style="height: 76px; border-radius: 18px; background: #1E2126; border: 1px solid #3A3D43; color: #F4F1EA; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 30px; letter-spacing: 0.04em; cursor: pointer">Wijzigen</button>
+      <button onClick="{{saveSeg}}" style="height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 30px; letter-spacing: 0.04em; cursor: pointer">Opslaan</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{isList}}" hint-placeholder-val="{{ false }}">
+  <div style="height: 740px; display: flex; flex-direction: column">
+    <div style="padding: 22px 20px 10px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>{{routeTitle}}</div>
+      <h1 style="margin: 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 48px; line-height: 0.95; text-transform: uppercase">Je looproute</h1>
+      <p style="margin: 2px 0 0; font-size: 16px; line-height: 1.4; color: #C9CBCF">Zet de straatdelen in de volgorde waarin je loopt.</p>
+    </div>
+    <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 6px 20px 16px; display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+        <div style="display: flex; align-items: center; gap: 10px; min-height: 100px; box-sizing: border-box; background: #1E2126; border: 1px solid #2E3137; border-radius: 16px; padding: 8px 8px 8px 12px">
+          <div style="flex-shrink: 0; width: 50px; height: 50px; border-radius: 50%; border: 3px solid #E8FF00; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 28px">{{r.idx}}</div>
+          <div style="flex-grow: 1; min-width: 0">
+            <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 28px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.street}}</div>
+            <div style="font-size: 16px; color: #A7A9AE">{{r.side}} · {{r.range}}</div>
+            <div style="font-size: 15px; font-weight: 600; color: #E4E5E7; margin-top: 2px">{{r.info}}</div>
+          </div>
+          <div style="flex-shrink: 0; display: flex; flex-direction: column; gap: 4px">
+            <button onClick="{{r.up}}" disabled="{{r.noUp}}" aria-label="{{r.upLabel}}" style="width: 52px; height: 42px; border-radius: 10px; background: #2A2D33; border: 0; color: #F4F1EA; opacity: {{r.upOpacity}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg>
+            </button>
+            <button onClick="{{r.down}}" disabled="{{r.noDown}}" aria-label="{{r.downLabel}}" style="width: 52px; height: 42px; border-radius: 10px; background: #2A2D33; border: 0; color: #F4F1EA; opacity: {{r.downOpacity}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+            </button>
+          </div>
+        </div>
+      </sc-for>
+      <button onClick="{{addSeg}}" style="min-height: 72px; border-radius: 16px; background: transparent; border: 2px dashed #E8FF00; color: #F4F1EA; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.04em; cursor: pointer">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        Straatdeel toevoegen
+      </button>
+    </div>
+    <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+      <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 76px; box-sizing: border-box; border-radius: 18px; background: #E8FF00; color: #0E0F11; text-decoration: none; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 32px; letter-spacing: 0.04em">Klaar · naar mijn wijk<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></a>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: rgba(5, 6, 7, 0.74); display: flex; flex-direction: column; justify-content: flex-end">
+    <div style="background: #16181C; border-top: 1px solid #2E3137; border-radius: 24px 24px 0 0; padding: 12px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+      <div aria-hidden="true" style="align-self: center; width: 48px; height: 5px; border-radius: 3px; background: #4A4D53"></div>
+      <div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>{{fStreet}}</div>
+        <h2 style="margin: 2px 0 4px; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 42px; line-height: 1; text-transform: uppercase">{{sheetTitle}}</h2>
+      </div>
+
+      <sc-if value="{{isMenu}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <button onClick="{{toggleGone}}" style="min-height: 68px; box-sizing: border-box; border-radius: 14px; background: #1F2227; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 14px; padding: 8px 14px; text-align: left; font-family: inherit; cursor: pointer">
+            <span style="flex-shrink: 0; width: 38px; height: 38px; box-sizing: border-box; border-radius: 9px; border: 2px dashed #6A6D73"></span>
+            <div><div style="font-weight: 700; font-size: 20px; line-height: 1.15">{{goneTitle}}</div><div style="font-size: 15px; color: #A7A9AE">{{goneSub}}</div></div>
+          </button>
+          <button onClick="{{openFlat}}" style="min-height: 68px; box-sizing: border-box; border-radius: 14px; background: #1F2227; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 14px; padding: 8px 14px; text-align: left; font-family: inherit; cursor: pointer">
+            <span style="flex-shrink: 0; width: 38px; height: 38px; box-sizing: border-box; border-radius: 9px; border: 2px solid #F4F1EA; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="1"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M8 10h.01"></path><path d="M16 10h.01"></path><path d="M8 14h.01"></path><path d="M16 14h.01"></path></svg></span>
+            <div><div style="font-weight: 700; font-size: 20px; line-height: 1.15">{{flatTitle}}</div><div style="font-size: 15px; color: #A7A9AE">Eén nummer met toevoegingen, bijv. 12A–12L</div></div>
+          </button>
+          <sc-if value="{{sheetIsBld}}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{unmakeFlat}}" style="min-height: 68px; box-sizing: border-box; border-radius: 14px; background: #1F2227; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 14px; padding: 8px 14px; text-align: left; font-family: inherit; cursor: pointer">
+              <span style="flex-shrink: 0; width: 38px; height: 38px; box-sizing: border-box; border-radius: 9px; background: #2A2D33"></span>
+              <div><div style="font-weight: 700; font-size: 20px; line-height: 1.15">Geen flat meer</div><div style="font-size: 15px; color: #A7A9AE">Terug naar één adres</div></div>
+            </button>
+          </sc-if>
+          <button onClick="{{removeNum}}" style="min-height: 68px; box-sizing: border-box; border-radius: 14px; background: #1F2227; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 14px; padding: 8px 14px; text-align: left; font-family: inherit; cursor: pointer">
+            <span style="flex-shrink: 0; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span>
+            <div><div style="font-weight: 700; font-size: 20px; line-height: 1.15">Verwijderen</div><div style="font-size: 15px; color: #A7A9AE">Haal dit nummer uit de lijst</div></div>
+          </button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isFlat}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div role="group" aria-label="Soort toevoeging" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{flatTypes}}" as="ft" hint-placeholder-count="2">
+              <button onClick="{{ft.pick}}" aria-pressed="{{ft.pressed}}" style="height: 60px; border-radius: 14px; background: {{ft.bg}}; color: {{ft.fg}}; border: 2px solid {{ft.border}}; font-family: inherit; font-weight: 700; font-size: 18px; cursor: pointer">{{ft.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <div>
+              <label for="flat-from" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Eerste</label>
+              <input id="flat-from" type="text" autocomplete="off" value="{{flatFrom}}" onChange="{{setFlatFrom}}" style="width: 100%; box-sizing: border-box; height: 72px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 44px">
+            </div>
+            <div>
+              <label for="flat-to" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Laatste</label>
+              <input id="flat-to" type="text" autocomplete="off" value="{{flatTo}}" onChange="{{setFlatTo}}" style="width: 100%; box-sizing: border-box; height: 72px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 44px">
+            </div>
+          </div>
+          <div style="font-size: 17px; color: #C9CBCF">{{flatPreview}}</div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <button onClick="{{backMenu}}" style="height: 64px; border-radius: 14px; background: transparent; border: 1px solid #4A4D53; color: #F4F1EA; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">Terug</button>
+            <button onClick="{{makeFlat}}" disabled="{{flatInvalid}}" style="height: 64px; border-radius: 14px; background: #E8FF00; color: #0E0F11; border: 0; opacity: {{flatOpacity}}; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 28px; letter-spacing: 0.04em; cursor: pointer">Flat maken</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isAdd}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <div>
+              <label for="add-num" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Huisnummer</label>
+              <input id="add-num" type="text" inputmode="numeric" autocomplete="off" placeholder="14" value="{{addNum}}" onChange="{{setAddNum}}" style="width: 100%; box-sizing: border-box; height: 72px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 44px">
+            </div>
+            <div>
+              <label for="add-suffix" style="display: block; margin-bottom: 6px; font-size: 15px; color: #A7A9AE">Toevoeging <span style="color: #7D8087">(optioneel)</span></label>
+              <input id="add-suffix" type="text" autocomplete="off" placeholder="A" value="{{addSuffix}}" onChange="{{setAddSuffix}}" style="width: 100%; box-sizing: border-box; height: 72px; border-radius: 14px; background: #1E2126; border: 2px solid #3A3D43; color: #F4F1EA; text-align: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 44px">
+            </div>
+          </div>
+          <button onClick="{{addNumber}}" disabled="{{addInvalid}}" style="height: 64px; border-radius: 14px; background: #E8FF00; color: #0E0F11; border: 0; opacity: {{addOpacity}}; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 28px; letter-spacing: 0.04em; cursor: pointer">Toevoegen</button>
+        </div>
+      </sc-if>
+
+      <button onClick="{{closeSheet}}" style="height: 58px; border-radius: 14px; background: transparent; border: 1px solid #4A4D53; color: #F4F1EA; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">Annuleren</button>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startStep":{"editor":"enum","options":["name","route","street","numbers","list"],"default":"name"},"startSheet":{"editor":"enum","options":["none","flat"],"default":"none"},"carbon":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const step = props.startStep || 'name';
+    const demo = step !== 'name';
+    const nums = (side, from, to, gone, bld) => this.gen(side, from, to).map((n) => ({
+      n: n, add: '', gone: (gone || []).indexOf(n) >= 0, units: bld && bld[n] ? bld[n] : null
+    }));
+    const seg1 = { street: 'Kerkstraat', side: 'EVEN', from: 2, to: 24, nums: nums('EVEN', 2, 24, [20], { 12: { type: 'L', from: 'A', to: 'L' } }) };
+    const seg2 = { street: 'Kerkstraat', side: 'ODD', from: 23, to: 1, nums: nums('ODD', 23, 1) };
+    const seg3 = { street: 'Molenweg', side: 'ALL', from: 1, to: 10, nums: nums('ALL', 1, 10, [7]) };
+    const seg4 = { street: 'Lindelaan', side: 'EVEN', from: 2, to: 16, nums: nums('EVEN', 2, 16) };
+
+    let segs = [], form = { street: '', side: 'EVEN', from: '', to: '' }, cur = [], sheetIdx = null, sheetMode = 'menu';
+    if (step === 'street') { segs = [seg1]; form = { street: 'Ker', side: 'ODD', from: '23', to: '1' }; }
+    if (step === 'numbers') {
+      form = { street: 'Kerkstraat', side: 'EVEN', from: '2', to: '24' };
+      cur = JSON.parse(JSON.stringify(seg1.nums));
+      if (props.startSheet === 'flat') { cur = cur.map((x) => Object.assign({}, x, { units: null })); sheetIdx = 5; sheetMode = 'flat'; }
+    }
+    if (step === 'list') segs = [seg1, seg2, seg3, seg4];
+
+    this.state = {
+      step: step, name: demo ? 'Sam' : '', routeName: demo ? 'Wijk 07' : '', town: '',
+      segs: segs, form: form, nums: cur, sheetIdx: sheetIdx, sheetMode: sheetMode,
+      flatType: 'L', flatFrom: 'A', flatTo: 'L', addNum: '', addSuffix: ''
+    };
+  }
+
+  gen(side, from, to) {
+    const lo = Math.min(from, to), hi = Math.max(from, to), out = [];
+    if (!(lo > 0) || hi - lo > 2000) return out;
+    for (let n = lo; n <= hi; n++) {
+      if (side === 'EVEN' && n % 2 !== 0) continue;
+      if (side === 'ODD' && n % 2 === 0) continue;
+      out.push(n);
+    }
+    if (from > to) out.reverse();
+    return out;
+  }
+
+  unitInfo(u) {
+    if (!u) return null;
+    if (u.type === 'L') {
+      const a = u.from.charCodeAt(0), b = u.to.charCodeAt(0);
+      return { count: b - a + 1, range: u.from + '–' + u.to };
+    }
+    const a = parseInt(u.from, 10), b = parseInt(u.to, 10);
+    return { count: b - a + 1, range: a + '–' + b };
+  }
+
+  addrCount(list) {
+    return list.reduce((c, x) => c + (x.gone ? 0 : (x.units ? this.unitInfo(x.units).count : 1)), 0);
+  }
+
+  flatCheck(n) {
+    const s = this.state;
+    if (s.flatType === 'L') {
+      const ok = /^[A-Z]$/.test(s.flatFrom) && /^[A-Z]$/.test(s.flatTo) && s.flatFrom <= s.flatTo;
+      if (!ok) return { ok: false, text: 'Vul twee letters in, bijv. A en L.' };
+      const c = s.flatTo.charCodeAt(0) - s.flatFrom.charCodeAt(0) + 1;
+      return { ok: true, text: c + ' appartementen: ' + n + s.flatFrom + ' … ' + n + s.flatTo };
+    }
+    const a = parseInt(s.flatFrom, 10), b = parseInt(s.flatTo, 10);
+    const ok = a > 0 && b >= a && b - a < 200;
+    if (!ok) return { ok: false, text: 'Vul twee nummers in, bijv. 1 en 20.' };
+    return { ok: true, text: (b - a + 1) + ' appartementen: ' + n + '-' + a + ' … ' + n + '-' + b };
+  }
+
+  setForm(k, v) { this.setState({ form: Object.assign({}, this.state.form, { [k]: v }) }); }
+  editNums(fn) { const list = JSON.parse(JSON.stringify(this.state.nums)); fn(list); this.setState({ nums: list, sheetIdx: null, sheetMode: 'menu' }); }
+  sideLabel(s) { return s === 'EVEN' ? 'Even kant' : s === 'ODD' ? 'Oneven kant' : 'Beide kanten'; }
+
+  renderVals() {
+    const s = this.state, f = s.form;
+    const stepNo = { name: 1, route: 2, street: 3, numbers: 3, list: 4 }[s.step];
+    const bars = [1, 2, 3, 4].map((i) => ({ bg: i <= stepNo ? '#E8FF00' : '#33363C' }));
+    const CARBON = 'linear-gradient(27deg, #121314 5px, transparent 5px), linear-gradient(207deg, #121314 5px, transparent 5px), linear-gradient(27deg, #1D1E20 5px, transparent 5px), linear-gradient(207deg, #1D1E20 5px, transparent 5px), linear-gradient(90deg, #161719 10px, transparent 10px), linear-gradient(#18191B 25%, #141517 25%, #141517 50%, transparent 50%, transparent 75%, #202123 75%, #202123)';
+
+    // street form
+    const from = parseInt(f.from, 10), to = parseInt(f.to, 10);
+    const bothNums = from > 0 && to > 0;
+    const gen = bothNums ? this.gen(f.side, from, to) : [];
+    let warn = '';
+    if (bothNums && gen.length === 0) warn = 'Er vallen geen nummers in dit bereik.';
+    else if (bothNums && gen.length > 300) warn = 'Dat zijn meer dan 300 nummers. Splits de straat in kleinere delen.';
+    else if (bothNums && f.side === 'EVEN' && (from % 2 !== 0 || to % 2 !== 0)) warn = 'Bij de even kant horen even nummers. De oneven nummers worden overgeslagen.';
+    else if (bothNums && f.side === 'ODD' && (from % 2 === 0 || to % 2 === 0)) warn = 'Bij de oneven kant horen oneven nummers. De even nummers worden overgeslagen.';
+    const streetOk = f.street.trim().length > 0 && gen.length > 0 && gen.length <= 300;
+    const sample = gen.length > 5 ? gen.slice(0, 3).join(', ') + ' … ' + gen[gen.length - 1] : gen.join(', ');
+
+    const used = [];
+    s.segs.forEach((g) => { if (used.indexOf(g.street) < 0) used.push(g.street); });
+    const q = f.street.trim().toLowerCase();
+    const sugg = used.filter((n) => n.toLowerCase() !== q && n.toLowerCase().indexOf(q) === 0)
+      .map((n) => ({ name: n, pick: () => this.setForm('street', n) }));
+
+    const sides = [['EVEN', 'Even'], ['ODD', 'Oneven'], ['ALL', 'Beide']].map((o) => {
+      const on = f.side === o[0];
+      return { label: o[1], pressed: on ? 'true' : 'false', bg: on ? '#E8FF00' : '#1E2126', fg: on ? '#0E0F11' : '#F4F1EA', border: on ? '#E8FF00' : '#3A3D43', pick: () => this.setForm('side', o[0]) };
+    });
+
+    // numbers
+    const tiles = s.nums.map((x, i) => {
+      const lbl = x.n + x.add;
+      const ui = this.unitInfo(x.units);
+      if (x.gone) return { label: lbl, sub: 'Bestaat niet', bg: '#0C0D0E', border: '#4A4D53', bstyle: 'dashed', fg: '#7D8087', subColor: '#7D8087', deco: 'line-through', aria: lbl + ', bestaat niet', tap: () => this.setState({ sheetIdx: i, sheetMode: 'menu' }) };
+      if (ui) return { label: lbl, sub: 'Flat ' + ui.range, bg: '#1E2126', border: '#F4F1EA', bstyle: 'solid', fg: '#F4F1EA', subColor: '#E4E5E7', deco: 'none', aria: lbl + ', flat met ' + ui.count + ' appartementen', tap: () => this.setState({ sheetIdx: i, sheetMode: 'menu' }) };
+      return { label: lbl, sub: '', bg: '#1E2126', border: '#3A3D43', bstyle: 'solid', fg: '#F4F1EA', subColor: '#A7A9AE', deco: 'none', aria: 'Nummer ' + lbl, tap: () => this.setState({ sheetIdx: i, sheetMode: 'menu' }) };
+    });
+
+    // list
+    const rows = s.segs.map((g, i) => {
+      const flats = g.nums.filter((x) => x.units && !x.gone).length;
+      const move = (d) => () => {
+        const list = s.segs.slice(); const t = list[i]; list[i] = list[i + d]; list[i + d] = t;
+        this.setState({ segs: list });
+      };
+      return {
+        idx: String(i + 1), street: g.street, side: this.sideLabel(g.side), range: g.from + ' → ' + g.to,
+        info: this.addrCount(g.nums) + ' adressen' + (flats ? ' · ' + flats + (flats === 1 ? ' flat' : ' flats') : ''),
+        up: move(-1), down: move(1),
+        noUp: i === 0, noDown: i === s.segs.length - 1,
+        upOpacity: i === 0 ? 0.35 : 1, downOpacity: i === s.segs.length - 1 ? 0.35 : 1,
+        upLabel: g.street + ' ' + this.sideLabel(g.side).toLowerCase() + ' eerder in de route',
+        downLabel: g.street + ' ' + this.sideLabel(g.side).toLowerCase() + ' later in de route'
+      };
+    });
+
+    // sheet
+    const sx = s.sheetIdx !== null && s.sheetIdx !== undefined ? s.nums[s.sheetIdx] : null;
+    const sheetOpen = !!sx || s.sheetMode === 'add';
+    const fc = this.flatCheck(sx ? sx.n : '');
+    const flatTypes = [['L', 'Letters (A–Z)'], ['N', 'Cijfers (1–20)']].map((o) => {
+      const on = s.flatType === o[0];
+      return { label: o[1], pressed: on ? 'true' : 'false', bg: on ? '#E8FF00' : '#1E2126', fg: on ? '#0E0F11' : '#F4F1EA', border: on ? '#E8FF00' : '#3A3D43',
+        pick: () => this.setState(o[0] === 'L' ? { flatType: 'L', flatFrom: 'A', flatTo: 'L' } : { flatType: 'N', flatFrom: '1', flatTo: '20' }) };
+    });
+    const addN = parseInt(s.addNum, 10);
+    const sortNums = (list) => {
+      list.sort((a, b) => a.n - b.n || a.add.localeCompare(b.add, 'nl', { numeric: true }));
+      if (from > to) list.reverse();
+    };
+
+    let sheetTitle = '';
+    if (s.sheetMode === 'add') sheetTitle = 'Nummer toevoegen';
+    else if (sx && s.sheetMode === 'flat') sheetTitle = 'Flat op nr. ' + sx.n;
+    else if (sx) sheetTitle = 'Nr. ' + sx.n + sx.add;
+
+    return {
+      carbonImg: (this.props.carbon ?? true) ? CARBON : 'none',
+      stepNo: stepNo, bars: bars,
+      canBack: s.step !== 'name', noBack: s.step === 'name',
+      goBack: () => this.setState({ step: { route: 'name', street: s.segs.length ? 'list' : 'route', numbers: 'street', list: 'route' }[s.step] || 'name' }),
+      isName: s.step === 'name', isRoute: s.step === 'route', isStreet: s.step === 'street', isNumbers: s.step === 'numbers', isList: s.step === 'list',
+
+      name: s.name, setName: (e) => this.setState({ name: e.target.value }),
+      nameInvalid: s.name.trim().length === 0, nameOpacity: s.name.trim().length ? 1 : 0.4,
+      goRoute: () => { if (s.name.trim()) this.setState({ step: 'route' }); },
+
+      greetName: s.name.trim() || 'daar',
+      routeName: s.routeName, setRouteName: (e) => this.setState({ routeName: e.target.value }),
+      town: s.town, setTown: (e) => this.setState({ town: e.target.value }),
+      routeInvalid: s.routeName.trim().length === 0, routeOpacity: s.routeName.trim().length ? 1 : 0.4,
+      goFirstStreet: () => { if (s.routeName.trim()) this.setState({ step: s.segs.length ? 'list' : 'street' }); },
+
+      segNo: String(s.segs.length + 1),
+      fStreet: f.street, setStreet: (e) => this.setForm('street', e.target.value),
+      fFrom: f.from, setFrom: (e) => this.setForm('from', e.target.value.replace(/[^0-9]/g, '')),
+      fTo: f.to, setTo: (e) => this.setForm('to', e.target.value.replace(/[^0-9]/g, '')),
+      swap: () => this.setState({ form: Object.assign({}, f, { from: f.to, to: f.from }) }),
+      hasSugg: sugg.length > 0, sugg: sugg, sides: sides,
+      hasPreview: gen.length > 0 && gen.length <= 300, previewCount: gen.length,
+      dirWord: from > to ? 'aflopend ' + from + ' → ' + to : 'oplopend ' + from + ' → ' + to,
+      previewSample: sample,
+      hasWarn: warn.length > 0, warnText: warn,
+      streetInvalid: !streetOk, streetOpacity: streetOk ? 1 : 0.4,
+      goNumbers: () => { if (streetOk) this.setState({ step: 'numbers', form: Object.assign({}, f, { street: f.street.trim() }), nums: gen.map((n) => ({ n: n, add: '', gone: false, units: null })) }); },
+
+      sideLabel: this.sideLabel(f.side), rangeLabel: f.from + ' → ' + f.to, addrCount: this.addrCount(s.nums),
+      tiles: tiles,
+      openAdd: () => this.setState({ sheetIdx: null, sheetMode: 'add', addNum: '', addSuffix: '' }),
+      goStreet: () => this.setState({ step: 'street' }),
+      saveSeg: () => this.setState({
+        segs: s.segs.concat([{ street: f.street, side: f.side, from: from, to: to, nums: s.nums }]),
+        step: 'list', nums: [], form: { street: '', side: 'EVEN', from: '', to: '' }
+      }),
+
+      routeTitle: s.routeName.trim() || 'Mijn wijk', rows: rows,
+      addSeg: () => this.setState({ step: 'street', form: { street: '', side: 'EVEN', from: '', to: '' } }),
+
+      sheetOpen: sheetOpen, sheetTitle: sheetTitle,
+      isMenu: !!sx && s.sheetMode === 'menu', isFlat: !!sx && s.sheetMode === 'flat', isAdd: s.sheetMode === 'add',
+      sheetIsBld: !!(sx && sx.units),
+      goneTitle: sx && sx.gone ? 'Bestaat wél' : 'Bestaat niet',
+      goneSub: sx && sx.gone ? 'Weer gewoon meenemen in de route' : 'Wordt overgeslagen en niet meegeteld',
+      flatTitle: sx && sx.units ? 'Flat aanpassen' : 'Flat met appartementen',
+      toggleGone: () => this.editNums((l) => { l[s.sheetIdx].gone = !l[s.sheetIdx].gone; }),
+      removeNum: () => this.editNums((l) => { l.splice(s.sheetIdx, 1); }),
+      unmakeFlat: () => this.editNums((l) => { l[s.sheetIdx].units = null; }),
+      openFlat: () => {
+        const u = sx && sx.units;
+        this.setState(u ? { sheetMode: 'flat', flatType: u.type, flatFrom: u.from, flatTo: u.to } : { sheetMode: 'flat' });
+      },
+      backMenu: () => this.setState({ sheetMode: 'menu' }),
+      flatTypes: flatTypes, flatFrom: s.flatFrom, flatTo: s.flatTo,
+      setFlatFrom: (e) => this.setState({ flatFrom: e.target.value.toUpperCase().slice(0, s.flatType === 'L' ? 1 : 3) }),
+      setFlatTo: (e) => this.setState({ flatTo: e.target.value.toUpperCase().slice(0, s.flatType === 'L' ? 1 : 3) }),
+      flatPreview: fc.text, flatInvalid: !fc.ok, flatOpacity: fc.ok ? 1 : 0.4,
+      makeFlat: () => { if (fc.ok) this.editNums((l) => { l[s.sheetIdx].units = { type: s.flatType, from: s.flatFrom, to: s.flatTo }; l[s.sheetIdx].gone = false; }); },
+
+      addNum: s.addNum, addSuffix: s.addSuffix,
+      setAddNum: (e) => this.setState({ addNum: e.target.value.replace(/[^0-9]/g, '') }),
+      setAddSuffix: (e) => this.setState({ addSuffix: e.target.value.toUpperCase().slice(0, 4) }),
+      addInvalid: !(addN > 0), addOpacity: addN > 0 ? 1 : 0.4,
+      addNumber: () => {
+        if (!(addN > 0)) return;
+        this.editNums((l) => { l.push({ n: addN, add: s.addSuffix.trim(), gone: false, units: null }); sortNums(l); });
+      },
+      closeSheet: () => this.setState({ sheetIdx: null, sheetMode: 'menu' })
+    };
+  }
+}
+</script>
+</body>
+</html>

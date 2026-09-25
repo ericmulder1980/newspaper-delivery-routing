@@ -1,0 +1,9 @@
+# Annealing History
+
+This directory contains records of applied annealing changes.
+Format: YYYY-MM-DD-applied.md
+
+Each entry includes:
+- What changed
+- Why (evidence)
+- Rollback instructions

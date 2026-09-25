@@ -1,0 +1,98 @@
+# Progress Log
+# Append-only entries documenting each work session
+# Format: SESSION START/END markers with structured content
+
+================================================================================
+[TEMPLATE - DELETE AFTER FIRST REAL ENTRY]
+
+[YYYY-MM-DD HH:MM] SESSION START
+Feature: [FEATURE-ID] — [Feature Title]
+Task: [TASK-ID] — [Task Description]
+Context loaded: features.json, progress.log tail, decisions.md
+================================================================================
+
+[HH:MM] ACTION: [What was done]
+  - [Details]
+
+[HH:MM] TEST: [Test results]
+  - [X/Y passing]
+
+[HH:MM] DECISION: [Decision made] (see DEC-XXX)
+
+[HH:MM] BLOCKER: [Description]
+
+================================================================================
+[YYYY-MM-DD HH:MM] SESSION END
+Feature: [ID] — [Title]
+Task: [TASK-ID] — [Description]
+
+COMPLETED:
+- [What was accomplished]
+
+IN PROGRESS:
+- [What was started but not finished]
+
+TESTS: [X/Y passing]
+
+DECISIONS: [DEC-XXX — brief description]
+
+FILES CHANGED:
++ [new files]
+M [modified files]
+
+BLOCKERS: [Any blockers]
+
+NEXT SESSION:
+- [Recommended next actions]
+- [Open questions]
+
+CONTEXT FOR NEXT SESSION:
+[Free-form notes for handoff]
+
+Commit: [hash] "[message]"
+================================================================================
+
+# ============================================================================
+# ACTUAL PROGRESS BEGINS BELOW
+# ============================================================================
+
+
+================================================================================
+[2026-09-25] SESSION END — PROJECT INITIALIZATION
+Feature: — (setup via /setup, INITIALIZER protocol)
+Task: Initialize domain memory
+
+COMPLETED:
+- Read existing project plan (v0.4) and approved prototype (9 screens)
+- Moved plan to docs/specs/krantenwijk-project-plan.md (source of truth)
+- features.json: 17 v1 Must features (4 critical, 13 high), 9 Should (medium), 3 Could (low), 6 milestones
+- decisions.md: DEC-001..009 recorded from plan decisions
+- docs/ARCHITECTURE.md created; CLAUDE.md placeholders filled for Krantenwijk
+
+TESTS: n/a (no code yet)
+
+DECISIONS: DEC-001..009 (stack, persistence, offline, delivery rules, snapshot,
+buildings, localisation, APK distribution, boilerplate adaptation)
+
+FILES CHANGED:
++ docs/specs/krantenwijk-project-plan.md (moved from reference/implementation plan/)
++ docs/ARCHITECTURE.md
+M .claude/memory/features.json, decisions.md, progress.log
+M CLAUDE.md
+
+BLOCKERS: none
+
+NEXT SESSION:
+- Start FND-001 (project and build setup). First research current stable
+  versions: AGP, Kotlin, Compose BOM, Room, Hilt, JUnit 5 on Android, target SDK.
+- User: walk the real route once to note stickers and walking order (Phase 0).
+
+CONTEXT FOR NEXT SESSION:
+Roles: Claude builds, user tests on device. No MVP date set.
+Plan §14 says hand over one requirement ID at a time; features.json groups
+requirement IDs into 1-3 day features via plan_refs. Wireframes are the
+.dc.html files in reference/prototype/ (canvas.json lists board titles in Dutch).
+Guardians/settings.json are tuned for TS; add Kotlin patterns when first review runs.
+
+Commit: none yet (awaiting user approval)
+================================================================================

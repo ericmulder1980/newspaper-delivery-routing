@@ -1,0 +1,6 @@
+# Guardian Feedback Logs
+
+This directory contains accuracy feedback for each guardian.
+Files are created as feedback is logged.
+
+Example: security.md, typescript.md, etc.

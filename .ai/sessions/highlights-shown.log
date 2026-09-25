@@ -1,0 +1,17 @@
+# Highlights Shown Log
+
+Tracks which feature highlights have been shown to avoid repetition.
+Cycle through all before repeating any.
+
+## Feature Tips Pool
+- guardian-agents: 9 specialized reviewers run in parallel on commit
+- self-annealing: I log observations and propose weekly improvements
+- external-review: Codex reviews provide async second opinions
+- apprentice-mode: I explain the 'why' not just the 'what'
+- research-first: I web search before recommending when currency matters
+- session-continuity: Session logs help me pick up where we left off
+
+## Shown This Cycle
+<!-- Add entries as: YYYY-MM-DD: [highlight-key] -->
+
+---

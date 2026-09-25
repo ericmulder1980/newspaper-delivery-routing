@@ -1,0 +1,6 @@
+# Review Tasks
+
+This directory contains code review assignments for external reviewers (Codex, Gemini).
+
+Format: YYMMDD-[reviewer]-[feature].md (task)
+Format: YYMMDD-[reviewer]-[feature]-findings.md (results)

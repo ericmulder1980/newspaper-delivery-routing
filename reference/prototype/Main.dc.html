@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Krantenwijk – looproute</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background-color: #0C0D0E; background-image: {{carbonImg}}; background-size: 20px 20px; background-position: 0 5px, 10px 0, 0 10px, 10px 5px, 0 0, 0 0; color: #F4F1EA; font-family: 'Barlow', system-ui, sans-serif">
+
+<sc-if value="{{isRoute}}" hint-placeholder-val="{{ true }}">
+<div style="height: 844px; display: flex; flex-direction: column">
+  <div style="padding: 20px 20px 4px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 48px">
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: 0.05em; text-transform: uppercase">Krantenwijk<span style="display: inline-block; margin-left: 8px; padding: 2px 8px 0; border-radius: 6px; background: #E8FF00; color: #0E0F11; font-style: italic">#07</span></div>
+      <button aria-label="Instellingen" style="width: 52px; height: 52px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7"></path><path d="M4 10V3"></path><path d="M12 21v-9"></path><path d="M12 8V3"></path><path d="M20 21v-5"></path><path d="M20 12V3"></path><path d="M1 14h6"></path><path d="M9 8h6"></path><path d="M17 16h6"></path></svg>
+      </button>
+    </div>
+    <div>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Looproute</div>
+      <h1 style="margin: 2px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 52px; line-height: 1; text-transform: uppercase">Mijn wijk</h1>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <div style="background: #1E2126; border-radius: 14px; padding: 10px 12px">
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1">{{segCount}}</div>
+        <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #A7A9AE; margin-top: 4px">Straatdelen</div>
+      </div>
+      <div style="background: #1E2126; border-radius: 14px; padding: 10px 12px">
+        <div style="display: flex; align-items: center; gap: 6px; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1; color: #F4F1EA">{{totalK}}</div>
+        <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #A7A9AE; margin-top: 4px">Kranten</div>
+      </div>
+      <div style="background: #1E2126; border-radius: 14px; padding: 10px 12px">
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 40px; line-height: 1">{{totalF}}</div>
+        <div style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #A7A9AE; margin-top: 4px">Folders</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 12px 20px 12px">
+    <div style="position: relative; display: flex; flex-direction: column; gap: 6px">
+      <div aria-hidden="true" style="position: absolute; left: 27px; top: 44px; bottom: 44px; width: 4px; background: repeating-linear-gradient(#E8FF00 0 10px, transparent 10px 18px); opacity: 0.6"></div>
+      <sc-for list="{{segs}}" as="g" hint-placeholder-count="6">
+        <button onClick="{{g.open}}" aria-label="{{g.aria}}" style="position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 96px; padding: 0; background: transparent; border: 0; color: #F4F1EA; text-align: left; cursor: pointer; font-family: inherit">
+          <div style="flex-shrink: 0; width: 58px; height: 58px; border-radius: 50%; background: #0E0F11; border: 3px solid #E8FF00; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 31px">{{g.idx}}</div>
+          <div style="flex-grow: 1; min-width: 0; background: #1E2126; border: 1px solid #2E3137; border-radius: 16px; padding: 12px 12px 12px 16px; display: flex; align-items: center; gap: 8px">
+            <div style="flex-grow: 1; min-width: 0">
+              <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 30px; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.street}}</div>
+              <div style="font-size: 16px; color: #A7A9AE; margin-top: 2px">{{g.sideLabel}} · {{g.range}}</div>
+              <div style="display: flex; gap: 14px; margin-top: 6px; font-weight: 700; font-size: 17px">
+                <span style="display: flex; align-items: center; gap: 5px; color: #F4F1EA"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>{{g.kranten}}</span>
+                <span style="display: flex; align-items: center; gap: 5px; color: #F4F1EA"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>{{g.folders}}</span>
+              </div>
+            </div>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#A7A9AE" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+    <button style="width: 100%; height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 34px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><path d="M4 22v-7"></path></svg>
+      Start ronde
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isStreet}}" hint-placeholder-val="{{ false }}">
+<div style="height: 844px; display: flex; flex-direction: column">
+  <div style="padding: 20px 20px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #22252A">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <button onClick="{{goRoute}}" style="height: 54px; padding: 0 18px 0 10px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 4px; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+        Route
+      </button>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 30px"><span style="color: #F4F1EA">{{segPos}}</span><span style="color: #A7A9AE"> / {{segCount}}</span></div>
+    </div>
+    <div>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Straatdeel {{segPos}}</div>
+      <h1 style="margin: 2px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 48px; line-height: 1; text-transform: uppercase">{{street}}</h1>
+      <div style="font-size: 17px; color: #A7A9AE; margin-top: 4px">{{sideLabel}} · {{range}} · {{dirLabel}}</div>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; font-weight: 600; font-size: 16px">{{nNumbers}} adressen</div>
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; color: #F4F1EA"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>{{kranten}} krant</div>
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>{{folders}} folder</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 20px 8px; font-size: 14px; font-weight: 600; color: #C9CBCF">
+    <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 16px; border-radius: 4px; background: #E8FF00"></span>Krant + folder</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 16px; border-radius: 4px; background: #0F2236; border: 2px solid #5AA9FF; box-sizing: border-box"></span>Alleen krant</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 16px; border-radius: 4px; background: #17181B; border: 2px solid #4A4D53; box-sizing: border-box"></span>Niets</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 16px; border-radius: 4px; border: 2px dashed #4A4D53; box-sizing: border-box"></span>Bestaat niet</span>
+  </div>
+
+  <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 4px 20px 16px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{tiles}}" as="t" hint-placeholder-count="8">
+        <sc-if value="{{t.isHouse}}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{t.tap}}" aria-label="{{t.aria}}" style="min-height: 104px; box-sizing: border-box; border-radius: 16px; border: 2px {{t.bstyle}} {{t.border}}; background: {{t.bg}}; color: {{t.fg}}; padding: 10px 14px 12px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; font-family: inherit; cursor: pointer">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; width: 100%">
+              <span style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 52px; line-height: 1; text-decoration: {{t.deco}}">{{t.label}}</span>
+              <span style="display: flex; gap: 4px; padding-top: 6px">
+                <sc-if value="{{t.k}}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg></sc-if>
+                <sc-if value="{{t.f}}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg></sc-if>
+              </span>
+            </div>
+            <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase; color: {{t.sub}}">{{t.stickerLabel}}</div>
+          </button>
+        </sc-if>
+        <sc-if value="{{t.isBuilding}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{t.tap}}" aria-label="{{t.aria}}" style="grid-column: span 2; box-sizing: border-box; border-radius: 16px; border: 2px solid #F4F1EA; background: #1E2126; color: #F4F1EA; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; text-align: left; font-family: inherit; cursor: pointer">
+            <div style="display: flex; align-items: center; gap: 12px; width: 100%">
+              <span style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 52px; line-height: 1">{{t.label}}</span>
+              <div style="flex-grow: 1; min-width: 0">
+                <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 26px; line-height: 1.1">{{t.name}}</div>
+                <div style="font-size: 15px; color: #A7A9AE">{{t.unitInfo}}</div>
+              </div>
+              <span style="display: flex; align-items: center; gap: 2px; height: 44px; padding: 0 6px 0 12px; border-radius: 12px; background: #F4F1EA; color: #0E0F11; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 20px; text-transform: uppercase">Inzoomen<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></span>
+            </div>
+            <div style="display: flex; gap: 4px; width: 100%">
+              <sc-for list="{{t.strip}}" as="u" hint-placeholder-count="12">
+                <span style="flex-grow: 1; height: 20px; box-sizing: border-box; border-radius: 4px; background: {{u.bg}}; border: 2px {{u.bstyle}} {{u.border}}"></span>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 16px; font-weight: 700; font-size: 16px">
+              <span style="display: flex; align-items: center; gap: 5px; color: #F4F1EA"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>{{t.kranten}} krant</span>
+              <span style="display: flex; align-items: center; gap: 5px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>{{t.folders}} folder</span>
+            </div>
+          </button>
+        </sc-if>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px 20px 22px; border-top: 1px solid #22252A">
+    <button onClick="{{goPrev}}" disabled="{{noPrev}}" style="height: 80px; box-sizing: border-box; border-radius: 16px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; opacity: {{prevOpacity}}; display: flex; align-items: center; gap: 4px; padding: 0 12px 0 6px; text-align: left; font-family: inherit; cursor: pointer">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="m15 18-6-6 6-6"></path></svg>
+      <div style="min-width: 0">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #A7A9AE">Vorige</div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 24px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{prevLabel}}</div>
+      </div>
+    </button>
+    <button onClick="{{goNext}}" disabled="{{noNext}}" style="height: 80px; box-sizing: border-box; border-radius: 16px; background: #E8FF00; border: 0; color: #0E0F11; opacity: {{nextOpacity}}; display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 0 6px 0 12px; text-align: right; font-family: inherit; cursor: pointer">
+      <div style="min-width: 0">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #3A4000">Volgende</div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 24px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{nextLabel}}</div>
+      </div>
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{isBuilding}}" hint-placeholder-val="{{ false }}">
+<div style="height: 844px; display: flex; flex-direction: column">
+  <div style="padding: 20px 20px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #22252A">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <button onClick="{{goStreet}}" style="height: 54px; padding: 0 18px 0 10px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 4px; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+        {{bStreet}}
+      </button>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 30px; color: #F4F1EA">Nr. {{bNum}}</div>
+    </div>
+    <div>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Flat · {{bStreet}} {{bNum}}</div>
+      <h1 style="margin: 2px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 48px; line-height: 1; text-transform: uppercase">{{bName}}</h1>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; font-weight: 600; font-size: 16px">{{bUnits}} app.</div>
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; color: #F4F1EA"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>{{bK}} krant</div>
+      <div style="height: 36px; padding: 0 12px; border-radius: 10px; background: #1E2126; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>{{bF}} folder</div>
+    </div>
+  </div>
+
+  <div style="padding: 12px 20px 4px; font-size: 16px; color: #C9CBCF">Tik op een brievenbus om de sticker in te stellen.</div>
+
+  <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 8px 20px 16px">
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{units}}" as="u" hint-placeholder-count="12">
+        <button onClick="{{u.tap}}" aria-label="{{u.aria}}" style="min-height: 100px; box-sizing: border-box; border-radius: 14px; border: 2px {{u.bstyle}} {{u.border}}; background: {{u.bg}}; color: {{u.fg}}; padding: 8px 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 4px; font-family: inherit; cursor: pointer">
+          <span style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 44px; line-height: 1; text-decoration: {{u.deco}}">{{u.label}}</span>
+          <span style="display: flex; gap: 2px; height: 20px">
+            <sc-if value="{{u.k}}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg></sc-if>
+            <sc-if value="{{u.f}}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg></sc-if>
+          </span>
+          <span style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 17px; line-height: 1.05; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; color: {{u.sub}}">{{u.short}}</span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding: 12px 20px 22px; border-top: 1px solid #22252A">
+    <button onClick="{{goStreet}}" style="width: 100%; height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; border: 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-style: italic; font-size: 30px; text-transform: uppercase; letter-spacing: 0.03em; cursor: pointer">Klaar · terug naar {{bStreet}}</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: rgba(5, 6, 7, 0.74); display: flex; flex-direction: column; justify-content: flex-end">
+  <div style="background: #16181C; border-top: 1px solid #2E3137; border-radius: 24px 24px 0 0; padding: 12px 20px 24px; display: flex; flex-direction: column; gap: 10px">
+    <div aria-hidden="true" style="align-self: center; width: 48px; height: 5px; border-radius: 3px; background: #4A4D53"></div>
+    <div>
+      <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-weight: 400; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Sticker op brievenbus</div>
+      <h2 style="margin: 2px 0 4px; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 42px; line-height: 1; text-transform: uppercase">{{sheetTitle}}</h2>
+    </div>
+    <sc-for list="{{options}}" as="o" hint-placeholder-count="5">
+      <button onClick="{{o.pick}}" style="height: 68px; box-sizing: border-box; border-radius: 14px; background: #1F2227; border: {{o.ring}}; color: #F4F1EA; display: flex; align-items: center; gap: 14px; padding: 0 14px; text-align: left; font-family: inherit; cursor: pointer">
+        <span style="flex-shrink: 0; width: 38px; height: 38px; box-sizing: border-box; border-radius: 9px; background: {{o.bg}}; border: 2px {{o.bstyle}} {{o.border}}"></span>
+        <div style="flex-grow: 1; min-width: 0">
+          <div style="font-weight: 700; font-size: 20px; line-height: 1.15">{{o.title}}</div>
+          <div style="font-size: 15px; color: #A7A9AE">{{o.res}}</div>
+        </div>
+        <sc-if value="{{o.current}}" hint-placeholder-val="{{ false }}"><span style="height: 30px; padding: 0 10px; border-radius: 8px; background: #E8FF00; color: #0E0F11; display: flex; align-items: center; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em">Huidig</span></sc-if>
+      </button>
+    </sc-for>
+    <button onClick="{{closeSheet}}" style="height: 58px; border-radius: 14px; background: transparent; border: 1px solid #4A4D53; color: #F4F1EA; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">Annuleren</button>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startScreen":{"editor":"enum","options":["route","street","building"],"default":"route"},"carbon":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.T = {
+      NONE:    { bg: '#E8FF00', fg: '#0E0F11', sub: '#3A4000', border: '#E8FF00', bstyle: 'solid',  k: true,  f: true,  label: 'Geen sticker', title: 'Geen sticker',    short: 'Geen',         res: 'Krant + folder' },
+      JA:      { bg: '#E8FF00', fg: '#0E0F11', sub: '#3A4000', border: '#E8FF00', bstyle: 'solid',  k: true,  f: true,  label: 'JA-sticker',   title: 'JA-sticker',      short: 'JA',           res: 'Krant + folder' },
+      NEE_JA:  { bg: '#0F2236', fg: '#EAF4FF', sub: '#9CCBFF', border: '#5AA9FF', bstyle: 'solid',  k: true,  f: false, label: 'NEE/JA',       title: 'NEE/JA-sticker',  short: 'NEE/JA',       res: 'Alleen krant' },
+      NEE_NEE: { bg: '#17181B', fg: '#9A9DA3', sub: '#9A9DA3', border: '#4A4D53', bstyle: 'solid',  k: false, f: false, label: 'NEE/NEE',      title: 'NEE/NEE-sticker', short: 'NEE/NEE',      res: 'Niets' },
+      GONE:    { bg: '#0E0F11', fg: '#7D8087', sub: '#7D8087', border: '#4A4D53', bstyle: 'dashed', k: false, f: false, label: 'Bestaat niet', title: 'Bestaat niet',    short: 'Bestaat niet', res: 'Overslaan' }
+    };
+    this.state = {
+      screen: props.startScreen || 'route',
+      seg: 0,
+      bldKey: '0-12',
+      sheetKey: null,
+      data: this.build()
+    };
+  }
+
+  build() {
+    const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const pick = (n) => { const r = (n * 7 + 3) % 10; return r <= 5 ? 'NONE' : r === 6 ? 'JA' : r <= 8 ? 'NEE_JA' : 'NEE_NEE'; };
+    const seg = (i, street, side, from, to, over, bld) => {
+      const lo = Math.min(from, to), hi = Math.max(from, to);
+      const nums = [];
+      for (let n = lo; n <= hi; n++) {
+        if (side === 'EVEN' && n % 2 !== 0) continue;
+        if (side === 'ODD' && n % 2 === 0) continue;
+        nums.push(n);
+      }
+      if (from > to) nums.reverse();
+      const addrs = nums.map((n) => {
+        if (bld && bld.num === n) {
+          return { key: i + '-' + n, num: n, name: bld.name, units: bld.units.map((st, j) => ({ key: i + '-' + n + '-' + L[j], suffix: L[j], st: st })) };
+        }
+        return { key: i + '-' + n, num: n, st: (over && over[n]) || pick(n) };
+      });
+      return { street: street, side: side, from: from, to: to, addrs: addrs };
+    };
+    return [
+      seg(0, 'Kerkstraat', 'EVEN', 2, 24,
+        { 2: 'NONE', 4: 'NEE_JA', 6: 'NONE', 8: 'NEE_NEE', 10: 'NONE', 14: 'JA', 16: 'NONE', 18: 'NEE_JA', 20: 'GONE', 22: 'NONE', 24: 'NEE_NEE' },
+        { num: 12, name: 'Flat De Linde', units: ['NONE', 'NONE', 'NEE_JA', 'NONE', 'NEE_NEE', 'JA', 'NONE', 'NEE_JA', 'NONE', 'NONE', 'NEE_NEE', 'GONE'] }),
+      seg(1, 'Kerkstraat', 'ODD', 23, 1),
+      seg(2, 'Molenweg', 'ALL', 1, 10, { 7: 'GONE' }),
+      seg(3, 'Lindelaan', 'EVEN', 2, 16),
+      seg(4, 'Lindelaan', 'ODD', 15, 1),
+      seg(5, 'Beatrixstraat', 'ALL', 1, 14)
+    ];
+  }
+
+  counts(list) {
+    let k = 0, f = 0, n = 0;
+    list.forEach((a) => {
+      (a.units ? a.units : [a]).forEach((x) => {
+        if (x.st !== 'GONE') n++;
+        if (this.T[x.st].k) k++;
+        if (this.T[x.st].f) f++;
+      });
+    });
+    return { k: k, f: f, n: n };
+  }
+
+  find(key) {
+    const data = this.state.data;
+    for (let i = 0; i < data.length; i++) {
+      for (const a of data[i].addrs) {
+        if (a.key === key) return { item: a, seg: data[i], segIdx: i, addr: a };
+        if (a.units) for (const u of a.units) if (u.key === key) return { item: u, seg: data[i], segIdx: i, addr: a, unit: u };
+      }
+    }
+    return null;
+  }
+
+  setSticker(key, st) {
+    const data = JSON.parse(JSON.stringify(this.state.data));
+    data.forEach((g) => g.addrs.forEach((a) => {
+      if (a.key === key) a.st = st;
+      if (a.units) a.units.forEach((u) => { if (u.key === key) u.st = st; });
+    }));
+    this.setState({ data: data, sheetKey: null });
+  }
+
+  sideLabel(s) { return s === 'EVEN' ? 'Even kant' : s === 'ODD' ? 'Oneven kant' : 'Beide kanten'; }
+  sideShort(s) { return s === 'EVEN' ? 'even' : s === 'ODD' ? 'oneven' : 'alle'; }
+
+  tone(x, label) {
+    const t = this.T[x.st];
+    return {
+      label: label, bg: t.bg, fg: t.fg, sub: t.sub, border: t.border, bstyle: t.bstyle,
+      deco: x.st === 'GONE' ? 'line-through' : 'none', k: t.k, f: t.f,
+      stickerLabel: t.label, short: t.short,
+      aria: label + ': ' + t.label + ', ' + t.res,
+      tap: () => this.setState({ sheetKey: x.key })
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const data = s.data;
+    const segCount = data.length;
+
+    let totalK = 0, totalF = 0;
+    const segs = data.map((g, i) => {
+      const c = this.counts(g.addrs);
+      totalK += c.k; totalF += c.f;
+      return {
+        idx: String(i + 1), street: g.street, sideLabel: this.sideLabel(g.side),
+        range: g.from + ' → ' + g.to, kranten: c.k, folders: c.f,
+        aria: 'Straatdeel ' + (i + 1) + ': ' + g.street + ', ' + this.sideLabel(g.side) + ', ' + c.k + ' kranten, ' + c.f + ' folders',
+        open: () => this.setState({ screen: 'street', seg: i })
+      };
+    });
+
+    const i = Math.min(s.seg, segCount - 1);
+    const g = data[i];
+    const gc = this.counts(g.addrs);
+    const tiles = g.addrs.map((a) => {
+      if (a.units) {
+        const bc = this.counts([a]);
+        return {
+          isHouse: false, isBuilding: true, label: String(a.num), name: a.name,
+          unitInfo: a.units.length + ' appartementen · ' + a.num + 'A–' + a.num + a.units[a.units.length - 1].suffix,
+          strip: a.units.map((u) => this.tone(u, a.num + u.suffix)),
+          kranten: bc.k, folders: bc.f,
+          aria: g.street + ' ' + a.num + ', ' + a.name + ', inzoomen',
+          tap: () => this.setState({ screen: 'building', bldKey: a.key })
+        };
+      }
+      return Object.assign({ isHouse: true, isBuilding: false }, this.tone(a, String(a.num)));
+    });
+
+    const hasPrev = i > 0, hasNext = i < segCount - 1;
+
+    const b = this.find(s.bldKey);
+    const bAddr = b ? b.addr : { num: '', name: '', units: [] };
+    const bc = this.counts([bAddr]);
+    const units = (bAddr.units || []).map((u) => this.tone(u, u.suffix));
+
+    const found = s.sheetKey ? this.find(s.sheetKey) : null;
+    const options = ['NONE', 'JA', 'NEE_JA', 'NEE_NEE', 'GONE'].map((v) => {
+      const t = this.T[v];
+      const current = !!found && found.item.st === v;
+      return {
+        title: t.title, res: t.res, bg: t.bg, border: t.border, bstyle: t.bstyle, current: current,
+        ring: current ? '3px solid #E8FF00' : '1px solid #2E3137',
+        pick: () => this.setSticker(s.sheetKey, v)
+      };
+    });
+
+    const CARBON = 'linear-gradient(27deg, #121314 5px, transparent 5px), linear-gradient(207deg, #121314 5px, transparent 5px), linear-gradient(27deg, #1D1E20 5px, transparent 5px), linear-gradient(207deg, #1D1E20 5px, transparent 5px), linear-gradient(90deg, #161719 10px, transparent 10px), linear-gradient(#18191B 25%, #141517 25%, #141517 50%, transparent 50%, transparent 75%, #202123 75%, #202123)';
+
+    return {
+      carbonImg: (this.props.carbon ?? true) ? CARBON : 'none',
+      isRoute: s.screen === 'route',
+      isStreet: s.screen === 'street',
+      isBuilding: s.screen === 'building',
+      segCount: segCount, totalK: totalK, totalF: totalF, segs: segs,
+
+      segPos: String(i + 1), street: g.street, sideLabel: this.sideLabel(g.side),
+      range: g.from + ' → ' + g.to, dirLabel: g.from > g.to ? 'aflopend' : 'oplopend',
+      nNumbers: gc.n, kranten: gc.k, folders: gc.f, tiles: tiles,
+      goRoute: () => this.setState({ screen: 'route' }),
+      goPrev: () => { if (hasPrev) this.setState({ seg: i - 1 }); },
+      goNext: () => { if (hasNext) this.setState({ seg: i + 1 }); },
+      noPrev: !hasPrev, noNext: !hasNext,
+      prevOpacity: hasPrev ? 1 : 0.4, nextOpacity: hasNext ? 1 : 0.4,
+      prevLabel: hasPrev ? data[i - 1].street + ' ' + this.sideShort(data[i - 1].side) : 'Begin route',
+      nextLabel: hasNext ? data[i + 1].street + ' ' + this.sideShort(data[i + 1].side) : 'Einde route',
+
+      bStreet: b ? b.seg.street : '', bNum: String(bAddr.num), bName: bAddr.name,
+      bUnits: bc.n, bK: bc.k, bF: bc.f, units: units,
+      goStreet: () => this.setState({ screen: 'street', seg: b ? b.segIdx : 0 }),
+
+      sheetOpen: !!found,
+      sheetTitle: found ? found.seg.street + ' ' + found.addr.num + (found.unit ? found.unit.suffix : '') : '',
+      options: options,
+      closeSheet: () => this.setState({ sheetKey: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

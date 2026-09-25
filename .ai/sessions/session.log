@@ -1,0 +1,35 @@
+# Session Log
+
+This file tracks session starts and ends for continuity.
+Format maintained by session-management skill.
+
+---
+Session Start: 2025-12-03 17:45
+Branch: main
+Focus: Initial boilerplate creation
+Note: Creating claude-code-boilerplate project structure
+---
+Session Start: 2025-12-03
+Focus: Adding session greeting feature
+Note: Implementing contextual greeting on session start
+
+Session End: 2025-12-03
+Summary: Major boilerplate evolution - session greeting, sync/migrate/customize skills, skill audit system, published to songbirddigital
+Next: Build TDD fixtures for guardian-agents (high priority), test sync between projects
+---
+Session End: 2025-12-03
+Summary: Improved hooks (block sensitive files, auto-format) and session management (start/end directives, prettier offer, end session tip)
+Next: Build TDD fixtures for guardian-agents (from previous backlog)
+---
+Session End: 2025-12-03
+Summary: Removed useless logging hooks, made session-management instruction more prominent in CLAUDE.md
+Next: Test if first-line placement improves skill invocation compliance
+---
+Session End: 2025-12-03
+Summary: Added trust escalation benchmarks, condensed CLAUDE.md, created TDD fixtures for 3 skills (18 scenarios total), fixed git remote to songbirddigital
+Next: GREEN phase - test skills against fixtures, iterate until passing
+---
+Session End: 2025-12-03
+Summary: Completed TDD cycle (GREEN+REFACTOR). Fixed git compatibility, added source repo detection, documented 4 edge cases in KNOWN-LIMITATIONS.md
+Next: Use in real project, monitor docs guardian accuracy, weekly annealing
+---

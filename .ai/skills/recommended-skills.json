@@ -1,0 +1,172 @@
+{
+  "description": "Recommended external skills for the boilerplate. Self-improving: periodically checked for updates.",
+  "last_audit": null,
+  "audit_frequency_days": 7,
+
+  "sources": {
+    "superpowers": {
+      "repo": "obra/superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "type": "plugin",
+      "install": "Plugins → Add → superpowers@superpowers-marketplace",
+      "description": "Core skills library - TDD, debugging, planning, collaboration",
+      "stars": "1000+",
+      "last_checked": null
+    },
+    "awesome-claude-skills": {
+      "repo": "travisvn/awesome-claude-skills",
+      "url": "https://github.com/travisvn/awesome-claude-skills",
+      "type": "curated-list",
+      "description": "Curated list of Claude skills, resources, tools",
+      "stars": "2500+",
+      "last_checked": null
+    },
+    "awesome-claude-code": {
+      "repo": "hesreallyhim/awesome-claude-code",
+      "url": "https://github.com/hesreallyhim/awesome-claude-code",
+      "type": "curated-list",
+      "description": "Commands, CLAUDE.md files, CLI tools, workflows",
+      "stars": "17500+",
+      "last_checked": null
+    },
+    "tdd-guard": {
+      "repo": "nizos/tdd-guard",
+      "url": "https://github.com/nizos/tdd-guard",
+      "type": "tool",
+      "description": "Automated TDD enforcement for Claude Code",
+      "last_checked": null
+    }
+  },
+
+  "recommended": [
+    {
+      "name": "superpowers:writing-skills",
+      "source": "superpowers",
+      "category": "skill-building",
+      "priority": "essential",
+      "description": "TDD approach to skill creation - test with subagents before deployment",
+      "why": "Ensures skills work under pressure and resist rationalization",
+      "alternatives_considered": ["manual testing", "none"],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:testing-skills-with-subagents",
+      "source": "superpowers",
+      "category": "skill-building",
+      "priority": "essential",
+      "description": "RED-GREEN-REFACTOR for process documentation",
+      "why": "Validates skills actually change behavior before deployment",
+      "alternatives_considered": [],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:test-driven-development",
+      "source": "superpowers",
+      "category": "development",
+      "priority": "essential",
+      "description": "Write test first, watch fail, write code, watch pass",
+      "why": "Ensures tests verify behavior by requiring failure first",
+      "alternatives_considered": ["tdd-guard"],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:systematic-debugging",
+      "source": "superpowers",
+      "category": "development",
+      "priority": "essential",
+      "description": "Four-phase debugging: root cause, patterns, hypothesis, implementation",
+      "why": "Prevents guessing - requires understanding before fixing",
+      "alternatives_considered": [],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:brainstorming",
+      "source": "superpowers",
+      "category": "planning",
+      "priority": "recommended",
+      "description": "Refine ideas through questioning before implementation",
+      "why": "Prevents jumping to code before design is solid",
+      "alternatives_considered": [],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:verification-before-completion",
+      "source": "superpowers",
+      "category": "quality",
+      "priority": "essential",
+      "description": "Run verification and confirm output before claiming success",
+      "why": "Evidence before assertions - prevents false completion claims",
+      "alternatives_considered": [],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:requesting-code-review",
+      "source": "superpowers",
+      "category": "quality",
+      "priority": "recommended",
+      "description": "Dispatch code reviewer after completing major features",
+      "why": "Catches issues before merge",
+      "alternatives_considered": [],
+      "last_validated": null
+    },
+    {
+      "name": "superpowers:root-cause-tracing",
+      "source": "superpowers",
+      "category": "debugging",
+      "priority": "recommended",
+      "description": "Trace bugs backward through call stack to source",
+      "why": "Find actual cause, not symptoms",
+      "alternatives_considered": [],
+      "last_validated": null
+    }
+  ],
+
+  "boilerplate_skills": [
+    {
+      "name": "guardian-agents",
+      "tdd_status": "needs_fixtures",
+      "priority": "high",
+      "notes": "Core orchestration - needs test scenarios for guardian dispatch"
+    },
+    {
+      "name": "session-management",
+      "tdd_status": "needs_fixtures",
+      "priority": "medium",
+      "notes": "Greeting scenarios, edge cases for missing context"
+    },
+    {
+      "name": "weekly-annealing",
+      "tdd_status": "needs_fixtures",
+      "priority": "medium",
+      "notes": "Feedback aggregation scenarios"
+    },
+    {
+      "name": "boilerplate-sync",
+      "tdd_status": "needs_fixtures",
+      "priority": "high",
+      "notes": "Merge conflict scenarios, upstream candidate validation"
+    },
+    {
+      "name": "boilerplate-migrate",
+      "tdd_status": "needs_fixtures",
+      "priority": "medium",
+      "notes": "Various project structures, conflict resolution"
+    },
+    {
+      "name": "boilerplate-customize",
+      "tdd_status": "needs_fixtures",
+      "priority": "low",
+      "notes": "Customization scenarios"
+    },
+    {
+      "name": "guardian-builder",
+      "tdd_status": "describes_tdd",
+      "priority": "low",
+      "notes": "Already describes TDD process, meta-validate?"
+    }
+  ],
+
+  "discovery_queue": [],
+
+  "rejected": []
+}

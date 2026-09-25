@@ -1,0 +1,287 @@
+{
+  "project": "Krantenwijk",
+  "version": "0.1.0",
+  "last_updated": "2026-09-25",
+  "metadata": {
+    "created": "2026-09-25",
+    "initialized_by": "user",
+    "description": "Android app giving one newspaper deliverer a street-by-street overview of which addresses receive the newspaper and/or leaflets, based on mailbox stickers.",
+    "source_of_truth": "docs/specs/krantenwijk-project-plan.md",
+    "wireframes": "reference/prototype/ (approved 2026-09-25)",
+    "tech_stack": [
+      "Kotlin",
+      "Jetpack Compose + Material 3",
+      "MVVM + domain layer (single module)",
+      "Room",
+      "Jetpack DataStore",
+      "Hilt",
+      "Coroutines + Flow",
+      "kotlinx.serialization",
+      "Storage Access Framework",
+      "JUnit 5, Turbine, Compose UI tests",
+      "Gradle Kotlin DSL + version catalog",
+      "GitHub Actions"
+    ],
+    "roles": {
+      "builder": "Claude",
+      "tester": "user"
+    },
+    "repository": null
+  },
+  "milestones": [
+    { "id": "M0", "title": "Preparation (plan Phase 0)", "status": "in_progress", "notes": "Wireframes approved. Remaining: walk the real route once to note stickers and walking order (user)." },
+    { "id": "M1", "title": "Foundation complete (end of Phase 1)", "status": "pending", "features": ["FND-001", "FND-002", "FND-003", "FND-004"] },
+    { "id": "M2", "title": "MVP: a round can be walked (end of Phase 3)", "status": "pending", "features": ["ADR-A", "ADR-B", "ADR-C", "STK-A", "BLD-A", "BLD-B", "ONB-A", "RND-A", "RND-B", "RND-C", "RND-D"] },
+    { "id": "M2b", "title": "Backup & release pipeline (Phase 4)", "status": "pending", "features": ["DATA-A", "REL-A"] },
+    { "id": "M3", "title": "Validated in the field (Phase 5)", "status": "pending", "notes": "Two consecutive weeks without a wrong delivery caused by the app." },
+    { "id": "M4", "title": "v1.0 release (Phase 7)", "status": "pending", "notes": "Dutch translation review, final signed APK, limited-distribution developer verification registered before the 2027 global rollout." }
+  ],
+  "features": [
+    {
+      "id": "FND-001",
+      "title": "Project and build setup",
+      "description": "Android project with Gradle Kotlin DSL, version catalog, Hilt, package structure (data, domain, ui.editor, ui.round, ui.settings), GitHub Actions CI (lint, unit tests, signed release APK artefact), release signing config.",
+      "priority": "critical",
+      "plan_refs": ["§8", "§11.1", "NFR-01", "NFR-07"],
+      "dependencies": [],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Project builds with ./gradlew assembleDebug",
+        "minSdk 26, targetSdk latest stable (researched at setup time)",
+        "No INTERNET permission in the merged manifest",
+        "CI runs lint + unit tests and produces a signed release APK",
+        "Release keystore created and user reminded to back it up in two places"
+      ]
+    },
+    {
+      "id": "FND-002",
+      "title": "App shell: theme, navigation, localisation",
+      "description": "Material 3 theme (light/dark/system) meeting outdoor contrast targets, navigation skeleton for all screens in §6, EN default + NL string resources from day one, locales_config for per-app language.",
+      "priority": "critical",
+      "plan_refs": ["SET-01", "LANG-01", "LANG-02", "NFR-03", "NFR-08", "§8.1"],
+      "dependencies": ["FND-001"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Theme follows system and can be forced light/dark",
+        "App launches in Dutch on a Dutch device, English on an unsupported locale (e.g. German)",
+        "App appears in Android 13+ per-app language settings",
+        "Lint fails on hard-coded strings and missing translations"
+      ]
+    },
+    {
+      "id": "FND-003",
+      "title": "Domain rules with full unit tests",
+      "description": "Pure Kotlin domain functions: deliveryFor(sticker), deliveryFor(address, round), generateRange, generateUnits, natural suffix sort, address sort with direction, buildingSummary. No Android dependencies.",
+      "priority": "critical",
+      "plan_refs": ["§3", "§5", "§10"],
+      "dependencies": ["FND-001"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Every row of the sticker table (§3.3) covered by tests",
+        "Non-existing address always yields nothing; round without leaflets yields no leaflets",
+        "Range cases: 2-24 even, 1-24 even starts at 2, from == to, single-sided",
+        "Sorting: 12, 12A, 12B, 13; natural suffix sort 1, 2, 10; descending direction",
+        "Units: A-L = 12, A-Z = 26, 1-20 numeric",
+        "domain package has no android.* imports"
+      ]
+    },
+    {
+      "id": "FND-004",
+      "title": "Persistence: Room schema v1 and settings",
+      "description": "Room entities Route, Segment, Building, Address, Round, RoundItem (§5) with DAOs and repositories exposing Flow; DataStore for nickname, onboardingCompleted, theme, display options. Schema export enabled for migration tests.",
+      "priority": "critical",
+      "plan_refs": ["§5", "NFR-05"],
+      "dependencies": ["FND-003"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "In-memory Room tests for all DAOs",
+        "Schema v1 JSON exported to the repo",
+        "Writes committed immediately (no deferred batching)"
+      ]
+    },
+    {
+      "id": "ADR-A",
+      "title": "Add street section with live preview",
+      "description": "Add/edit segment screen: street name with autocomplete, side, from/to with swap, live preview of generated numbers, side-mismatch warning, validation.",
+      "priority": "high",
+      "plan_refs": ["ADR-02", "ADR-07", "ADR-11"],
+      "dependencies": ["FND-002", "FND-004"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan ADR-02, ADR-07, ADR-11"]
+    },
+    {
+      "id": "ADR-B",
+      "title": "Number check screen and address editing",
+      "description": "Post-preview number check grid and segment detail: delete numbers, add single numbers and additions, mark/unmark 'does not exist', turn a number into a building (hand-off to BLD-A).",
+      "priority": "high",
+      "plan_refs": ["ADR-12", "ADR-03", "ADR-04"],
+      "dependencies": ["ADR-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan ADR-12, ADR-03, ADR-04"]
+    },
+    {
+      "id": "ADR-C",
+      "title": "Route editor: order and direction",
+      "description": "Route editor listing segments in walking order with drag-and-drop reordering and ascending/descending toggle per segment.",
+      "priority": "high",
+      "plan_refs": ["ADR-05", "ADR-06"],
+      "dependencies": ["ADR-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan ADR-05, ADR-06"]
+    },
+    {
+      "id": "STK-A",
+      "title": "Stickers per address with bulk edit",
+      "description": "Sticker selector per address (none, JA, NEE/JA, NEE/NEE), multi-select bulk sticker change, delivery indicators (icon + colour) next to each address.",
+      "priority": "high",
+      "plan_refs": ["STK-01", "STK-02", "STK-03", "NFR-04"],
+      "dependencies": ["ADR-B"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan STK-01..03"]
+    },
+    {
+      "id": "BLD-A",
+      "title": "Create apartment building, collapsed row",
+      "description": "Create a building from a house number plus suffix range (letters or numbers with separator), with preview; show it as one row with apartment count and sticker summary.",
+      "priority": "high",
+      "plan_refs": ["BLD-01", "BLD-02", "§3.7"],
+      "dependencies": ["ADR-B"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan BLD-01, BLD-02"]
+    },
+    {
+      "id": "BLD-B",
+      "title": "Building grid (zoom in) and bulk edit",
+      "description": "Building detail grid of apartment tiles (suffix + sticker), quick sticker picker, multi-select/select-all bulk edit, add/delete apartments.",
+      "priority": "high",
+      "plan_refs": ["BLD-03", "BLD-04", "BLD-05"],
+      "dependencies": ["BLD-A", "STK-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan BLD-03..05; 26 tiles fit one portrait phone screen"]
+    },
+    {
+      "id": "ONB-A",
+      "title": "First-launch wizard and home screen",
+      "description": "Four-step guided setup (nickname, route + town, street sections loop, walking order) reusing the section/number-check screens, then home screen with route name, sticker overview entry and Start round button.",
+      "priority": "high",
+      "plan_refs": ["ADR-01", "§6"],
+      "dependencies": ["ADR-A", "ADR-B", "ADR-C", "BLD-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "See plan ADR-01",
+        "Phase 2 exit: the real route, including buildings, can be entered in under 45 minutes (user test)"
+      ]
+    },
+    {
+      "id": "RND-A",
+      "title": "Round start and snapshot",
+      "description": "Round start screen with newspaper/leaflets toggles and take-along counts; starting a round snapshots deliveries into RoundItems.",
+      "priority": "high",
+      "plan_refs": ["RND-01", "RND-02", "§5 RoundItem"],
+      "dependencies": ["STK-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan RND-01, RND-02"]
+    },
+    {
+      "id": "RND-B",
+      "title": "Round list in walking order",
+      "description": "Addresses grouped by segment in walking order with four distinct delivery states (icon + colour), skipped houses dimmed with toggle, non-existing hidden by default, screen kept on.",
+      "priority": "high",
+      "plan_refs": ["RND-03", "RND-04", "RND-08", "NFR-02", "NFR-03", "NFR-04"],
+      "dependencies": ["RND-A"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan RND-03, RND-04, RND-08; smooth scroll with 1,000 addresses"]
+    },
+    {
+      "id": "RND-C",
+      "title": "Check-off, progress and persistence",
+      "description": "Tap to mark done with undo, progress indicator, auto-focus next delivery, round state survives force-close and restart.",
+      "priority": "high",
+      "plan_refs": ["RND-05", "RND-06", "RND-07", "RND-09", "NFR-05"],
+      "dependencies": ["RND-B"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan RND-05..07, RND-09"]
+    },
+    {
+      "id": "RND-D",
+      "title": "Buildings in round mode",
+      "description": "Building row shows per-round counts and expands inline to apartments; per-apartment check-off and 'Building done' with undo; progress counts apartments.",
+      "priority": "high",
+      "plan_refs": ["BLD-06", "BLD-07"],
+      "dependencies": ["RND-C", "BLD-B"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["See plan BLD-06, BLD-07; Phase 3 exit: a full round can be walked and survives force-close"]
+    },
+    {
+      "id": "DATA-A",
+      "title": "Backup export and restore",
+      "description": "Full route export to JSON via Storage Access Framework and import/restore; versioned backup format with kotlinx.serialization.",
+      "priority": "high",
+      "plan_refs": ["DATA-01", "DATA-02"],
+      "dependencies": ["FND-004"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["Export -> uninstall -> reinstall -> import yields an identical route"]
+    },
+    {
+      "id": "REL-A",
+      "title": "Settings screen and release pipeline",
+      "description": "Settings screen (theme, show/hide non-existing and skipped, keep screen on, backup/restore entry, version + build number), local crash log with export, signed release APK and install/update instructions.",
+      "priority": "high",
+      "plan_refs": ["SET-02", "§6 Settings", "§11.1"],
+      "dependencies": ["FND-001", "FND-002"],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": ["Release APK installs and updates over itself on the user's phone without data loss"]
+    },
+    { "id": "ADR-08", "title": "Duplicate address detection", "priority": "medium", "plan_refs": ["ADR-08"], "dependencies": ["ADR-B"], "phase": "inception", "status": "pending" },
+    { "id": "ADR-09", "title": "Per-address exceptions", "priority": "medium", "plan_refs": ["ADR-09"], "dependencies": ["STK-A", "RND-B"], "phase": "inception", "status": "pending" },
+    { "id": "ADR-10", "title": "Notes per address", "priority": "medium", "plan_refs": ["ADR-10"], "dependencies": ["ADR-B", "RND-B"], "phase": "inception", "status": "pending" },
+    { "id": "BLD-08", "title": "Optional building name", "priority": "medium", "plan_refs": ["BLD-08"], "dependencies": ["BLD-A"], "phase": "inception", "status": "pending" },
+    { "id": "BLD-09", "title": "Group / dissolve buildings", "priority": "medium", "plan_refs": ["BLD-09"], "dependencies": ["BLD-B"], "phase": "inception", "status": "pending" },
+    { "id": "STK-04", "title": "Sticker overview per route", "priority": "medium", "plan_refs": ["STK-04"], "dependencies": ["STK-A", "ONB-A"], "phase": "inception", "status": "pending" },
+    { "id": "RND-10", "title": "Compact 'next up' view", "priority": "medium", "plan_refs": ["RND-10"], "dependencies": ["RND-C"], "phase": "inception", "status": "pending" },
+    { "id": "RND-11", "title": "End-of-round summary", "priority": "medium", "plan_refs": ["RND-11"], "dependencies": ["RND-C"], "phase": "inception", "status": "pending" },
+    { "id": "DATA-03", "title": "Backup reminder", "priority": "medium", "plan_refs": ["DATA-03"], "dependencies": ["DATA-A"], "phase": "inception", "status": "pending" },
+    { "id": "BLD-10", "title": "Mailbox layout grid (columns x rows)", "priority": "low", "plan_refs": ["BLD-10"], "dependencies": ["BLD-B"], "phase": "inception", "status": "pending" },
+    { "id": "RND-12", "title": "Round history (last 30)", "priority": "low", "plan_refs": ["RND-12"], "dependencies": ["RND-C"], "phase": "inception", "status": "pending" },
+    { "id": "DATA-04", "title": "CSV import", "priority": "low", "plan_refs": ["DATA-04"], "dependencies": ["FND-004"], "phase": "inception", "status": "pending" }
+  ],
+  "current": {
+    "feature": null,
+    "next_recommended": "FND-001"
+  },
+  "open_questions": [
+    "No target date for the MVP (M2) set yet."
+  ],
+  "phases_legend": {
+    "inception": "Feature has been identified but not yet planned",
+    "planning": "Requirements and approach being defined",
+    "implementation": "Active development",
+    "testing": "Code complete, being tested",
+    "review": "Tests passing, awaiting code review",
+    "merged": "Approved and merged to main branch"
+  },
+  "status_legend": {
+    "pending": "Not started",
+    "in_progress": "Currently being worked on",
+    "blocked": "Cannot proceed without external input",
+    "complete": "Phase finished successfully",
+    "skipped": "Phase intentionally skipped"
+  }
+}
