@@ -6,6 +6,8 @@ addresses get the newspaper and/or leaflets, based on mailbox stickers. Offline,
 ## Quick Reference
 - Stack: Kotlin · Jetpack Compose + Material 3 · MVVM + domain layer · Room · DataStore · Hilt · Coroutines/Flow
 - Commands: `./gradlew assembleDebug` · `./gradlew test` · `./gradlew lint` · `./gradlew assembleRelease`
+- Toolchain (local, no Android Studio): prefix Gradle with `export JAVA_HOME=$(ls -d ~/Library/Java/JavaVirtualMachines/jdk-21*/Contents/Home)`; SDK at `~/Library/Android/sdk` (`local.properties`). Intel Mac, 2 cores, so builds are slow and the first run takes ~5 min
+- Test builds: the user installs APKs by file transfer (no adb). Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
 - Branch: `git branch --show-current`
 - Memory: `.claude/memory/features.json`
 - Spec (source of truth): `docs/specs/krantenwijk-project-plan.md`. Work one feature (plan requirement IDs in `plan_refs`) at a time

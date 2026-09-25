@@ -180,6 +180,43 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 ---
 
+### DEC-010: Toolchain and library versions for v1 (Room 2.8, Navigation 3)
+**Date:** 2026-09-25
+**Status:** Accepted
+**Deciders:** Claude (researched), user (approved FND-001)
+**Related:** FND-001, FND-002, FND-004
+
+**Context:** The plan names libraries but not versions or a navigation library. Versions were checked against Google Maven / Maven Central on 2026-09-25.
+
+**Decision:**
+- AGP 9.4.1 using its built-in Kotlin (no `kotlin-android` plugin applied), with Kotlin pinned to 2.4.20 at the root. KSP 2.3.12, Gradle 9.8.0, JDK 21 to run the build, Java 17 bytecode.
+- compileSdk/targetSdk 37 (Android 17), minSdk 26.
+- **Room 2.8.5** rather than Room 3.0, which is still alpha and uses new `androidx.room3` coordinates.
+- **Navigation 3 (1.2.0)**, stable since 2026-09-23 and Google's recommended Compose navigation, rather than Navigation Compose 2.x.
+- Compose BOM 2026.09.00, Hilt/Dagger 2.60.1, androidx.hilt 1.4.0.
+- JUnit Jupiter 6.1.3 on the JUnit Platform (API-compatible with the plan's "JUnit 5") via `useJUnitPlatform()`. The mannodermaus plugin will only be added if instrumented JUnit tests are needed.
+- No AppCompat: the per-app language comes from `generateLocaleConfig` (Android 13+). Older devices follow the device language, which LANG-01/02 allow.
+
+**Consequences:**
+- Room 2.x is in maintenance mode, so migrate to Room 3 after it's stable (post-v1). Schemas are exported, so a migration can be verified.
+- targetSdk 37 ignores orientation locks on large screens (≥600dp). Phones in portrait (NFR-07) are unaffected.
+
+---
+
+### DEC-011: Disable Android cloud backup and device transfer
+**Date:** 2026-09-25
+**Status:** Accepted
+**Deciders:** Claude (derived from NFR-06), user (approved FND-001)
+**Related:** FND-001, DATA-A
+
+**Context:** Android auto-backup copies app data to the user's Google Drive by default. NFR-06 requires that data leaves the device only through a user-initiated export.
+
+**Decision:** Set `allowBackup="false"` and add `data_extraction_rules.xml` excluding every domain from cloud backup and device transfer.
+
+**Consequences:** Replacing a phone relies entirely on the JSON export (DATA-A), which makes DATA-A and the backup reminder (DATA-03) more important.
+
+---
+
 ## Superseded/Deprecated Decisions
 
 *Decisions that have been replaced or are no longer relevant go here for historical reference.*

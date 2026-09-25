@@ -1,2 +1,16 @@
 .claude/settings.local.json
 .DS_Store
+
+# Gradle / Android
+.gradle/
+.kotlin/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+
+# Release signing: never commit (DEC-008)
+keystore.properties
+*.jks
+*.keystore

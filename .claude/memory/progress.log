@@ -94,5 +94,5 @@ requirement IDs into 1-3 day features via plan_refs. Wireframes are the
 .dc.html files in reference/prototype/ (canvas.json lists board titles in Dutch).
 Guardians/settings.json are tuned for TS; add Kotlin patterns when first review runs.
 
-Commit: none yet (awaiting user approval)
+Commit: d2437fc "Set up Krantenwijk project: boilerplate, domain memory, spec"
 ================================================================================
