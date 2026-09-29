@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="skeleton_greeting">Je wijk verschijnt hier.</string>
+    <string name="nav_back">Terug</string>
+    <string name="placeholder_built_in">Dit scherm wordt gebouwd in %1$s.</string>
+
+    <string name="home_no_route">Je wijk verschijnt hier.</string>
+    <string name="home_start_round">Ronde starten</string>
+    <string name="home_edit_route">Wijk bewerken</string>
+
+    <string name="onboarding_title">Welkom</string>
+    <string name="route_editor_title">Wijk</string>
+    <string name="segment_title">Straatdeel</string>
+    <string name="building_title">Flat</string>
+    <string name="address_title">Adres</string>
+    <string name="round_start_title">Ronde starten</string>
+    <string name="round_title">Ronde</string>
+
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_theme">Thema</string>
+    <string name="settings_theme_system">Volgens systeem</string>
+    <string name="settings_theme_light">Licht</string>
+    <string name="settings_theme_dark">Donker</string>
+    <string name="settings_version">Versie %1$s (%2$d)</string>
 </resources>

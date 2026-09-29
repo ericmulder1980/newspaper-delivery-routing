@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- No permissions on purpose: fully offline (NFR-01, DEC-003). -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Backups are off: route data may only leave the device via the user's own export (NFR-06). -->
     <application
@@ -14,10 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Krantenwijk">
 
+        <!-- Portrait on phones (NFR-07). Android 16+ ignores this only on large screens (DEC-010). -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity,DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Krantenwijk</string>
-    <string name="skeleton_greeting">Your route will appear here.</string>
+
+    <string name="nav_back">Back</string>
+    <string name="placeholder_built_in">This screen is built in %1$s.</string>
+
+    <string name="home_no_route">Your route will appear here.</string>
+    <string name="home_start_round">Start round</string>
+    <string name="home_edit_route">Edit route</string>
+
+    <string name="onboarding_title">Welcome</string>
+    <string name="route_editor_title">Route</string>
+    <string name="segment_title">Street section</string>
+    <string name="building_title">Apartment building</string>
+    <string name="address_title">Address</string>
+    <string name="round_start_title">Start round</string>
+    <string name="round_title">Round</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">Follow system</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_version">Version %1$s (%2$d)</string>
 </resources>

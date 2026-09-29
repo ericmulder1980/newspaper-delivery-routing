@@ -145,14 +145,29 @@
       "dependencies": [
         "FND-001"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Theme follows system and can be forced light/dark",
         "App launches in Dutch on a Dutch device, English on an unsupported locale (e.g. German)",
         "App appears in Android 13+ per-app language settings",
         "Lint fails on hard-coded strings and missing translations"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "Theme: prototype palette with contrast fixes + light theme (DEC-015); Bebas Neue/Barlow bundled with OFL licences",
+          "KrantenwijkTheme.colors delivery-state roles (both / newspaperOnly / nothing / doesNotExist)",
+          "Navigation 3: Destination keys for all §6 screens, NavDisplay with saveable-state + ViewModel decorators, explicit SavedStateConfiguration",
+          "Home (route name, Start round, Edit route, Settings) and placeholder screens naming the feature that builds them",
+          "Settings: theme System/Light/Dark (SET-01, stored in DataStore) + version info (SET-02)",
+          "Status/navigation bar icons follow the app theme; EN + NL strings",
+          "103 tests (13 app: ThemeContrastTest, DestinationsTest); lint clean apart from the deliberate sqlite pin"
+        ],
+        "remaining": [
+          "User phone test: theme switching, navigation/back, Dutch via per-app language",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "FND-003",
@@ -666,12 +681,13 @@
     }
   ],
   "current": {
-    "feature": null,
-    "next_recommended": "FND-002 (theme + Navigation 3 skeleton + settings theme choice)"
+    "feature": "FND-002",
+    "next_recommended": "Finish FND-002 (phone test), then ADR-A (add street section)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
-    "RND-10 compact 'next up' view: redefine without check-offs, or drop? (DEC-014)"
+    "RND-10 compact 'next up' view: redefine without check-offs, or drop? (DEC-014)",
+    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B"
   ],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",

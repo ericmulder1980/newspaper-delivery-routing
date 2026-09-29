@@ -297,3 +297,22 @@ Track significant decisions. Each decision is immutable once accepted — supers
 - Simpler schema and round mode. M2's exit criterion becomes "a full round can be walked with the live list".
 - RND-10 ("next up" view: current street + next 3 deliveries) depended on knowing where you are. It needs redefining (for example scroll-position based) or dropping. That's open for the user.
 - The plan (v0.4) still describes check-offs; update it at its next revision.
+
+---
+
+### DEC-015: Theme from the prototype, contrast-corrected; "dimmed" means style, not low contrast
+**Date:** 2026-09-29
+**Status:** Accepted
+**Deciders:** User (approved colour table and dimming approach)
+**Related:** FND-002, RND-B, RND-04, NFR-03, NFR-04, SET-01
+
+**Context:** The approved prototype (dark only) had four colour pairs below the 7:1 text / 3:1 edge targets of NFR-03. RND-04 asks for skipped houses to be "dimmed", which conflicts with 7:1 if that means lower contrast.
+
+**Decision:**
+- Dark theme uses the prototype colours, with these raised: secondary text on cards `#A7A9AE` → `#B1B3B8`; NEE/NEE text `#9A9DA3` → `#AEB1B6`; "does not exist" text `#7D8087` → `#AAADB3`; NEE/NEE tile edge `#4A4D53` → `#6E7178`.
+- Light theme: off-white `#F4F1EA` page, near-black text, olive `#3A4000` as the accent for text and icons. Yellow `#E8FF00` is kept for filled accents (Start round, "both" tiles) with an olive edge.
+- **Dimming by style:** houses that get nothing keep text ≥ 7:1 and are shown dimmed through an outline-only tile (no fill) and lighter weight. "Does not exist" also gets a dashed edge and strikethrough.
+- Fonts: Bebas Neue (headings) and Barlow (text), bundled with their OFL licences in `assets/licenses`.
+- Delivery-state colours are separate theme roles (`KrantenwijkTheme.colors.both`/`newspaperOnly`/`nothing`/`doesNotExist`).
+
+**Consequences:** `ThemeContrastTest` checks every text/background pair (≥ 7:1) and every tile or control edge (≥ 3:1) in both themes. It already caught one case the manual table missed ("does not exist" text on cards). Any future colour change must pass it.
