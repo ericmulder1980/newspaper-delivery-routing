@@ -26,7 +26,8 @@
       "builder": "Claude",
       "tester": "user"
     },
-    "repository": null
+    "repository": null,
+    "release_signing_cert_sha256": "80:CA:CA:3D:8C:F8:87:FA:3C:5E:5E:F6:AC:0A:EA:4A:0B:B9:B1:26:B1:6F:71:01:33:FE:EE:6B:BF:36:E5:7D"
   },
   "milestones": [
     {
@@ -117,11 +118,12 @@
           "Lint: MissingTranslation/ExtraTranslation/HardcodedText are errors (verified)",
           "Cloud backup + device transfer disabled (NFR-06)",
           "GitHub Actions CI: lint, test, release APK artefact, optional signing via secrets",
-          "Release signing from keystore.properties or env vars"
+          "Release signing from keystore.properties or env vars",
+          "First CI run green (ef2fda7, unsigned APK artefact)",
+          "Release keystore created by user (~/Keystores/krantenwijk-release.jks, alias krantenwijk); keystore.properties + GitHub secrets added; local signed release verified with apksigner"
         ],
         "remaining": [
-          "User creates release keystore and backs it up in two places",
-          "Add signing secrets to GitHub; first CI run green",
+          "Confirm next CI run produces a signed APK (secrets untested until next push)",
           "User installs debug APK on phone and confirms it launches"
         ]
       }
