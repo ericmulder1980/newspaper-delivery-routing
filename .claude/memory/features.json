@@ -61,9 +61,9 @@
         "ONB-A",
         "RND-A",
         "RND-B",
-        "RND-C",
         "RND-D"
-      ]
+      ],
+      "notes": "Exit: a full round can be walked with the live list (check-offs dropped, DEC-014)."
     },
     {
       "id": "M2b",
@@ -166,8 +166,8 @@
       "dependencies": [
         "FND-001"
       ],
-      "phase": "review",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Every row of the sticker table (§3.3) covered by tests",
         "Non-existing address always yields nothing; round without leaflets yields no leaflets",
@@ -184,14 +184,13 @@
           "DomainPurityTest enforces no android/androidx/dagger imports in domain",
           "DEC-012 revised per user: ranges low to high only; reverse walking = per-segment checkbox"
         ],
-        "remaining": [
-          "User review/approval, then commit"
-        ],
+        "remaining": [],
         "notes": [
           "'Building done' + undo tests (plan §10) belong to RND-D, since they need RoundItems",
           "generateUnits throws on invalid input; BLD-01 will add a checkUnits() for UI messages, like checkRange()"
         ]
-      }
+      },
+      "completed": "2026-09-29"
     },
     {
       "id": "FND-004",
@@ -205,12 +204,34 @@
       "dependencies": [
         "FND-003"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "In-memory Room tests for all DAOs",
         "Schema v1 JSON exported to the repo",
         "Writes committed immediately (no deferred batching)"
+      ],
+      "progress": {
+        "done": [
+          "KMP :core module (android + jvm), domain + tests moved from :app (DEC-013)",
+          "DAOs incl. @Transaction insertWithAddresses/reorder/deleteAndCompact/insertWithItems",
+          "RouteRepository + SettingsRepository interfaces (domain) with Room/DataStore implementations",
+          "Hilt DataModule in :app; placeholder screen reads the route from the DB (device smoke test)",
+          "Room 2.8.5 KMP schema v1: route, segment, building, address (round tables removed per DEC-014)",
+          "90 JVM tests passing (68 domain + 22 data: repository, durability, settings, schema)",
+          "sqlite pinned to 2.6.2 (Intel Mac host binary); :core `test` alias so `./gradlew test` runs everything"
+        ],
+        "remaining": [
+          "User uninstalls + reinstalls release APK: app opens and shows placeholder (Room + bundled SQLite + R8 on device)",
+          "Commit + push; CI green"
+        ],
+        "notes": [
+          "RoundRepository (start round from snapshot, check-off) is built in RND-A/RND-C on top of RoundDao",
+          "Building creation logic (turn number into building, units) is BLD-A; DAO support exists"
+        ]
+      },
+      "notes": [
+        "Building creation logic (turn number into building, units) is BLD-A; DAO support exists"
       ]
     },
     {
@@ -356,13 +377,12 @@
     },
     {
       "id": "RND-A",
-      "title": "Round start and snapshot",
-      "description": "Round start screen with newspaper/leaflets toggles and take-along counts; starting a round snapshots deliveries into RoundItems.",
+      "title": "Round start: choose contents, counts to take along",
+      "description": "Round start screen with newspaper/leaflets toggles; take-along counts calculated from the live address list (deliverySummary). No snapshot, nothing stored per round (DEC-014).",
       "priority": "high",
       "plan_refs": [
         "RND-01",
-        "RND-02",
-        "§5 RoundItem"
+        "RND-02"
       ],
       "dependencies": [
         "STK-A"
@@ -375,8 +395,8 @@
     },
     {
       "id": "RND-B",
-      "title": "Round list in walking order",
-      "description": "Addresses grouped by segment in walking order with four distinct delivery states (icon + colour), skipped houses dimmed with toggle, non-existing hidden by default, screen kept on.",
+      "title": "Round list in walking order (live)",
+      "description": "Live list of addresses grouped by segment in walking order with four distinct delivery states (icon + colour); skipped houses dimmed with toggle; non-existing hidden by default; screen kept on. Always reflects current route data (DEC-014).",
       "priority": "high",
       "plan_refs": [
         "RND-03",
@@ -411,28 +431,30 @@
         "RND-B"
       ],
       "phase": "inception",
-      "status": "pending",
+      "status": "skipped",
       "acceptance_criteria": [
         "See plan RND-05..07, RND-09"
+      ],
+      "notes": [
+        "Dropped by user 2026-09-29 (DEC-014): no check-offs, progress or round persistence (RND-05/06/07/09)"
       ]
     },
     {
       "id": "RND-D",
-      "title": "Buildings in round mode",
-      "description": "Building row shows per-round counts and expands inline to apartments; per-apartment check-off and 'Building done' with undo; progress counts apartments.",
+      "title": "Buildings in round mode (live counts, inline expand)",
+      "description": "Building row shows per-round counts from the live apartments and expands inline to the per-apartment list; apartments receiving nothing are dimmed. No per-apartment check-off (BLD-07 dropped, DEC-014).",
       "priority": "high",
       "plan_refs": [
-        "BLD-06",
-        "BLD-07"
+        "BLD-06"
       ],
       "dependencies": [
-        "RND-C",
+        "RND-B",
         "BLD-B"
       ],
       "phase": "inception",
       "status": "pending",
       "acceptance_criteria": [
-        "See plan BLD-06, BLD-07; Phase 3 exit: a full round can be walked and survives force-close"
+        "See plan BLD-06"
       ]
     },
     {
@@ -565,7 +587,10 @@
         "RND-C"
       ],
       "phase": "inception",
-      "status": "pending"
+      "status": "blocked",
+      "notes": [
+        "Open question (DEC-014): 'next 3 deliveries' assumed check-offs; redefine (e.g. scroll position) or drop"
+      ]
     },
     {
       "id": "RND-11",
@@ -578,7 +603,10 @@
         "RND-C"
       ],
       "phase": "inception",
-      "status": "pending"
+      "status": "skipped",
+      "notes": [
+        "Dropped 2026-09-29 (DEC-014): no check-offs, so no end-of-round summary"
+      ]
     },
     {
       "id": "DATA-03",
@@ -617,7 +645,10 @@
         "RND-C"
       ],
       "phase": "inception",
-      "status": "pending"
+      "status": "skipped",
+      "notes": [
+        "Dropped 2026-09-29 (DEC-014): rounds are not stored"
+      ]
     },
     {
       "id": "DATA-04",
@@ -634,11 +665,12 @@
     }
   ],
   "current": {
-    "feature": "FND-003",
-    "next_recommended": "Commit FND-003, then FND-004 (Room schema) or FND-002 (theme + navigation)"
+    "feature": "FND-004",
+    "next_recommended": "Finish FND-004 (device check), then FND-002 (theme + Navigation 3)"
   },
   "open_questions": [
-    "No target date for the MVP (M2) set yet."
+    "No target date for the MVP (M2) set yet.",
+    "RND-10 compact 'next up' view: redefine without check-offs, or drop? (DEC-014)"
   ],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",

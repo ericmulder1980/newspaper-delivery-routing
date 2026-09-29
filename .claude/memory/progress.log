@@ -129,3 +129,44 @@ CONTEXT FOR NEXT SESSION:
 User's phone is set to English, so the English placeholder was correct (no bug).
 Release cert SHA-256 is in features.json metadata.
 ================================================================================
+
+================================================================================
+[2026-09-29] SESSION END
+Feature: FND-003 — Domain rules (COMPLETE, cbd27fc) · FND-004 — Persistence (testing)
+
+COMPLETED:
+- FND-003 committed and pushed (cbd27fc).
+- FND-004: new KMP :core module (DEC-013, user's choice over Robolectric/CI emulator);
+  domain moved from :app; Room 2.8.5 KMP schema v1 (6 tables); DAOs; RouteRepository
+  and SettingsRepository (domain interfaces + Room/DataStore impls); Hilt DataModule;
+  placeholder screen now reads the route from the DB as an on-device smoke test.
+
+TESTS: 90/90 passing on the JVM (68 domain + 22 data); lint clean; signed release builds.
+Mutation checks: position-compaction bug caught by a test; a schema change without a
+version bump is refused by the build (copyRoomSchemas).
+
+DECISIONS: DEC-013 — KMP :core module; sqlite pinned 2.6.2 because 2.7+ has no Intel-Mac
+host binary. DEC-014 (revised with user) — no round tables, no check-offs; round mode is a live
+list. Supersedes DEC-005. Dropped RND-05/06/07/09, BLD-07, RND-11, RND-12.
+
+FILES CHANGED:
++ core/ (build.gradle.kts, schemas/, commonMain domain+data, androidMain, jvmTest)
++ app/src/main/java/nl/ericmulder/krantenwijk/di/DataModule.kt
+M app/build.gradle.kts, MainActivity.kt, proguard-rules.pro, settings.gradle.kts,
+  build.gradle.kts, gradle/libs.versions.toml, .github/workflows/ci.yml, CLAUDE.md,
+  docs/ARCHITECTURE.md
+R domain code/tests app → core
+
+BLOCKERS: none
+
+NEXT SESSION:
+- User: uninstall, then install release APK; confirm it opens (proves Room + SQLite + R8).
+- Open question: RND-10 'next up' view without check-offs, redefine or drop?
+- Commit + push FND-004 after approval; confirm CI runs :core:jvmTest.
+- Then FND-002: Material 3 theme (light/dark/system, 7:1 contrast), Navigation 3 skeleton.
+
+CONTEXT FOR NEXT SESSION:
+`:core` has a `test` alias for `jvmTest`, so plain `./gradlew test` runs all tests.
+If a Room entity changes, run a full build (not just jvmTest) or copyRoomSchemas may
+complain about a stale android schema copy. Optional: restrict APK ABIs to ARM (-2.4 MB).
+================================================================================

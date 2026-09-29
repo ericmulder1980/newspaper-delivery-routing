@@ -4,13 +4,16 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
-/** The domain layer must stay pure Kotlin so its rules run as JVM unit tests (DEC-001). */
+/**
+ * The domain layer must stay free of Android, Room and DI classes (DEC-001, DEC-013). commonMain already
+ * rules out Android classes; this also catches androidx libraries such as Room that commonMain can see.
+ */
 class DomainPurityTest {
 
     @Test
     fun `domain package has no Android imports`() {
         // Unit tests run with the module directory as working directory.
-        val domainDir = File("src/main/java/nl/ericmulder/krantenwijk/domain")
+        val domainDir = File("src/commonMain/kotlin/nl/ericmulder/krantenwijk/domain")
         assertTrue(domainDir.isDirectory, "Domain sources not found at ${domainDir.absolutePath}")
 
         val forbidden = Regex("""^import\s+(android|androidx|com\.google\.android|dagger)\.""", RegexOption.MULTILINE)

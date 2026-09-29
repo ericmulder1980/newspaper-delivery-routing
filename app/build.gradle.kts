@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.room)
 }
 
 // Release signing: from keystore.properties (local, git-ignored) or environment variables (CI).
@@ -83,11 +82,9 @@ android {
     }
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
 dependencies {
+    implementation(project(":core"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -105,11 +102,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-
-    implementation(libs.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 

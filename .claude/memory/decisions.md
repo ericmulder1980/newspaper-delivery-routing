@@ -109,7 +109,7 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 ### DEC-005: Rounds work from a snapshot
 **Date:** 2026-09-25
-**Status:** Accepted
+**Status:** Superseded by DEC-014
 **Deciders:** User (plan §5 RoundItem)
 **Related:** RND-A, RND-C
 
@@ -243,3 +243,57 @@ Track significant decisions. Each decision is immutable once accepted — supers
 **Consequences:**
 - The prototype's swap button in the "add street section" screen becomes a "walk in reverse order" checkbox (ADR-A/ADR-11). ADR-02's validation stands as written.
 - ADR-06 (change direction per segment) edits that same flag.
+
+---
+
+### DEC-013: Domain and data in a Kotlin Multiplatform `:core` module (android + jvm)
+**Date:** 2026-09-29
+**Status:** Accepted (supersedes the "single app module" part of DEC-001)
+**Deciders:** User (chose this over Robolectric and emulator-only CI tests)
+**Related:** FND-004, DEC-001, DEC-010
+
+**Context:** Plan §10 asks for in-memory Room tests. The user installs APKs by file transfer (no adb), so device tests aren't practical. Google's Room testing guide says: "We don't recommend Android local unit tests with Robolectric. Use local JVM tests using Room KMP instead." That requires the database in a multiplatform module with a JVM target.
+
+**Options Considered:**
+1. **Robolectric in the single module:** simplest, but advised against by Google, and it tests against a different SQLite.
+2. **KMP `:core` module:** Google's recommended setup. Chosen.
+3. **Instrumented tests on a CI emulator only:** realistic, but a slow iteration loop.
+
+**Decision:**
+- `:core` uses `org.jetbrains.kotlin.multiplatform` + `com.android.kotlin.multiplatform.library`, with targets `android` and `jvm`. The jvm target exists only for tests and isn't shipped.
+- `commonMain` holds `domain` (models, rules, repository interfaces) and `data` (Room entities/DAOs/database, repositories, DataStore settings). `androidMain` creates the database and settings file on the device. `:app` keeps UI, ViewModels and Hilt wiring.
+- Room 2.8.5 in KMP mode with `BundledSQLiteDriver`, so the phone and the host tests use the same SQLite build. Transactions use `@Transaction` DAO methods.
+- **`androidx.sqlite` is pinned to 2.6.2**, the version Room 2.8.5 is built against. `sqlite-bundled` 2.7.0+ dropped the macOS Intel (x86_64) host binary, and this dev machine is an Intel Mac.
+
+**Consequences:**
+- The compiler now keeps `domain` Android-free. `DomainPurityTest` still guards against androidx and Dagger imports in `domain`.
+- KMP creates no `test` task, so `:core` registers a `test` alias for `jvmTest`. Plain `./gradlew test` runs everything.
+- The APK grew to about 5.9 MB, mostly bundled SQLite for 4 ABIs. Restricting to ARM ABIs would save about 2.4 MB (optional).
+- **Future risk:** moving to Room 3 / sqlite 2.7+ breaks local DB tests on this Intel Mac. They'd then run in Linux CI only, or on a newer Mac.
+- The Room plugin refuses to overwrite an exported schema with different content for the same version, so schema changes can't slip in without a version bump. Running only `:core:jvmTest` after an entity change can leave a stale Android schema copy; a full build (`assemble`) fixes it.
+
+---
+
+### DEC-014: No round persistence and no check-offs: round mode is a live list
+**Date:** 2026-09-29
+**Status:** Accepted (supersedes DEC-005)
+**Deciders:** User
+**Related:** RND-A, RND-B, BLD-06, FND-004; plan §4.4, §5
+
+**Context:** Plan §5 has Round and RoundItem tables: a snapshot at round start plus per-address check-offs. That makes edits during a round apply only from the next round, and it drives RND-05/06/07/09, BLD-07, RND-11 and RND-12. The user reviewed this: the snapshot adds no value, and progress doesn't need to be tracked per house per round.
+
+**Options Considered:**
+1. **Frozen snapshot + check-offs** (plan): rejected, because corrections made mid-round don't apply and it adds complexity.
+2. **Live list + saved check-offs:** rejected by the user.
+3. **Live list, no check-offs:** chosen.
+
+**Decision:**
+- There are no `round` or `round_item` tables. Schema v1 is `route`, `segment`, `building`, `address`.
+- A round is only today's contents (`RoundContents`: newspaper and/or leaflets), held in the round screen's state. Android restores it after process death.
+- The round list and the take-along counts (RND-02, via `deliverySummary`) are always calculated from the live addresses, so every edit applies immediately.
+- Dropped from v1: RND-05 (check-off/undo), RND-06 (progress), RND-07 (round state survives restart), RND-09 (focus next delivery), BLD-07 (check off per apartment / "Building done"), RND-11 (end-of-round summary), RND-12 (round history).
+
+**Consequences:**
+- Simpler schema and round mode. M2's exit criterion becomes "a full round can be walked with the live list".
+- RND-10 ("next up" view: current street + next 3 deliveries) depended on knowing where you are. It needs redefining (for example scroll-position based) or dropping. That's open for the user.
+- The plan (v0.4) still describes check-offs; update it at its next revision.

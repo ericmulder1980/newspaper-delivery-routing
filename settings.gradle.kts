@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "krantenwijk"
 include(":app")
+include(":core")
