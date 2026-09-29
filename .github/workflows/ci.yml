@@ -27,6 +27,11 @@ jobs:
       - name: Lint and unit tests
         run: ./gradlew lint test --console=plain
 
+      # Test counts per module/area and failing tests, shown on the run's summary page.
+      - name: Test summary
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/test_summary.py
+
       # Signing secrets are optional: without them CI builds an unsigned release APK.
       - name: Decode release keystore
         env:

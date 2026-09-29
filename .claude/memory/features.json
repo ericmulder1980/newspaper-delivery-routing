@@ -39,13 +39,14 @@
     {
       "id": "M1",
       "title": "Foundation complete (end of Phase 1)",
-      "status": "pending",
+      "status": "in_progress",
       "features": [
         "FND-001",
         "FND-002",
         "FND-003",
         "FND-004"
-      ]
+      ],
+      "notes": "FND-001, FND-003, FND-004 complete; FND-002 remaining"
     },
     {
       "id": "M2",
@@ -204,8 +205,8 @@
       "dependencies": [
         "FND-003"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "In-memory Room tests for all DAOs",
         "Schema v1 JSON exported to the repo",
@@ -219,12 +220,11 @@
           "Hilt DataModule in :app; placeholder screen reads the route from the DB (device smoke test)",
           "Room 2.8.5 KMP schema v1: route, segment, building, address (round tables removed per DEC-014)",
           "90 JVM tests passing (68 domain + 22 data: repository, durability, settings, schema)",
-          "sqlite pinned to 2.6.2 (Intel Mac host binary); :core `test` alias so `./gradlew test` runs everything"
+          "sqlite pinned to 2.6.2 (Intel Mac host binary); :core `test` alias so `./gradlew test` runs everything",
+          "CI green on 74efbf0 (run 36617729410)",
+          "User installed CI release APK on phone: opens with placeholder (Room + bundled SQLite + R8 work on device)"
         ],
-        "remaining": [
-          "User uninstalls + reinstalls release APK: app opens and shows placeholder (Room + bundled SQLite + R8 on device)",
-          "Commit + push; CI green"
-        ],
+        "remaining": [],
         "notes": [
           "RoundRepository (start round from snapshot, check-off) is built in RND-A/RND-C on top of RoundDao",
           "Building creation logic (turn number into building, units) is BLD-A; DAO support exists"
@@ -232,7 +232,8 @@
       },
       "notes": [
         "Building creation logic (turn number into building, units) is BLD-A; DAO support exists"
-      ]
+      ],
+      "completed": "2026-09-29"
     },
     {
       "id": "ADR-A",
@@ -665,8 +666,8 @@
     }
   ],
   "current": {
-    "feature": "FND-004",
-    "next_recommended": "Finish FND-004 (device check), then FND-002 (theme + Navigation 3)"
+    "feature": null,
+    "next_recommended": "FND-002 (theme + Navigation 3 skeleton + settings theme choice)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
