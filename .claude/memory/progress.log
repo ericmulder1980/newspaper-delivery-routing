@@ -96,3 +96,36 @@ Guardians/settings.json are tuned for TS; add Kotlin patterns when first review 
 
 Commit: d2437fc "Set up Krantenwijk project: boilerplate, domain memory, spec"
 ================================================================================
+
+================================================================================
+[2026-09-29] SESSION END
+Feature: FND-001 — Project and build setup (COMPLETE) · FND-003 — Domain rules (review)
+
+COMPLETED:
+- FND-001: signing via keystore.properties + GitHub secrets; signed CI run green
+  (61f7d00); user installed release APK on phone. Marked complete.
+- FND-003: pure Kotlin domain model + rules, 67 unit tests, purity guard test.
+
+TESTS: 68/68 passing; lint clean. Mutation check confirmed tests catch a wrong
+sticker rule and an android import.
+
+DECISIONS: DEC-012 — ranges entered low to high (from > to rejected, per ADR-02);
+reverse walking is a per-segment "walk in reverse order" checkbox (replaces the
+prototype swap button); max 300 per section. User chose this over the prototype.
+
+FILES CHANGED:
++ app/src/main/java/nl/ericmulder/krantenwijk/domain/{model,rules}/*.kt
++ app/src/test/java/nl/ericmulder/krantenwijk/domain/**/*Test.kt
+M .claude/memory/features.json, decisions.md, progress.log
+
+BLOCKERS: none
+
+NEXT SESSION:
+- Commit FND-003 after user approval.
+- Then FND-004 (Room schema v1; Segment stores rangeFrom <= rangeTo + direction)
+  or FND-002 (theme + Navigation 3 skeleton; the first visible change).
+
+CONTEXT FOR NEXT SESSION:
+User's phone is set to English, so the English placeholder was correct (no bug).
+Release cert SHA-256 is in features.json metadata.
+================================================================================

@@ -1,7 +1,7 @@
 {
   "project": "Krantenwijk",
   "version": "0.1.0",
-  "last_updated": "2026-09-25",
+  "last_updated": "2026-09-29",
   "metadata": {
     "created": "2026-09-25",
     "initialized_by": "user",
@@ -100,8 +100,8 @@
         "NFR-07"
       ],
       "dependencies": [],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Project builds with ./gradlew assembleDebug",
         "minSdk 26, targetSdk latest stable (researched at setup time)",
@@ -120,13 +120,13 @@
           "GitHub Actions CI: lint, test, release APK artefact, optional signing via secrets",
           "Release signing from keystore.properties or env vars",
           "First CI run green (ef2fda7, unsigned APK artefact)",
-          "Release keystore created by user (~/Keystores/krantenwijk-release.jks, alias krantenwijk); keystore.properties + GitHub secrets added; local signed release verified with apksigner"
+          "Release keystore created by user (~/Keystores/krantenwijk-release.jks, alias krantenwijk); keystore.properties + GitHub secrets added; local signed release verified with apksigner",
+          "Signed CI build green (61f7d00, run 36604817494)",
+          "User installed signed release APK on phone; placeholder screen opens (2026-09-29)"
         ],
-        "remaining": [
-          "Confirm next CI run produces a signed APK (secrets untested until next push)",
-          "User installs debug APK on phone and confirms it launches"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-29"
     },
     {
       "id": "FND-002",
@@ -166,8 +166,8 @@
       "dependencies": [
         "FND-001"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "review",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Every row of the sticker table (§3.3) covered by tests",
         "Non-existing address always yields nothing; round without leaflets yields no leaflets",
@@ -175,7 +175,23 @@
         "Sorting: 12, 12A, 12B, 13; natural suffix sort 1, 2, 10; descending direction",
         "Units: A-L = 12, A-Z = 26, 1-20 numeric",
         "domain package has no android.* imports"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "domain.model: Sticker, Delivery, RoundContents, Side, Direction, Address, SuffixType",
+          "domain.rules: deliveryFor(sticker), deliveryFor(address, round), generateRange/checkRange/countInRange, generateUnits, NaturalOrder/AddressNumberOrder/inWalkingOrder, stickerSummary/deliverySummary",
+          "68 unit tests passing (JUnit Jupiter); mutation check: breaking NEE_JA rule and adding android import both fail tests",
+          "DomainPurityTest enforces no android/androidx/dagger imports in domain",
+          "DEC-012 revised per user: ranges low to high only; reverse walking = per-segment checkbox"
+        ],
+        "remaining": [
+          "User review/approval, then commit"
+        ],
+        "notes": [
+          "'Building done' + undo tests (plan §10) belong to RND-D, since they need RoundItems",
+          "generateUnits throws on invalid input; BLD-01 will add a checkUnits() for UI messages, like checkRange()"
+        ]
+      }
     },
     {
       "id": "FND-004",
@@ -215,6 +231,9 @@
       "status": "pending",
       "acceptance_criteria": [
         "See plan ADR-02, ADR-07, ADR-11"
+      ],
+      "notes": [
+        "DEC-012: from/to entered low to high (reject from > to); replace prototype swap button with a 'walk in reverse order' checkbox"
       ]
     },
     {
@@ -615,8 +634,8 @@
     }
   ],
   "current": {
-    "feature": "FND-001",
-    "next_recommended": "FND-001 (finish: keystore + CI run), then FND-002 / FND-003"
+    "feature": "FND-003",
+    "next_recommended": "Commit FND-003, then FND-004 (Room schema) or FND-002 (theme + navigation)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet."

@@ -220,3 +220,26 @@ Track significant decisions. Each decision is immutable once accepted — supers
 ## Superseded/Deprecated Decisions
 
 *Decisions that have been replaced or are no longer relevant go here for historical reference.*
+
+---
+
+### DEC-012: House number ranges are entered low to high; reverse walking is a segment option
+**Date:** 2026-09-29
+**Status:** Accepted
+**Deciders:** User (overrode Claude's first proposal, which followed the prototype's swap button)
+**Related:** FND-003, ADR-A (ADR-02, ADR-11), ADR-C (ADR-06)
+
+**Context:** The plan conflicts with itself: ADR-02 says "validation rejects first > last", while ADR-11 and §6 describe from/to "in walking order" with a swap button. The approved prototype followed ADR-11 (Kerkstraat odd 23 → 1).
+
+**Options Considered:**
+1. **Enter the range in walking order** (prototype): `from > to` means walk descending. Rejected: entering numbers high to low is unnatural.
+2. **Always enter low to high, with walking order as a separate option:** chosen.
+
+**Decision:**
+- Ranges are always entered low to high. `generateRange()` returns ascending numbers and rejects `from > to`. `checkRange()` reports this as the blocking issue `FromAfterTo`.
+- Walking direction is a per-segment option, a simple "walk in reverse order" checkbox (`Direction.DESCENDING`), applied with `inWalkingOrder()`.
+- As in the prototype, a section holds at most 300 numbers (`MAX_RANGE_SIZE`).
+
+**Consequences:**
+- The prototype's swap button in the "add street section" screen becomes a "walk in reverse order" checkbox (ADR-A/ADR-11). ADR-02's validation stands as written.
+- ADR-06 (change direction per segment) edits that same flag.
