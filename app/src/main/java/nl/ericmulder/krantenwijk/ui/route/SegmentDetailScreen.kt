@@ -68,6 +68,15 @@ import nl.ericmulder.krantenwijk.ui.common.dashedBorder
 import nl.ericmulder.krantenwijk.ui.common.label
 import nl.ericmulder.krantenwijk.ui.common.shortLabel
 import nl.ericmulder.krantenwijk.ui.common.style
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.unitLabel
+import nl.ericmulder.krantenwijk.domain.rules.separatorFor
+import nl.ericmulder.krantenwijk.domain.rules.unitsOrNull
+import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 
 private const val COLUMNS = 4
 
@@ -86,6 +95,7 @@ private sealed interface SheetTarget {
 fun SegmentDetailScreen(
     segmentId: Long,
     onBack: () -> Unit,
+    onOpenBuilding: (buildingId: Long) -> Unit,
     viewModel: SegmentDetailViewModel = hiltViewModel<SegmentDetailViewModel, SegmentDetailViewModel.Factory>(
         key = "segment-$segmentId",
         creationCallback = { it.create(segmentId) },
@@ -94,15 +104,21 @@ fun SegmentDetailScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val addError by viewModel.addError.collectAsStateWithLifecycle()
     val added by viewModel.added.collectAsStateWithLifecycle()
+    val buildingError by viewModel.buildingError.collectAsStateWithLifecycle()
+    val buildingCreated by viewModel.buildingCreated.collectAsStateWithLifecycle()
 
     var sheetAddressId by rememberSaveable { mutableStateOf<Long?>(null) }
     var sheetForSelection by rememberSaveable { mutableStateOf(false) }
     var adding by rememberSaveable { mutableStateOf(false) }
     var confirmDeleteSection by rememberSaveable { mutableStateOf(false) }
     var confirmDeleteIds by rememberSaveable { mutableStateOf<List<Long>?>(null) }
+    var buildingForAddressId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var buildingSheetId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var confirmRemoveBuildingId by rememberSaveable { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(state) { if (state == SegmentDetailUiState.Gone) onBack() }
     LaunchedEffect(added) { if (added > 0) adding = false }
+    LaunchedEffect(buildingCreated) { if (buildingCreated > 0) buildingForAddressId = null }
 
     val ready = state as? SegmentDetailUiState.Ready
     ScreenScaffold(
@@ -118,6 +134,7 @@ fun SegmentDetailScreen(
             onTap = { address ->
                 if (ready.selecting) viewModel.toggleSelected(address) else sheetAddressId = address.id
             },
+            onTapBuilding = { summary -> if (!ready.selecting) buildingSheetId = summary.building.id },
             onAdd = {
                 viewModel.clearAddError()
                 adding = true
@@ -163,6 +180,16 @@ fun SegmentDetailScreen(
                 },
                 current = targetAddresses.map { it.currentOption() }.distinct().singleOrNull(),
                 deleteCount = targetAddresses.size,
+                onMakeBuilding = if (target is SheetTarget.One) {
+                    {
+                        val id = targetAddresses.single().id
+                        close()
+                        viewModel.clearBuildingError()
+                        buildingForAddressId = id
+                    }
+                } else {
+                    null
+                },
                 onPick = { option ->
                     viewModel.apply(option, targetAddresses.map { it.id })
                     close()
@@ -174,6 +201,44 @@ fun SegmentDetailScreen(
                 },
                 onDismiss = close,
             )
+        }
+        ready.addresses.firstOrNull { it.id == buildingForAddressId }?.let { address ->
+            CreateBuildingSheet(
+                houseNumber = address.houseNumber,
+                error = buildingError,
+                onCreate = { type, from, to -> viewModel.createBuilding(address, type, from, to) },
+                onDismiss = { buildingForAddressId = null },
+            )
+        }
+        ready.cells.firstNotNullOfOrNull { (it as? SegmentCell.Apartments)?.summary?.takeIf { s -> s.building.id == buildingSheetId } }
+            ?.let { summary ->
+                BuildingSheet(
+                    summary = summary,
+                    onZoomIn = {
+                        buildingSheetId = null
+                        onOpenBuilding(summary.building.id)
+                    },
+                    onRemove = {
+                        buildingSheetId = null
+                        confirmRemoveBuildingId = summary.building.id
+                    },
+                    onDismiss = { buildingSheetId = null },
+                )
+            }
+        confirmRemoveBuildingId?.let { id ->
+            val summary = ready.cells.firstNotNullOfOrNull { (it as? SegmentCell.Apartments)?.summary?.takeIf { s -> s.building.id == id } }
+            if (summary != null) {
+                ConfirmDialog(
+                    title = stringResource(R.string.building_remove_title, summary.building.houseNumber),
+                    text = pluralStringResource(R.plurals.building_remove_text, summary.apartments.size, summary.apartments.size),
+                    onConfirm = {
+                        confirmRemoveBuildingId = null
+                        viewModel.removeBuilding(id)
+                    },
+                    onDismiss = { confirmRemoveBuildingId = null },
+                    confirmLabel = stringResource(R.string.building_remove_confirm),
+                )
+            }
         }
         if (adding) {
             AddNumberSheet(error = addError, onDismiss = { adding = false }, onAdd = viewModel::addNumber)
@@ -278,27 +343,137 @@ private fun SelectionBar(ready: SegmentDetailUiState.Ready, viewModel: SegmentDe
 }
 
 @Composable
-private fun NumberGrid(ready: SegmentDetailUiState.Ready, onTap: (Address) -> Unit, onAdd: () -> Unit) {
-    // null = the "Add" tile; hidden while selecting.
-    val cells: List<Address?> = if (ready.selecting) ready.addresses else ready.addresses + null
+private fun NumberGrid(
+    ready: SegmentDetailUiState.Ready,
+    onTap: (Address) -> Unit,
+    onTapBuilding: (BuildingSummary) -> Unit,
+    onAdd: () -> Unit,
+) {
+    // Houses fill rows of four; a building takes a full row at the position of its number.
+    val rows = buildList<List<SegmentCell?>> {
+        var current = mutableListOf<SegmentCell?>()
+        fun flush() {
+            if (current.isNotEmpty()) add(current)
+            current = mutableListOf()
+        }
+        val cells: List<SegmentCell?> = if (ready.selecting) ready.cells else ready.cells + null // null = "Add" tile
+        cells.forEach { cell ->
+            if (cell is SegmentCell.Apartments) {
+                flush()
+                add(listOf(cell))
+            } else {
+                current += cell
+                if (current.size == COLUMNS) flush()
+            }
+        }
+        flush()
+    }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        cells.chunked(COLUMNS).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { address ->
-                    Box(Modifier.weight(1f)) {
-                        if (address == null) {
-                            AddTile(onAdd)
-                        } else {
-                            StickerTile(
-                                address = address,
-                                selected = ready.selection?.contains(address.id),
-                                onClick = { onTap(address) },
-                            )
+        rows.forEach { row ->
+            val only = row.singleOrNull()
+            if (only is SegmentCell.Apartments) {
+                BuildingRow(only.summary, dimmed = ready.selecting) { onTapBuilding(only.summary) }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { cell ->
+                        Box(Modifier.weight(1f)) {
+                            when (cell) {
+                                null -> AddTile(onAdd)
+                                is SegmentCell.House -> StickerTile(
+                                    address = cell.address,
+                                    selected = ready.selection?.contains(cell.address.id),
+                                    onClick = { onTap(cell.address) },
+                                )
+                                is SegmentCell.Apartments -> Unit
+                            }
                         }
                     }
+                    repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
                 }
-                repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
+        }
+    }
+}
+
+/** A building as one row (BLD-02): number, apartment count and range, sticker summary, colour strip, counts. */
+@Composable
+private fun BuildingRow(summary: BuildingSummary, dimmed: Boolean, onClick: () -> Unit) {
+    val building = summary.building
+    val first = summary.apartments.firstOrNull()?.addition
+    val last = summary.apartments.lastOrNull()?.addition
+    val range = if (first != null && last != null) "${building.unitLabel(first)}–${building.unitLabel(last)}" else ""
+    val stickers = stickerSummaryText(summary)
+    val description = stringResource(
+        R.string.building_row_description,
+        building.houseNumber,
+        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
+        stickers.ifEmpty { stringResource(R.string.sticker_none) },
+    )
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 96.dp)
+            .clickable(enabled = !dimmed, onClick = onClick)
+            .clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+            },
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(building.houseNumber.toString(), style = MaterialTheme.typography.displaySmall)
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount) +
+                            if (range.isNotEmpty()) " · $range" else "",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    if (stickers.isNotEmpty()) {
+                        Text(stickers, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                if (!dimmed) {
+                    Text(stringResource(R.string.building_zoom_in), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            UnitStrip(summary.apartments)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CountWithIcon(R.drawable.ic_newspaper, pluralStringResource(R.plurals.newspaper_count, summary.counts.newspapers, summary.counts.newspapers))
+                CountWithIcon(R.drawable.ic_leaflets, pluralStringResource(R.plurals.leaflet_count, summary.counts.leaflets, summary.counts.leaflets))
+            }
+        }
+    }
+}
+
+/** "3 NEE/JA · 2 NEE/NEE": only stickers that block something are listed, as in plan BLD-02. */
+@Composable
+private fun stickerSummaryText(summary: BuildingSummary): String = listOfNotNull(
+    summary.stickers.neeJa.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_ja)}" },
+    summary.stickers.neeNee.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_nee)}" },
+).joinToString(" · ")
+
+/** One small block per apartment in its delivery colour, like the prototype's strip. */
+@Composable
+private fun UnitStrip(apartments: List<Address>) {
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.fillMaxWidth()) {
+        apartments.forEach { apartment ->
+            val style = deliveryKind(apartment).style()
+            Box(
+                Modifier
+                    .weight(1f)
+                    .height(10.dp)
+                    .then(
+                        if (style.dashedBorder) {
+                            Modifier.dashedBorder(style.border, 1.dp, 2.dp)
+                        } else {
+                            Modifier.border(1.dp, style.border, RoundedCornerShape(2.dp))
+                        },
+                    )
+                    .background(style.fill ?: androidx.compose.ui.graphics.Color.Transparent, RoundedCornerShape(2.dp)),
+            )
         }
     }
 }
@@ -394,6 +569,7 @@ private fun StickerSheet(
     title: String,
     current: StickerOption?,
     deleteCount: Int,
+    onMakeBuilding: (() -> Unit)?,
     onPick: (StickerOption) -> Unit,
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
@@ -407,6 +583,13 @@ private fun StickerSheet(
             )
             Text(title, style = MaterialTheme.typography.headlineMedium)
             StickerOption.all.forEach { option -> StickerOptionRow(option, isCurrent = option == current) { onPick(option) } }
+            if (onMakeBuilding != null) {
+                SheetAction(
+                    title = stringResource(R.string.building_make),
+                    subtitle = stringResource(R.string.building_make_sub),
+                    onClick = onMakeBuilding,
+                )
+            }
             TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
                 Text(
                     pluralStringResource(R.plurals.delete_numbers_action, deleteCount, deleteCount),
@@ -504,13 +687,19 @@ private fun AddNumberSheet(error: AddNumberError?, onDismiss: () -> Unit, onAdd:
 }
 
 @Composable
-private fun ConfirmDialog(title: String, text: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun ConfirmDialog(
+    title: String,
+    text: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    confirmLabel: String = stringResource(R.string.delete),
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(text) },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
+            TextButton(onClick = onConfirm) { Text(confirmLabel, color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
@@ -519,4 +708,153 @@ private fun ConfirmDialog(title: String, text: String, onConfirm: () -> Unit, on
 @Composable
 private fun ErrorText(text: String) {
     Text(text, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
+}
+
+@Composable
+private fun SheetAction(title: String, subtitle: String, onClick: () -> Unit, destructive: Boolean = false) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(onClick = onClick).semantics(mergeDescendants = true) {
+            role = Role.Button
+        },
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            )
+            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** Tap on a building row: zoom in to the apartments (BLD-B) or turn it back into one number. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BuildingSheet(summary: BuildingSummary, onZoomIn: () -> Unit, onRemove: () -> Unit, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.number_sheet_title, summary.building.houseNumber.toString()) + " · " +
+                    pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            SheetAction(stringResource(R.string.building_zoom_in), stringResource(R.string.building_zoom_in_sub), onZoomIn)
+            SheetAction(
+                stringResource(R.string.building_remove),
+                stringResource(R.string.building_remove_sub),
+                onRemove,
+                destructive = true,
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+    }
+}
+
+/** "Apartment building" for one number: letters or numbers, first and last, live preview (BLD-01). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CreateBuildingSheet(
+    houseNumber: Int,
+    error: BuildingError?,
+    onCreate: (SuffixType, String, String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var type by rememberSaveable { mutableStateOf(SuffixType.LETTER) }
+    var from by rememberSaveable { mutableStateOf("A") }
+    var to by rememberSaveable { mutableStateOf("L") }
+    val units = unitsOrNull(from, to, type)
+    val separator = separatorFor(type)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(R.string.building_sheet_title, houseNumber), style = MaterialTheme.typography.headlineMedium)
+            Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(SuffixType.LETTER to R.string.building_type_letters, SuffixType.NUMBER to R.string.building_type_numbers)
+                    .forEach { (option, label) ->
+                        ToggleChoice(
+                            text = stringResource(label),
+                            selected = type == option,
+                            onClick = {
+                                type = option
+                                if (option == SuffixType.LETTER) {
+                                    from = "A"
+                                    to = "L"
+                                } else {
+                                    from = "1"
+                                    to = "20"
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                val maxLength = if (type == SuffixType.LETTER) 1 else 3
+                val keyboard = if (type == SuffixType.LETTER) {
+                    KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Text)
+                } else {
+                    KeyboardOptions(keyboardType = KeyboardType.Number)
+                }
+                OutlinedTextField(
+                    value = from,
+                    onValueChange = { from = it.uppercase().take(maxLength) },
+                    label = { Text(stringResource(R.string.building_first)) },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.headlineMedium,
+                    keyboardOptions = keyboard,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = to,
+                    onValueChange = { to = it.uppercase().take(maxLength) },
+                    label = { Text(stringResource(R.string.building_last)) },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.headlineMedium,
+                    keyboardOptions = keyboard,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Text(
+                text = if (units != null) {
+                    pluralStringResource(R.plurals.apartment_count, units.size, units.size) + ": " +
+                        "$houseNumber$separator${units.first()} … $houseNumber$separator${units.last()}"
+                } else {
+                    stringResource(if (type == SuffixType.LETTER) R.string.building_invalid_letters else R.string.building_invalid_numbers)
+                },
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+            if (error is BuildingError.Conflict) {
+                ErrorText(stringResource(R.string.building_conflict, error.labels.joinToString(", ")))
+            }
+            AccentButton(
+                text = stringResource(R.string.building_create),
+                onClick = { onCreate(type, from, to) },
+                enabled = units != null,
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun ToggleChoice(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = KrantenwijkTheme.colors
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) colors.accentFill else MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = if (selected) colors.onAccentFill else MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(2.dp, if (selected) colors.accentFillBorder else MaterialTheme.colorScheme.outline),
+        modifier = modifier
+            .heightIn(min = MinTouchTarget)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+    ) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp)) {
+            Text(text, style = MaterialTheme.typography.titleMedium)
+        }
+    }
 }

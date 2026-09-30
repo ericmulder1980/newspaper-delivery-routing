@@ -12,6 +12,7 @@ import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -219,6 +220,75 @@ class RouteRepositoryTest {
                 assertEquals(13, awaitItem()?.addresses?.size)
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+    }
+
+    @Nested
+    inner class CreateBuilding {
+        @Test
+        fun `number 12 becomes a building with apartments A to L`() = runTest {
+            val id = kerkstraatEven()
+            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "a", "L")
+
+            val c = contents(id)
+            val building = c.buildings.single()
+            assertEquals(buildingId, building.id)
+            assertEquals("", building.separator)
+            val apartments = c.addresses.filter { it.buildingId == buildingId }
+            assertEquals(('A'..'L').map(Char::toString), apartments.map { it.addition })
+            assertTrue(c.addresses.none { it.houseNumber == 12 && it.buildingId == null })
+            // Apartments count as addresses: 11 houses + 12 apartments.
+            assertEquals(23, repo.observeAddressCounts().first()[id])
+        }
+
+        @Test
+        fun `numeric units use a hyphen`() = runTest {
+            val id = kerkstraatEven()
+            repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "20")
+            val building = contents(id).buildings.single()
+            assertEquals("-", building.separator)
+            val suffixes = contents(id).addresses.filter { it.buildingId == building.id }.map { it.addition }
+            assertEquals((1..20).map(Int::toString), suffixes)
+        }
+
+        @Test
+        fun `apartments sort naturally in walking order`() = runTest {
+            val id = kerkstraatEven()
+            repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "10")
+            assertEquals(
+                listOf("12", "14-1", "14-2", "14-3"),
+                contents(id).addresses.map { a -> "${a.houseNumber}${if (a.buildingId != null) "-" else ""}${a.addition.orEmpty()}" }
+                    .subList(5, 9),
+            )
+        }
+
+        @Test
+        fun `conflicting standalone addition is reported and nothing changes`() = runTest {
+            val id = kerkstraatEven()
+            repo.addAddress(id, 12, "C")
+            val error = assertThrows<BuildingConflictException> { repo.createBuilding(id, 12, SuffixType.LETTER, "A", "L") }
+            assertEquals(listOf("12C"), error.labels)
+            assertEquals(0, contents(id).buildings.size)
+            assertTrue(contents(id).addresses.any { it.houseNumber == 12 && it.addition == null })
+        }
+
+        @Test
+        fun `invalid unit range is rejected`() = runTest {
+            val id = kerkstraatEven()
+            assertThrows<IllegalArgumentException> { repo.createBuilding(id, 12, SuffixType.LETTER, "L", "A") }
+            assertEquals(0, contents(id).buildings.size)
+        }
+
+        @Test
+        fun `no longer a building restores the plain number`() = runTest {
+            val id = kerkstraatEven()
+            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
+            repo.removeBuilding(buildingId)
+
+            val c = contents(id)
+            assertEquals(0, c.buildings.size)
+            assertEquals(12, c.addresses.size)
+            assertTrue(c.addresses.any { it.houseNumber == 12 && it.addition == null && it.buildingId == null })
         }
     }
 

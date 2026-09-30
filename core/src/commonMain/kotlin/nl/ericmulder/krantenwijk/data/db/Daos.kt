@@ -78,19 +78,85 @@ abstract class SegmentDao {
     }
 }
 
+/** Buildings and their apartments; creating and removing a building each happen in one transaction. */
 @Dao
-interface BuildingDao {
+abstract class BuildingDao {
     @Query("SELECT * FROM building WHERE segmentId = :segmentId ORDER BY houseNumber")
-    fun observeForSegment(segmentId: Long): Flow<List<BuildingEntity>>
+    abstract fun observeForSegment(segmentId: Long): Flow<List<BuildingEntity>>
+
+    @Query("SELECT * FROM building WHERE id = :id")
+    abstract suspend fun get(id: Long): BuildingEntity?
 
     @Insert
-    suspend fun insert(building: BuildingEntity): Long
+    abstract suspend fun insert(building: BuildingEntity): Long
 
     @Update
-    suspend fun update(building: BuildingEntity)
+    abstract suspend fun update(building: BuildingEntity)
 
     @Query("DELETE FROM building WHERE id = :id")
-    suspend fun delete(id: Long)
+    abstract suspend fun delete(id: Long)
+
+    @Query("SELECT * FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND buildingId IS NULL")
+    protected abstract suspend fun standaloneWithNumber(segmentId: Long, houseNumber: Int): List<AddressEntity>
+
+    @Query("DELETE FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND addition = '' AND buildingId IS NULL")
+    protected abstract suspend fun deletePlainAddress(segmentId: Long, houseNumber: Int)
+
+    @Insert
+    protected abstract suspend fun insertAddresses(addresses: List<AddressEntity>)
+
+    /**
+     * Replaces the plain address [building].houseNumber with a building and one address per suffix.
+     * Returns the building id, or the conflicting standalone additions (non-empty) without writing.
+     */
+    @Transaction
+    open suspend fun createWithUnits(building: BuildingEntity, suffixes: List<String>): Pair<Long?, List<String>> {
+        val taken = standaloneWithNumber(building.segmentId, building.houseNumber).map { it.addition }.toSet()
+        val conflicts = suffixes.filter { it in taken }
+        if (conflicts.isNotEmpty()) return null to conflicts
+        deletePlainAddress(building.segmentId, building.houseNumber)
+        val id = insert(building)
+        insertAddresses(
+            suffixes.map { suffix ->
+                AddressEntity(
+                    segmentId = building.segmentId,
+                    buildingId = id,
+                    houseNumber = building.houseNumber,
+                    addition = suffix,
+                    exists = true,
+                    sticker = Sticker.NONE,
+                    exceptionNoNewspaper = false,
+                    exceptionNoLeaflets = false,
+                    note = null,
+                )
+            },
+        )
+        return id to emptyList()
+    }
+
+    /** Deletes the building (apartments cascade) and restores a plain address with its number. */
+    @Transaction
+    open suspend fun removeAndRestore(buildingId: Long) {
+        val building = get(buildingId) ?: return
+        delete(buildingId)
+        if (standaloneWithNumber(building.segmentId, building.houseNumber).none { it.addition.isEmpty() }) {
+            insertAddresses(
+                listOf(
+                    AddressEntity(
+                        segmentId = building.segmentId,
+                        buildingId = null,
+                        houseNumber = building.houseNumber,
+                        addition = "",
+                        exists = true,
+                        sticker = Sticker.NONE,
+                        exceptionNoNewspaper = false,
+                        exceptionNoLeaflets = false,
+                        note = null,
+                    ),
+                ),
+            )
+        }
+    }
 }
 
 @Dao

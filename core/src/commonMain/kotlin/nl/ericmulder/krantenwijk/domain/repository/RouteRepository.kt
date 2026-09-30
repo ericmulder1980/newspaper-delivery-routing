@@ -8,10 +8,15 @@ import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
+import nl.ericmulder.krantenwijk.domain.model.SuffixType
 
 /** Thrown when an address with the same number and addition already exists in the segment. */
 class DuplicateAddressException(val houseNumber: Int, val addition: String?) :
     IllegalArgumentException("Address $houseNumber${addition.orEmpty()} already exists in this segment")
+
+/** Thrown when an apartment of a new building would collide with an existing standalone address. */
+class BuildingConflictException(val labels: List<String>) :
+    IllegalArgumentException("Standalone addresses already use these numbers: ${labels.joinToString()}")
 
 /** The route, its segments and addresses. Reads are reactive; every write is committed immediately (NFR-05). */
 interface RouteRepository {
@@ -58,4 +63,16 @@ interface RouteRepository {
     suspend fun setSticker(addressIds: Collection<Long>, sticker: Sticker)
 
     suspend fun updateAddress(address: Address)
+
+    /**
+     * Turns [houseNumber] in the segment into an apartment building with units [fromSuffix]..[toSuffix]
+     * (BLD-01). The plain standalone address with that number, if any, is replaced. Returns the
+     * building id.
+     * @throws BuildingConflictException if a standalone address already has one of the unit labels.
+     * @throws IllegalArgumentException if the unit range is invalid.
+     */
+    suspend fun createBuilding(segmentId: Long, houseNumber: Int, suffixType: SuffixType, fromSuffix: String, toSuffix: String): Long
+
+    /** Removes a building and its apartments and puts back a plain address with its number ("no longer a building"). */
+    suspend fun removeBuilding(buildingId: Long)
 }

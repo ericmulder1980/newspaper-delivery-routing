@@ -5,15 +5,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import nl.ericmulder.krantenwijk.domain.model.Address
+import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
+import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.generateRange
+import nl.ericmulder.krantenwijk.domain.rules.generateUnits
+import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.inWalkingOrder
 
 /** In-memory [RouteRepository] for ViewModel tests, mirroring the Room implementation's rules. */
@@ -21,6 +26,7 @@ class FakeRouteRepository : RouteRepository {
     val route = MutableStateFlow<Route?>(null)
     val segments = MutableStateFlow<List<Segment>>(emptyList())
     val addresses = MutableStateFlow<List<Address>>(emptyList())
+    val buildings = MutableStateFlow<List<Building>>(emptyList())
     var failNextWrite = false
     private var nextId = 1L
 
@@ -40,9 +46,13 @@ class FakeRouteRepository : RouteRepository {
     override fun observeSegments(): Flow<List<Segment>> = segments
 
     override fun observeSegmentContents(segmentId: Long): Flow<SegmentContents?> =
-        combine(segments, addresses) { segs, addrs ->
+        combine(segments, addresses, buildings) { segs, addrs, blds ->
             segs.firstOrNull { it.id == segmentId }?.let { segment ->
-                SegmentContents(segment, emptyList(), inWalkingOrder(addrs.filter { it.segmentId == segmentId }, segment.direction))
+                SegmentContents(
+                    segment,
+                    blds.filter { it.segmentId == segmentId },
+                    inWalkingOrder(addrs.filter { it.segmentId == segmentId }, segment.direction),
+                )
             }
         }
 
@@ -94,5 +104,32 @@ class FakeRouteRepository : RouteRepository {
 
     override suspend fun updateAddress(address: Address) {
         addresses.value = addresses.value.map { if (it.id == address.id) address else it }
+    }
+
+    override suspend fun createBuilding(
+        segmentId: Long,
+        houseNumber: Int,
+        suffixType: SuffixType,
+        fromSuffix: String,
+        toSuffix: String,
+    ): Long {
+        val suffixes = generateUnits(fromSuffix, toSuffix, suffixType)
+        val conflicts = addresses.value
+            .filter { it.segmentId == segmentId && it.houseNumber == houseNumber && it.buildingId == null && it.addition in suffixes }
+            .map { "$houseNumber${it.addition}" }
+        if (conflicts.isNotEmpty()) throw BuildingConflictException(conflicts)
+        val id = nextId++
+        buildings.value += Building(segmentId, houseNumber, suffixType, separatorFor(suffixType), id = id)
+        addresses.value = addresses.value.filterNot {
+            it.segmentId == segmentId && it.houseNumber == houseNumber && it.addition == null && it.buildingId == null
+        } + suffixes.map { Address(houseNumber, it, segmentId = segmentId, buildingId = id, id = nextId++) }
+        return id
+    }
+
+    override suspend fun removeBuilding(buildingId: Long) {
+        val building = buildings.value.single { it.id == buildingId }
+        buildings.value = buildings.value.filter { it.id != buildingId }
+        addresses.value = addresses.value.filter { it.buildingId != buildingId } +
+            Address(building.houseNumber, segmentId = building.segmentId, id = nextId++)
     }
 }

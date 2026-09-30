@@ -69,7 +69,9 @@ fun AppNavigation() {
                     },
                 )
             }
-            entry<SegmentDetail> { key -> SegmentDetailScreen(segmentId = key.segmentId, onBack = ::back) }
+            entry<SegmentDetail> { key ->
+                SegmentDetailScreen(segmentId = key.segmentId, onBack = ::back, onOpenBuilding = { go(BuildingDetail(it)) })
+            }
             entry<BuildingDetail> { PlaceholderScreen(stringResource(R.string.building_title), "BLD-B", ::back) }
             entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "STK-A", ::back) }
             entry<RoundStart> {

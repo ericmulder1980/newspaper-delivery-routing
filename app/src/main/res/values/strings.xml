@@ -121,4 +121,30 @@
         <item quantity="other">Delete %d numbers?</item>
     </plurals>
     <string name="cannot_undo">This cannot be undone.</string>
+    <plurals name="apartment_count">
+        <item quantity="one">%d apartment</item>
+        <item quantity="other">%d apartments</item>
+    </plurals>
+    <string name="building_make">Apartment building</string>
+    <string name="building_make_sub">One number with additions, e.g. 12A–12L</string>
+    <string name="building_sheet_title">Apartment building at no. %1$d</string>
+    <string name="building_type_letters">Letters (A–Z)</string>
+    <string name="building_type_numbers">Numbers (1–20)</string>
+    <string name="building_first">First</string>
+    <string name="building_last">Last</string>
+    <string name="building_invalid_letters">Enter two letters, e.g. A and L.</string>
+    <string name="building_invalid_numbers">Enter two numbers, e.g. 1 and 20.</string>
+    <string name="building_conflict">These numbers already exist on their own: %1$s. Delete them first.</string>
+    <string name="building_create">Make apartment building</string>
+    <string name="building_zoom_in">Zoom in</string>
+    <string name="building_zoom_in_sub">See all apartments and set their stickers</string>
+    <string name="building_remove">No longer a building</string>
+    <string name="building_remove_sub">Back to one address</string>
+    <string name="building_remove_title">No. %1$d no longer a building?</string>
+    <plurals name="building_remove_text">
+        <item quantity="one">Its %d apartment is removed and the number becomes one address again.</item>
+        <item quantity="other">Its %d apartments are removed and the number becomes one address again.</item>
+    </plurals>
+    <string name="building_remove_confirm">Remove building</string>
+    <string name="building_row_description">Number %1$d, apartment building, %2$s, %3$s</string>
 </resources>

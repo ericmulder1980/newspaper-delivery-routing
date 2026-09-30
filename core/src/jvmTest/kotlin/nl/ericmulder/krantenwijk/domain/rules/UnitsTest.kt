@@ -1,6 +1,8 @@
 package nl.ericmulder.krantenwijk.domain.rules
 
+import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.unitLabel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -44,5 +46,20 @@ class UnitsTest {
     )
     fun `invalid unit ranges are rejected`(from: String, to: String, type: SuffixType) {
         assertThrows<IllegalArgumentException> { generateUnits(from, to, type) }
+    }
+
+    @Test
+    fun `preview helper returns null for invalid input`() {
+        assertEquals(listOf("A", "B"), unitsOrNull("A", "B", SuffixType.LETTER))
+        assertEquals(null, unitsOrNull("B", "A", SuffixType.LETTER))
+        assertEquals(null, unitsOrNull("", "5", SuffixType.NUMBER))
+    }
+
+    @Test
+    fun `labels use the separator for the suffix type`() {
+        assertEquals("", separatorFor(SuffixType.LETTER))
+        assertEquals("-", separatorFor(SuffixType.NUMBER))
+        val building = Building(1, 12, SuffixType.NUMBER, "-")
+        assertEquals("12-3", building.unitLabel("3"))
     }
 }

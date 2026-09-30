@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.runTest
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
+import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
 import nl.ericmulder.krantenwijk.ui.testing.FakeRouteRepository
 import nl.ericmulder.krantenwijk.ui.testing.MainDispatcherExtension
@@ -169,6 +170,88 @@ class SegmentDetailViewModelTest {
             vm.clearAddError()
             assertNull(vm.addError.value)
             assertEquals(0, vm.added.value)
+        }
+    }
+
+    @Nested
+    inner class Buildings {
+        private fun buildingCell() = ready().cells.filterIsInstance<SegmentCell.Apartments>().single().summary
+
+        private fun cellLabels() = ready().cells.map {
+            when (it) {
+                is SegmentCell.House -> "${it.address.houseNumber}${it.address.addition.orEmpty()}"
+                is SegmentCell.Apartments -> "B${it.summary.building.houseNumber}"
+            }
+        }
+
+        @Test
+        fun `number becomes a building at the same position (BLD-01, BLD-02)`() = runTest {
+            collect()
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.LETTER, "A", "L")
+
+            assertEquals(1, vm.buildingCreated.value)
+            assertEquals(listOf("10", "B12", "14"), cellLabels().subList(4, 7))
+            val summary = buildingCell()
+            assertEquals(12, summary.existingCount)
+            // Apartments count as addresses (11 houses + 12 apartments).
+            assertEquals(23, ready().existingCount)
+            assertEquals(23, ready().counts.newspapers)
+        }
+
+        @Test
+        fun `building summary counts stickers of existing apartments only`() = runTest {
+            collect()
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.LETTER, "A", "F")
+            val apartments = buildingCell().apartments
+            repo.setSticker(apartments.take(3).map { it.id }, Sticker.NEE_JA)
+            repo.setSticker(listOf(apartments[3].id), Sticker.NEE_NEE)
+            repo.setExists(listOf(apartments[5].id), false)
+
+            val summary = buildingCell()
+            assertEquals(5, summary.existingCount)
+            assertEquals(3, summary.stickers.neeJa)
+            assertEquals(1, summary.stickers.neeNee)
+            assertEquals(4, summary.counts.newspapers)
+            assertEquals(1, summary.counts.leaflets)
+        }
+
+        @Test
+        fun `building follows the walking direction`() = runTest {
+            collect()
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.NUMBER, "1", "4")
+            repo.segments.value = repo.segments.value.map {
+                if (it.id == segmentId) it.copy(direction = Direction.DESCENDING) else it
+            }
+            assertEquals(listOf("14", "B12", "10"), cellLabels().subList(5, 8))
+        }
+
+        @Test
+        fun `conflict and invalid range are reported`() = runTest {
+            collect()
+            vm.addNumber("12", "C")
+            val twelve = ready().addresses.single { it.houseNumber == 12 && it.addition == null }
+            vm.createBuilding(twelve, SuffixType.LETTER, "A", "L")
+            assertEquals(BuildingError.Conflict(listOf("12C")), vm.buildingError.value)
+            vm.createBuilding(twelve, SuffixType.LETTER, "L", "A")
+            assertEquals(BuildingError.InvalidRange, vm.buildingError.value)
+            assertEquals(0, vm.buildingCreated.value)
+        }
+
+        @Test
+        fun `no longer a building restores the number`() = runTest {
+            collect()
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.LETTER, "A", "C")
+            vm.removeBuilding(buildingCell().building.id)
+            assertEquals((2..24 step 2).map(Int::toString), cellLabels())
+        }
+
+        @Test
+        fun `select all does not include apartments`() = runTest {
+            collect()
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.LETTER, "A", "C")
+            vm.startSelecting()
+            vm.selectAll()
+            assertEquals(11, ready().selection!!.size)
         }
     }
 

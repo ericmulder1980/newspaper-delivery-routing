@@ -3,6 +3,7 @@ package nl.ericmulder.krantenwijk.data.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import nl.ericmulder.krantenwijk.data.db.BuildingEntity
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import nl.ericmulder.krantenwijk.data.db.RouteEntity
 import nl.ericmulder.krantenwijk.data.db.SegmentEntity
@@ -15,9 +16,13 @@ import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
+import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.generateRange
+import nl.ericmulder.krantenwijk.domain.rules.generateUnits
+import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.inWalkingOrder
 
 class RoomRouteRepository(
@@ -116,4 +121,23 @@ class RoomRouteRepository(
         require(address.id != 0L) { "Address has not been stored yet" }
         addressDao.update(address.toEntity())
     }
+
+    override suspend fun createBuilding(
+        segmentId: Long,
+        houseNumber: Int,
+        suffixType: SuffixType,
+        fromSuffix: String,
+        toSuffix: String,
+    ): Long {
+        val suffixes = generateUnits(fromSuffix, toSuffix, suffixType)
+        val separator = separatorFor(suffixType)
+        val (id, conflicts) = buildingDao.createWithUnits(
+            BuildingEntity(segmentId = segmentId, houseNumber = houseNumber, name = null, suffixType = suffixType, separator = separator),
+            suffixes,
+        )
+        if (id == null) throw BuildingConflictException(conflicts.map { "$houseNumber$it" })
+        return id
+    }
+
+    override suspend fun removeBuilding(buildingId: Long) = buildingDao.removeAndRestore(buildingId)
 }

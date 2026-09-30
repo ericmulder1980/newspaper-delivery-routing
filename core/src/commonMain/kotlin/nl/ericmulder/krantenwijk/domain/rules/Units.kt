@@ -28,3 +28,13 @@ private fun parseLetter(value: String): Char {
     require(trimmed.length == 1 && trimmed[0].uppercaseChar() in 'A'..'Z') { "Expected a single letter A–Z, was \"$value\"" }
     return trimmed[0].uppercaseChar()
 }
+
+/** Separator between house number and unit suffix: "" for letters (12A), "-" for numbers (12-1). */
+fun separatorFor(type: SuffixType): String = when (type) {
+    SuffixType.LETTER -> ""
+    SuffixType.NUMBER -> "-"
+}
+
+/** The apartment suffixes for the given input, or null if it isn't a valid range (for the live preview). */
+fun unitsOrNull(from: String, to: String, type: SuffixType): List<String>? =
+    runCatching { generateUnits(from, to, type) }.getOrNull()

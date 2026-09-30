@@ -397,11 +397,27 @@
       "dependencies": [
         "ADR-B"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan BLD-01, BLD-02"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: createBuilding/removeBuilding (transactional BuildingDao), BuildingConflictException, unitsOrNull, separatorFor, Building.unitLabel (+8 tests)",
+          "Sticker sheet 'Apartment building' → sheet with Letters/Numbers, First/Last, live preview '12 apartments: 12A … 12L' (BLD-01)",
+          "Building as one full-width row at its number's position: count + range, NEE/JA · NEE/NEE summary, colour strip, counts; follows walking direction (BLD-02)",
+          "Building sheet: Zoom in (→ BuildingDetail placeholder, BLD-B) and No longer a building (confirm; restores plain number)",
+          "Header counts include apartments; Select all excludes apartments; 42 app tests; version 0.6.0 (6)"
+        ],
+        "remaining": [
+          "User phone test",
+          "Commit + push after approval"
+        ],
+        "notes": [
+          "Building name (BLD-08) and grouping existing numbers (BLD-09) are separate Should features"
+        ]
+      }
     },
     {
       "id": "BLD-B",
@@ -760,7 +776,7 @@
   ],
   "current": {
     "feature": "BLD-A",
-    "next_recommended": "BLD-A (create apartment building, collapsed row)"
+    "next_recommended": "Finish BLD-A (phone test), then BLD-B (apartment grid + bulk)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
