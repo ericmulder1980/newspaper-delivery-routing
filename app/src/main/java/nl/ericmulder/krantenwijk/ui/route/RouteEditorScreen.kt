@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -60,7 +61,12 @@ fun RouteEditorScreen(
                     )
                 }
                 s.segments.forEachIndexed { index, segment ->
-                    SegmentRow(position = index + 1, segment = segment, onClick = { onOpenSection(segment.id) })
+                    SegmentRow(
+                        position = index + 1,
+                        segment = segment,
+                        addressCount = s.addressCounts[segment.id] ?: 0,
+                        onClick = { onOpenSection(segment.id) },
+                    )
                 }
                 AccentButton(text = stringResource(R.string.route_add_section), onClick = onAddSection)
             }
@@ -98,7 +104,7 @@ private fun CreateRouteForm(onCreate: (name: String, town: String) -> Unit) {
 }
 
 @Composable
-private fun SegmentRow(position: Int, segment: Segment, onClick: () -> Unit) {
+private fun SegmentRow(position: Int, segment: Segment, addressCount: Int, onClick: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
@@ -113,7 +119,8 @@ private fun SegmentRow(position: Int, segment: Segment, onClick: () -> Unit) {
                 stringResource(R.string.section_range, segment.rangeFrom, segment.rangeTo)
             }
             Text(
-                text = stringResource(segment.side.label()) + " · " + range,
+                text = stringResource(segment.side.label()) + " · " + range + " · " +
+                    pluralStringResource(R.plurals.address_count, addressCount, addressCount),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

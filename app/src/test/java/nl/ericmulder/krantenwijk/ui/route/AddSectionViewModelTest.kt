@@ -101,8 +101,8 @@ class AddSectionViewModelTest {
         vm.setReverse(true)
         vm.save()
 
-        assertTrue(vm.saved.value)
         val segment = repo.segments.value.single()
+        assertEquals(segment.id, vm.savedSegmentId.value)
         assertEquals(Segment("Kerkstraat", Side.ODD, 1, 23, Direction.DESCENDING, 0, 1), segment)
     }
 
@@ -113,10 +113,10 @@ class AddSectionViewModelTest {
         repo.failNextWrite = true
         vm.save()
         assertTrue(state().saveFailed)
-        assertFalse(vm.saved.value)
+        assertEquals(null, vm.savedSegmentId.value)
 
         vm.save()
-        assertTrue(vm.saved.value)
+        assertEquals(1L, vm.savedSegmentId.value)
     }
 
     @Test

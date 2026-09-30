@@ -12,6 +12,7 @@ import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -155,9 +156,27 @@ class RouteRepositoryTest {
         fun `duplicate number in the same segment is rejected`() = runTest {
             val id = kerkstraatEven()
             repo.addAddress(id, 14, "A")
-            assertThrows<Exception> { repo.addAddress(id, 14, "A") }
-            assertThrows<Exception> { repo.addAddress(id, 12, null) }
-            assertThrows<Exception> { repo.addAddress(id, 12, "  ") }
+            val duplicate = assertThrows<DuplicateAddressException> { repo.addAddress(id, 14, " A ") }
+            assertEquals(14, duplicate.houseNumber)
+            assertEquals("A", duplicate.addition)
+            assertThrows<DuplicateAddressException> { repo.addAddress(id, 12, null) }
+            assertThrows<DuplicateAddressException> { repo.addAddress(id, 12, "  ") }
+        }
+
+        @Test
+        fun `same number in another segment is allowed`() = runTest {
+            val even = kerkstraatEven()
+            val other = repo.addSegment("Molenweg", Side.ALL, 1, 3, Direction.ASCENDING)
+            repo.addAddress(other, 12, null)
+            assertEquals(12, contents(even).addresses.size)
+        }
+
+        @Test
+        fun `address counts exclude does not exist`() = runTest {
+            val even = kerkstraatEven()
+            val other = repo.addSegment("Molenweg", Side.ALL, 1, 10, Direction.ASCENDING)
+            repo.setExists(contents(even).addresses.take(2).map { it.id }, false)
+            assertEquals(mapOf(even to 10, other to 10), repo.observeAddressCounts().first())
         }
 
         @Test

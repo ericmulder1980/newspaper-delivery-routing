@@ -61,10 +61,10 @@ class AddSectionViewModel @Inject constructor(
     )
     private val status = MutableStateFlow(SaveStatus())
 
-    private val _saved = MutableStateFlow(false)
+    private val _savedSegmentId = MutableStateFlow<Long?>(null)
 
-    /** True once the section is stored; the screen then navigates back. */
-    val saved: StateFlow<Boolean> = _saved.asStateFlow()
+    /** Id of the stored section once saved; the screen then opens the number check (ADR-12). */
+    val savedSegmentId: StateFlow<Long?> = _savedSegmentId.asStateFlow()
 
     val uiState: StateFlow<AddSectionUiState> = combine(
         form,
@@ -104,14 +104,13 @@ class AddSectionViewModel @Inject constructor(
         status.value = SaveStatus(saving = true)
         viewModelScope.launch {
             try {
-                routes.addSegment(
+                _savedSegmentId.value = routes.addSegment(
                     streetName = form.street,
                     side = form.side,
                     from = checkNotNull(form.from.toIntOrNull()),
                     to = checkNotNull(form.to.toIntOrNull()),
                     direction = if (form.reverse) Direction.DESCENDING else Direction.ASCENDING,
                 )
-                _saved.value = true
             } catch (e: Exception) {
                 status.value = SaveStatus(failed = true)
             }

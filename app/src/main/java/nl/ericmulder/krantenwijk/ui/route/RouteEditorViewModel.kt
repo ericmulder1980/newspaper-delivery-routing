@@ -19,15 +19,16 @@ sealed interface RouteEditorUiState {
     /** No route yet: ask for its name first (becomes step 2 of the setup wizard in ONB-A). */
     data object NoRoute : RouteEditorUiState
 
-    data class Ready(val route: Route, val segments: List<Segment>) : RouteEditorUiState
+    /** [addressCounts]: existing addresses per segment id (ADR-04). */
+    data class Ready(val route: Route, val segments: List<Segment>, val addressCounts: Map<Long, Int>) : RouteEditorUiState
 }
 
 @HiltViewModel
 class RouteEditorViewModel @Inject constructor(private val routes: RouteRepository) : ViewModel() {
 
     val uiState: StateFlow<RouteEditorUiState> =
-        combine(routes.observeRoute(), routes.observeSegments()) { route, segments ->
-            if (route == null) RouteEditorUiState.NoRoute else RouteEditorUiState.Ready(route, segments)
+        combine(routes.observeRoute(), routes.observeSegments(), routes.observeAddressCounts()) { route, segments, counts ->
+            if (route == null) RouteEditorUiState.NoRoute else RouteEditorUiState.Ready(route, segments, counts)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RouteEditorUiState.Loading)
 
     fun createRoute(name: String, town: String) {

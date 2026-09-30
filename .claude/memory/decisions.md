@@ -316,3 +316,17 @@ Track significant decisions. Each decision is immutable once accepted — supers
 - Delivery-state colours are separate theme roles (`KrantenwijkTheme.colors.both`/`newspaperOnly`/`nothing`/`doesNotExist`).
 
 **Consequences:** `ThemeContrastTest` checks every text/background pair (≥ 7:1) and every tile or control edge (≥ 3:1) in both themes. It already caught one case the manual table missed ("does not exist" text on cards). Any future colour change must pass it.
+
+---
+
+### DEC-016: Number check edits the saved section (save first, then check)
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** Claude (presented to the user with ADR-B)
+**Related:** ADR-B (ADR-12, ADR-03), ADR-A, ONB-A
+
+**Context:** In the prototype, numbers are checked in a draft before the section is saved. Plan ADR-03 also needs the same editing on existing sections.
+
+**Decision:** "Check numbers" saves the section immediately and opens the street-section screen. The same screen serves the number check after adding (ADR-12) and later edits (ADR-03). Each change is written straight away (NFR-05). Navigation replaces the add form with the number check, so back returns to the route.
+
+**Consequences:** One screen and one set of tests instead of two. Abandoning the check leaves a saved section, which can be deleted with "Delete street section" (with confirmation).

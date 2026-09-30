@@ -9,7 +9,6 @@
 
     <string name="onboarding_title">Welkom</string>
     <string name="route_editor_title">Wijk</string>
-    <string name="segment_title">Straatdeel</string>
     <string name="building_title">Flat</string>
     <string name="address_title">Adres</string>
     <string name="round_start_title">Ronde starten</string>
@@ -54,6 +53,37 @@
     <string name="range_too_many">Dat zijn meer dan 300 nummers. Splits de straat in kleinere delen.</string>
     <string name="range_even_side">Bij de even kant horen even nummers. De oneven nummers worden overgeslagen.</string>
     <string name="range_odd_side">Bij de oneven kant horen oneven nummers. De even nummers worden overgeslagen.</string>
-    <string name="add_section_save">Straatdeel opslaan</string>
+    <string name="add_section_save">Nummers controleren</string>
     <string name="add_section_save_failed">Het straatdeel kon niet worden opgeslagen. Probeer het opnieuw.</string>
+    <string name="delete">Verwijderen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="does_not_exist">Bestaat niet</string>
+    <plurals name="address_count">
+        <item quantity="one">%d adres</item>
+        <item quantity="other">%d adressen</item>
+    </plurals>
+    <string name="segment_kicker">Straatdeel %1$d · controleren</string>
+    <string name="segment_tap_hint">Tik op een nummer om het aan te passen. Stickers stel je later per straat in.</string>
+    <string name="segment_done">Klaar</string>
+    <string name="segment_delete">Straatdeel verwijderen</string>
+    <string name="segment_delete_title">%1$s verwijderen?</string>
+    <plurals name="segment_delete_text">
+        <item quantity="one">Dit straatdeel en het %d nummer erin worden verwijderd.</item>
+        <item quantity="other">Dit straatdeel en de %d nummers erin worden verwijderd.</item>
+    </plurals>
+    <string name="number_tile_description">Nummer %1$s</string>
+    <string name="number_tile_gone_description">%1$s, bestaat niet</string>
+    <string name="number_sheet_title">Nr. %1$s</string>
+    <string name="number_mark_gone">Bestaat niet</string>
+    <string name="number_mark_gone_sub">Dit nummer is er niet. Het krijgt nooit iets.</string>
+    <string name="number_mark_exists">Bestaat toch</string>
+    <string name="number_mark_exists_sub">“Bestaat niet” ongedaan maken.</string>
+    <string name="number_delete">Verwijderen</string>
+    <string name="number_delete_sub">Haal dit nummer uit de lijst.</string>
+    <string name="number_add">Toevoegen</string>
+    <string name="number_add_title">Nummer toevoegen</string>
+    <string name="number_house_number">Huisnummer</string>
+    <string name="number_addition">Toevoeging (optioneel)</string>
+    <string name="number_add_invalid">Vul een huisnummer boven 0 in.</string>
+    <string name="number_add_duplicate">%1$s staat al in dit straatdeel.</string>
 </resources>

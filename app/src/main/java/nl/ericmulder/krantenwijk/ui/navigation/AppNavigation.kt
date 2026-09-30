@@ -14,6 +14,7 @@ import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderLink
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderScreen
 import nl.ericmulder.krantenwijk.ui.route.AddSectionScreen
 import nl.ericmulder.krantenwijk.ui.route.RouteEditorScreen
+import nl.ericmulder.krantenwijk.ui.route.SegmentDetailScreen
 import nl.ericmulder.krantenwijk.ui.settings.SettingsScreen
 
 private val SavedStateConfig = SavedStateConfiguration { serializersModule = DestinationSerializersModule }
@@ -58,20 +59,19 @@ fun AppNavigation() {
                     onOpenSection = { go(SegmentDetail(it)) },
                 )
             }
-            entry<AddSection> { AddSectionScreen(onBack = ::back, onSaved = ::back) }
-            entry<SegmentDetail> {
-                PlaceholderScreen(
-                    title = stringResource(R.string.segment_title),
-                    featureId = "ADR-B",
+            entry<AddSection> {
+                AddSectionScreen(
                     onBack = ::back,
-                    links = listOf(
-                        PlaceholderLink(stringResource(R.string.address_title)) { go(AddressDetail(addressId = 0)) },
-                        PlaceholderLink(stringResource(R.string.building_title)) { go(BuildingDetail(buildingId = 0)) },
-                    ),
+                    // Replace the form with the number check, so back from there returns to the route.
+                    onSaved = { id ->
+                        backStack.removeAt(backStack.lastIndex)
+                        go(SegmentDetail(id))
+                    },
                 )
             }
+            entry<SegmentDetail> { key -> SegmentDetailScreen(segmentId = key.segmentId, onBack = ::back) }
             entry<BuildingDetail> { PlaceholderScreen(stringResource(R.string.building_title), "BLD-B", ::back) }
-            entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "ADR-B", ::back) }
+            entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "STK-A", ::back) }
             entry<RoundStart> {
                 PlaceholderScreen(
                     title = stringResource(R.string.round_start_title),

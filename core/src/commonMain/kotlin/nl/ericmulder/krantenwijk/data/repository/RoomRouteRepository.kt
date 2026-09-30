@@ -15,6 +15,7 @@ import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
+import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.generateRange
 import nl.ericmulder.krantenwijk.domain.rules.inWalkingOrder
@@ -59,6 +60,9 @@ class RoomRouteRepository(
         }
     }
 
+    override fun observeAddressCounts(): Flow<Map<Long, Int>> =
+        addressDao.observeExistingCounts().map { rows -> rows.associate { it.segmentId to it.count } }
+
     override fun observeStreetNames(): Flow<List<String>> = segmentDao.observeStreetNames()
 
     override suspend fun addSegment(streetName: String, side: Side, from: Int, to: Int, direction: Direction): Long {
@@ -92,10 +96,13 @@ class RoomRouteRepository(
     override suspend fun setDirection(segmentId: Long, direction: Direction) =
         segmentDao.setDirection(segmentId, direction)
 
-    override suspend fun addAddress(segmentId: Long, houseNumber: Int, addition: String?): Long =
-        addressDao.insert(
-            Address(houseNumber = houseNumber, addition = addition?.trim()?.ifEmpty { null }, segmentId = segmentId).toEntity(),
-        )
+    override suspend fun addAddress(segmentId: Long, houseNumber: Int, addition: String?): Long {
+        val cleanAddition = addition?.trim()?.ifEmpty { null }
+        if (addressDao.count(segmentId, houseNumber, cleanAddition.orEmpty()) > 0) {
+            throw DuplicateAddressException(houseNumber, cleanAddition)
+        }
+        return addressDao.insert(Address(houseNumber = houseNumber, addition = cleanAddition, segmentId = segmentId).toEntity())
+    }
 
     override suspend fun deleteAddresses(addressIds: Collection<Long>) = addressDao.delete(addressIds)
 

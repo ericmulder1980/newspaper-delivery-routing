@@ -51,12 +51,12 @@ import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 @Composable
 fun AddSectionScreen(
     onBack: () -> Unit,
-    onSaved: () -> Unit,
+    onSaved: (segmentId: Long) -> Unit,
     viewModel: AddSectionViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val saved by viewModel.saved.collectAsStateWithLifecycle()
-    LaunchedEffect(saved) { if (saved) onSaved() }
+    val savedSegmentId by viewModel.savedSegmentId.collectAsStateWithLifecycle()
+    LaunchedEffect(savedSegmentId) { savedSegmentId?.let(onSaved) }
 
     ScreenScaffold(title = stringResource(R.string.add_section_title), onBack = onBack) {
         Text(

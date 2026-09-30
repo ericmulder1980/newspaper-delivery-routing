@@ -101,6 +101,12 @@ interface AddressDao {
     @Query("SELECT * FROM address WHERE id = :id")
     suspend fun get(id: Long): AddressEntity?
 
+    @Query("SELECT COUNT(*) FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND addition = :addition")
+    suspend fun count(segmentId: Long, houseNumber: Int, addition: String): Int
+
+    @Query("SELECT segmentId, COUNT(*) AS count FROM address WHERE `exists` = 1 GROUP BY segmentId")
+    fun observeExistingCounts(): Flow<List<SegmentCount>>
+
     @Insert
     suspend fun insert(address: AddressEntity): Long
 
@@ -119,3 +125,6 @@ interface AddressDao {
     @Query("UPDATE address SET sticker = :sticker WHERE id IN (:ids)")
     suspend fun setSticker(ids: Collection<Long>, sticker: Sticker)
 }
+
+/** Result row for [AddressDao.observeExistingCounts]. */
+data class SegmentCount(val segmentId: Long, val count: Int)

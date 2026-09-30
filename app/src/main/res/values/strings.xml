@@ -11,7 +11,6 @@
 
     <string name="onboarding_title">Welcome</string>
     <string name="route_editor_title">Route</string>
-    <string name="segment_title">Street section</string>
     <string name="building_title">Apartment building</string>
     <string name="address_title">Address</string>
     <string name="round_start_title">Start round</string>
@@ -57,6 +56,37 @@
     <string name="range_too_many">That’s more than 300 numbers. Split the street into smaller sections.</string>
     <string name="range_even_side">The even side has even numbers. The odd numbers are skipped.</string>
     <string name="range_odd_side">The odd side has odd numbers. The even numbers are skipped.</string>
-    <string name="add_section_save">Save street section</string>
+    <string name="add_section_save">Check numbers</string>
     <string name="add_section_save_failed">The street section could not be saved. Please try again.</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="does_not_exist">Does not exist</string>
+    <plurals name="address_count">
+        <item quantity="one">%d address</item>
+        <item quantity="other">%d addresses</item>
+    </plurals>
+    <string name="segment_kicker">Street section %1$d · check</string>
+    <string name="segment_tap_hint">Tap a number to change it. Stickers are set later per street.</string>
+    <string name="segment_done">Done</string>
+    <string name="segment_delete">Delete street section</string>
+    <string name="segment_delete_title">Delete %1$s?</string>
+    <plurals name="segment_delete_text">
+        <item quantity="one">This street section and its %d number are removed.</item>
+        <item quantity="other">This street section and its %d numbers are removed.</item>
+    </plurals>
+    <string name="number_tile_description">Number %1$s</string>
+    <string name="number_tile_gone_description">%1$s, does not exist</string>
+    <string name="number_sheet_title">No. %1$s</string>
+    <string name="number_mark_gone">Does not exist</string>
+    <string name="number_mark_gone_sub">This number isn’t there. It never gets anything.</string>
+    <string name="number_mark_exists">Exists after all</string>
+    <string name="number_mark_exists_sub">Undo “does not exist”.</string>
+    <string name="number_delete">Delete</string>
+    <string name="number_delete_sub">Remove this number from the list.</string>
+    <string name="number_add">Add</string>
+    <string name="number_add_title">Add number</string>
+    <string name="number_house_number">House number</string>
+    <string name="number_addition">Addition (optional)</string>
+    <string name="number_add_invalid">Enter a house number above 0.</string>
+    <string name="number_add_duplicate">%1$s is already in this street section.</string>
 </resources>

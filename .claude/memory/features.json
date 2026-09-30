@@ -263,8 +263,8 @@
         "FND-002",
         "FND-004"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan ADR-02, ADR-07, ADR-11"
       ],
@@ -277,17 +277,16 @@
           "AddSectionScreen + AddSectionViewModel: street with 'used before' suggestions, Even/Odd/Both toggle, From/To (digits, max 4), 'Walk in reverse order' checkbox (DEC-012), live preview + prototype warnings, save; form survives process death (SavedStateHandle)",
           "RouteEditor made minimally real so ADR-A is testable: create route (name + optional town), list sections, Add street section",
           "EN + NL strings incl. plurals; 25 app tests (ViewModel tests with FakeRouteRepository); mutation check passes",
-          "Version 0.3.0 (3)"
+          "Version 0.3.0 (3)",
+          "CI green 1b5d7ed; user approved on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push after approval"
-        ],
+        "remaining": [],
         "notes": [
           "Save goes straight to the route editor; ADR-B inserts the number-check step ('Nummers controleren')",
           "Route creation form here becomes step 2 of the ONB-A wizard"
         ]
-      }
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "ADR-B",
@@ -302,11 +301,28 @@
       "dependencies": [
         "ADR-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan ADR-12, ADR-03, ADR-04"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "Flow: 'Check numbers' saves the section, then opens the number check (SegmentDetail) in place of the form (DEC-016)",
+          "SegmentDetail: position, side, range, existing count; tile grid in walking order; does-not-exist tiles dashed + struck through",
+          "Tap sheet: Does not exist / Exists after all, Delete; Add sheet: number + optional addition, invalid/duplicate errors",
+          "Delete street section with confirmation; Done returns to route; route list shows address counts",
+          "core: DuplicateAddressException, observeAddressCounts (+3 tests); 31 app tests; version 0.4.0 (4)"
+        ],
+        "remaining": [
+          "User phone test",
+          "Commit + push after approval"
+        ],
+        "notes": [
+          "'Make building' option is added to the tap sheet in BLD-A",
+          "Address detail (sticker etc.) is STK-A / ADR-09/10"
+        ]
+      }
     },
     {
       "id": "ADR-C",
@@ -700,8 +716,8 @@
     }
   ],
   "current": {
-    "feature": "ADR-A",
-    "next_recommended": "Finish ADR-A (phone test), then ADR-B (number check + address editing)"
+    "feature": "ADR-B",
+    "next_recommended": "Finish ADR-B (phone test), then STK-A (stickers) or ADR-C (reorder/direction)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
