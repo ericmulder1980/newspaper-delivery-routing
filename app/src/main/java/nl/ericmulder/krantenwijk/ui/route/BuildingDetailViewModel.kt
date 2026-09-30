@@ -109,13 +109,7 @@ class BuildingDetailViewModel @AssistedInject constructor(
     fun apply(option: StickerOption, apartmentIds: Collection<Long>) {
         if (apartmentIds.isEmpty()) return
         viewModelScope.launch {
-            when (option) {
-                is StickerOption.Set -> {
-                    routes.setSticker(apartmentIds, option.sticker)
-                    routes.setExists(apartmentIds, true)
-                }
-                StickerOption.DoesNotExist -> routes.setExists(apartmentIds, false)
-            }
+            routes.applyStickerOption(option, apartmentIds)
             stopSelecting()
         }
     }

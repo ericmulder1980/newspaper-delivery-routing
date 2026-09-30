@@ -335,8 +335,8 @@
       "dependencies": [
         "ADR-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan ADR-05, ADR-06"
       ],
@@ -348,13 +348,12 @@
         "done": [
           "'Walk in reverse order' checkbox on the street screen; flips houses and buildings immediately (ADR-06)",
           "Route list shows 'reverse 24 → 2'",
-          "+1 app test; version 0.8.0 (8)"
+          "+1 app test; version 0.8.0 (8)",
+          "CI green 347022e; user approved 2026-09-30"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "STK-A",
@@ -457,7 +456,9 @@
           "+ Add tile: letter or number per building type, 12M after 12L; duplicate/invalid errors (BLD-05)",
           "Refactor: shared tiles/sheets/dialogs in ui/route/AddressEditing.kt used by street and building screens",
           "49 app tests; mutation check passes; version 0.7.0 (7)",
-          "CI green 0ac53f5; user approved on phone 2026-09-30"
+          "CI green 0ac53f5; user approved on phone 2026-09-30",
+          "Follow-up 2026-09-30: grid did not fit a 5\" screen (Robolectric test); header compacted (Select in counts row, hint below grid), compact tiles 64dp; now fits 5\" and 6.1\"",
+          "DEC-023 (2026-09-30): '26 tiles on one screen' dropped; grid back to 4 columns, 72dp tiles, 8dp spacing"
         ],
         "remaining": []
       },
@@ -487,8 +488,8 @@
     },
     {
       "id": "RND-A",
-      "title": "Start round: live list with take-along counts",
-      "description": "'Start round' opens the round list directly (no contents choice, DEC-019). Counts of newspapers and leaflets for the whole route are shown at the top, calculated live from the addresses (deliverySummary with FullRound). Nothing is stored per round (DEC-014).",
+      "title": "Walking route overview with totals",
+      "description": "Home 'Start round' opens the walking route: totals (sections, newspapers, leaflets) and all sections in walking order with counts; tap a section or 'Start at street section 1' (DEC-022).",
       "priority": "high",
       "plan_refs": [
         "RND-02"
@@ -496,20 +497,30 @@
       "dependencies": [
         "STK-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
-        "Start round opens the walking list without extra steps",
-        "Header shows newspapers and leaflets to take along; counts match the existing addresses (does-not-exist and NEE/NEE excluded as per rules)"
+        "Totals match the existing addresses (DEC-019)",
+        "Tapping a section opens it in round mode"
       ],
       "notes": [
         "RND-01 dropped (DEC-019). Simplify nav: remove RoundStart placeholder; RoundMode becomes a data object"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "Walking route overview: route name, totals (sections, newspapers, leaflets), sections with counts, tap to start there, 'Start at street section 1'",
+          "core: observeAllAddresses (+1 test)"
+        ],
+        "remaining": [
+          "User phone test (walk a real street)",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "RND-B",
-      "title": "Round list in walking order (live)",
-      "description": "Live list of addresses grouped by segment in walking order with four distinct delivery states (icon + colour); skipped houses dimmed with toggle; non-existing hidden by default; screen kept on. Always reflects current route data (DEC-014).",
+      "title": "Round street screen (street by street)",
+      "description": "One street section at a time with the editor's tiles, counts, Previous/Next street buttons with street names, tap = sticker sheet (no delete/building), show-skipped toggle, non-existing hidden by default, screen stays on (DEC-022).",
       "priority": "high",
       "plan_refs": [
         "RND-03",
@@ -522,11 +533,28 @@
       "dependencies": [
         "RND-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan RND-03, RND-04, RND-08; smooth scroll with 1,000 addresses"
-      ]
+      ],
+      "notes": [
+        "DEC-021: set up Robolectric Compose UI tests here (4 states distinct); then backfill §10 UI tests (26-tile grid, NL/EN start-up)"
+      ],
+      "progress": {
+        "done": [
+          "Round street screen: 'Street section n / N', side · range, counts, show-skipped switch (+ hidden count), legend, editor tiles; tap = sticker sheet without delete/building",
+          "Fixed Previous/Next bar naming adjacent sections; last Next = 'Finish round' (back to Home); Previous/Next replace the screen",
+          "Keep screen on (RND-08); does-not-exist hidden unless setting; Settings: show skipped / show non-existing / keep screen on",
+          "Robolectric screen tests (DEC-021): DeliveryTileTest (4 states, NL, DE→EN fallback, both themes), BuildingGridFitsTest (6.1\" and 5\"), RoundStreetScreenTest",
+          "JDK flag --add-exports java.base/jdk.internal.access (robolectric#11434); espresso 3.7.0 + androidx.test core 1.7.0 pinned for SDK 37",
+          "DEC-023 touch targets: walk targets ≥64dp, primary actions ≥72dp, 8dp spacing; TouchTargetTest on a 360dp phone (replaces the grid-fit test)"
+        ],
+        "remaining": [
+          "User phone test (walk a real street)",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "RND-C",
@@ -564,14 +592,24 @@
         "RND-B",
         "BLD-B"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan BLD-06"
       ],
       "notes": [
-        "DEC-020 replaces the plan's inline expand"
-      ]
+        "DEC-020 replaces the plan's inline expand",
+        "DEC-022: build together with RND-B (building row tap → round variant of the mailbox grid)"
+      ],
+      "progress": {
+        "done": [
+          "Building row tap in round → mailbox grid directly (DEC-020), round variant without select/add/delete, 'Back to <street>'"
+        ],
+        "remaining": [
+          "User phone test (walk a real street)",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "DATA-A",
@@ -723,9 +761,9 @@
         "RND-C"
       ],
       "phase": "inception",
-      "status": "pending",
+      "status": "skipped",
       "notes": [
-        "Redefined 2026-09-30 (DEC-018): 'next up' = next street section, not next deliveries"
+        "Covered by DEC-022: Next button shows the next street section"
       ],
       "description": "Toggle between the full list and a compact view: the current street section in large type plus the next section in the route order (DEC-018)."
     },
@@ -802,12 +840,11 @@
     }
   ],
   "current": {
-    "feature": "ADR-C",
-    "next_recommended": "Finish ADR-C, then ONB-A (setup wizard + home) or RND-A/RND-B (round mode)"
+    "feature": "RND-B",
+    "next_recommended": "Phone test of round mode (v0.9.0), then ONB-A (setup wizard + home)"
   },
   "open_questions": [
-    "No target date for the MVP (M2) set yet.",
-    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B"
+    "No target date for the MVP (M2) set yet."
   ],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",
@@ -856,6 +893,10 @@
     {
       "id": "RND-12",
       "reason": "DEC-014"
+    },
+    {
+      "id": "RND-10",
+      "reason": "DEC-022: covered by Previous/Next street buttons"
     }
   ]
 }

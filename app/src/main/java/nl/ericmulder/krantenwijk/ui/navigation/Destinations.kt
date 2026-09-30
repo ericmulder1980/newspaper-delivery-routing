@@ -40,13 +40,17 @@ data class BuildingDetail(val buildingId: Long) : Destination
 @Serializable
 data class AddressDetail(val addressId: Long) : Destination
 
-/** Choose today's contents and see the counts (RND-A). */
+/** Walking route: totals and all sections (RND-A, DEC-022). */
 @Serializable
-data object RoundStart : Destination
+data object RoundOverview : Destination
 
-/** Live walking list for today's contents (RND-B, DEC-014). */
+/** One street section while delivering (RND-B, DEC-022). */
 @Serializable
-data class RoundMode(val newspaper: Boolean, val leaflets: Boolean) : Destination
+data class RoundStreet(val segmentId: Long) : Destination
+
+/** A building's mailboxes while delivering (RND-D, DEC-020). */
+@Serializable
+data class RoundBuilding(val buildingId: Long) : Destination
 
 @Serializable
 data object Settings : Destination

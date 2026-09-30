@@ -80,9 +80,7 @@ import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.unitsOrNull
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 
-private const val COLUMNS = 4
 
-private fun Address.label() = "$houseNumber${addition.orEmpty()}"
 
 /** What the sticker sheet acts on: one tapped number, or the current selection. */
 private sealed interface SheetTarget {
@@ -138,14 +136,19 @@ fun SegmentDetailScreen(
         Legend()
         SelectionBar(ready, viewModel)
         NumberGrid(
-            ready = ready,
+            cells = ready.cells,
+            selection = ready.selection,
             onTap = { address ->
                 if (ready.selecting) viewModel.toggleSelected(address) else sheetAddressId = address.id
             },
             onTapBuilding = { summary -> if (!ready.selecting) buildingSheetId = summary.building.id },
-            onAdd = {
-                viewModel.clearAddError()
-                adding = true
+            onAdd = if (ready.selecting) {
+                null
+            } else {
+                {
+                    viewModel.clearAddError()
+                    adding = true
+                }
             },
         )
         val selected = ready.selection
@@ -182,7 +185,7 @@ fun SegmentDetailScreen(
             }
             StickerSheet(
                 title = if (target is SheetTarget.One) {
-                    stringResource(R.string.number_sheet_title, targetAddresses.single().label())
+                    stringResource(R.string.number_sheet_title, targetAddresses.single().houseLabel())
                 } else {
                     pluralStringResource(R.plurals.numbers_selected, targetAddresses.size, targetAddresses.size)
                 },
@@ -305,31 +308,6 @@ private fun Header(ready: SegmentDetailUiState.Ready) {
     )
 }
 
-/** Colour key, as in the prototype; each entry also shows the icons so colour is never the only cue. */
-@Composable
-private fun Legend() {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        listOf(DeliveryKind.BOTH, DeliveryKind.NEWSPAPER_ONLY, DeliveryKind.NOTHING, DeliveryKind.DOES_NOT_EXIST).forEach { kind ->
-            val style = kind.style()
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Box(
-                    Modifier
-                        .size(16.dp)
-                        .then(
-                            if (style.dashedBorder) {
-                                Modifier.dashedBorder(style.border, 1.5.dp, 4.dp)
-                            } else {
-                                Modifier.border(2.dp, style.border, RoundedCornerShape(4.dp))
-                            },
-                        )
-                        .background(style.fill ?: androidx.compose.ui.graphics.Color.Transparent, RoundedCornerShape(4.dp)),
-                )
-                Text(stringResource(kind.label()), style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    }
-}
-
 @Composable
 private fun SelectionBar(ready: SegmentDetailUiState.Ready, viewModel: SegmentDetailViewModel) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -338,144 +316,6 @@ private fun SelectionBar(ready: SegmentDetailUiState.Ready, viewModel: SegmentDe
             SecondaryButton(stringResource(R.string.cancel), viewModel::stopSelecting, Modifier.weight(1f))
         } else {
             SecondaryButton(stringResource(R.string.select), viewModel::startSelecting, Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun NumberGrid(
-    ready: SegmentDetailUiState.Ready,
-    onTap: (Address) -> Unit,
-    onTapBuilding: (BuildingSummary) -> Unit,
-    onAdd: () -> Unit,
-) {
-    // Houses fill rows of four; a building takes a full row at the position of its number.
-    val rows = buildList<List<SegmentCell?>> {
-        var current = mutableListOf<SegmentCell?>()
-        fun flush() {
-            if (current.isNotEmpty()) add(current)
-            current = mutableListOf()
-        }
-        val cells: List<SegmentCell?> = if (ready.selecting) ready.cells else ready.cells + null // null = "Add" tile
-        cells.forEach { cell ->
-            if (cell is SegmentCell.Apartments) {
-                flush()
-                add(listOf(cell))
-            } else {
-                current += cell
-                if (current.size == COLUMNS) flush()
-            }
-        }
-        flush()
-    }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        rows.forEach { row ->
-            val only = row.singleOrNull()
-            if (only is SegmentCell.Apartments) {
-                BuildingRow(only.summary, dimmed = ready.selecting) { onTapBuilding(only.summary) }
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    row.forEach { cell ->
-                        Box(Modifier.weight(1f)) {
-                            when (cell) {
-                                null -> AddTile(onAdd)
-                                is SegmentCell.House -> StickerTile(
-                                    address = cell.address,
-                                    label = cell.address.label(),
-                                    spokenLabel = cell.address.label(),
-                                    selected = ready.selection?.contains(cell.address.id),
-                                    onClick = { onTap(cell.address) },
-                                )
-                                is SegmentCell.Apartments -> Unit
-                            }
-                        }
-                    }
-                    repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
-                }
-            }
-        }
-    }
-}
-
-/** A building as one row (BLD-02): number, apartment count and range, sticker summary, colour strip, counts. */
-@Composable
-private fun BuildingRow(summary: BuildingSummary, dimmed: Boolean, onClick: () -> Unit) {
-    val building = summary.building
-    val first = summary.apartments.firstOrNull()?.addition
-    val last = summary.apartments.lastOrNull()?.addition
-    val range = if (first != null && last != null) "${building.unitLabel(first)}–${building.unitLabel(last)}" else ""
-    val stickers = stickerSummaryText(summary)
-    val description = stringResource(
-        R.string.building_row_description,
-        building.houseNumber,
-        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
-        stickers.ifEmpty { stringResource(R.string.sticker_none) },
-    )
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 96.dp)
-            .clickable(enabled = !dimmed, onClick = onClick)
-            .clearAndSetSemantics {
-                contentDescription = description
-                role = Role.Button
-            },
-    ) {
-        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(building.houseNumber.toString(), style = MaterialTheme.typography.displaySmall)
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount) +
-                            if (range.isNotEmpty()) " · $range" else "",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    if (stickers.isNotEmpty()) {
-                        Text(stickers, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                if (!dimmed) {
-                    Text(stringResource(R.string.building_zoom_in), style = MaterialTheme.typography.labelLarge)
-                }
-            }
-            UnitStrip(summary.apartments)
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                CountWithIcon(R.drawable.ic_newspaper, pluralStringResource(R.plurals.newspaper_count, summary.counts.newspapers, summary.counts.newspapers))
-                CountWithIcon(R.drawable.ic_leaflets, pluralStringResource(R.plurals.leaflet_count, summary.counts.leaflets, summary.counts.leaflets))
-            }
-        }
-    }
-}
-
-/** "3 NEE/JA · 2 NEE/NEE": only stickers that block something are listed, as in plan BLD-02. */
-@Composable
-private fun stickerSummaryText(summary: BuildingSummary): String = listOfNotNull(
-    summary.stickers.neeJa.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_ja)}" },
-    summary.stickers.neeNee.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_nee)}" },
-).joinToString(" · ")
-
-/** One small block per apartment in its delivery colour, like the prototype's strip. */
-@Composable
-private fun UnitStrip(apartments: List<Address>) {
-    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.fillMaxWidth()) {
-        apartments.forEach { apartment ->
-            val style = deliveryKind(apartment).style()
-            Box(
-                Modifier
-                    .weight(1f)
-                    .height(10.dp)
-                    .then(
-                        if (style.dashedBorder) {
-                            Modifier.dashedBorder(style.border, 1.dp, 2.dp)
-                        } else {
-                            Modifier.border(1.dp, style.border, RoundedCornerShape(2.dp))
-                        },
-                    )
-                    .background(style.fill ?: androidx.compose.ui.graphics.Color.Transparent, RoundedCornerShape(2.dp)),
-            )
         }
     }
 }

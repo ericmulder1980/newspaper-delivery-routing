@@ -25,18 +25,17 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import nl.ericmulder.krantenwijk.R
 
-/** Minimum touch target for primary controls (NFR-03). */
-val MinTouchTarget = 56.dp
-
 /** Screen frame: title bar with an optional back button, and scrollable content with side padding. */
 @Composable
 fun ScreenScaffold(
     title: String,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    /** Fixed at the bottom, e.g. the round's Previous/Next buttons. */
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(modifier = modifier) { padding ->
+    Scaffold(modifier = modifier, bottomBar = bottomBar) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(
                 modifier = Modifier.padding(horizontal = 8.dp).heightIn(min = MinTouchTarget),

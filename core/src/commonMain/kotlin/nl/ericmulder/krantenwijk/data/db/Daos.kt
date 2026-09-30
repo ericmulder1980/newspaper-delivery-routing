@@ -167,6 +167,9 @@ interface AddressDao {
     @Query("SELECT * FROM address WHERE segmentId = :segmentId")
     fun observeForSegment(segmentId: Long): Flow<List<AddressEntity>>
 
+    @Query("SELECT * FROM address")
+    fun observeAll(): Flow<List<AddressEntity>>
+
     @Query("SELECT * FROM address WHERE buildingId = :buildingId")
     fun observeForBuilding(buildingId: Long): Flow<List<AddressEntity>>
 

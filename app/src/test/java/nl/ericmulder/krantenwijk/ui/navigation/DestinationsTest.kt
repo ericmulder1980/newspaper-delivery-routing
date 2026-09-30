@@ -30,8 +30,9 @@ class DestinationsTest {
             SegmentDetail(segmentId = 7),
             BuildingDetail(buildingId = 3),
             AddressDetail(addressId = 42),
-            RoundStart,
-            RoundMode(newspaper = true, leaflets = false),
+            RoundOverview,
+            RoundStreet(segmentId = 5),
+            RoundBuilding(buildingId = 9),
             Settings,
         )
     }

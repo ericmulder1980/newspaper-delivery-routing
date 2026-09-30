@@ -59,6 +59,8 @@ class FakeRouteRepository : RouteRepository {
             }
         }
 
+    override fun observeAllAddresses(): Flow<List<Address>> = addresses
+
     override fun observeAddressCounts(): Flow<Map<Long, Int>> =
         addresses.map { list -> list.filter { it.exists }.groupingBy { it.segmentId }.eachCount() }
 

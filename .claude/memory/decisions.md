@@ -405,3 +405,72 @@ Track significant decisions. Each decision is immutable once accepted — supers
 - **Editor:** keeps the sheet, which is fine there according to the user, because it also offers "No longer a building".
 
 **Consequences:** RND-D becomes "building row in the round list + direct zoom-in", reusing the apartment view from BLD-B (read-only or round-oriented, to be decided when RND-D is built). The plan's inline expand is replaced.
+
+---
+
+### DEC-021: Screen (Compose UI) tests run on the JVM with Robolectric
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User (on Claude's recommendation)
+**Related:** plan §10 (UI tests), RND-B, BLD-B, FND-002 (LANG-01), DEC-013
+
+**Context:** Plan §10 asks for Compose UI tests: the key flows, four delivery states rendering distinct icons, the 26-tile building grid fitting one screen, and Dutch/English start-up. The user installs APKs by file transfer (no adb), and the Intel Mac is too slow for a local emulator. For Room, Google advises against Robolectric (DEC-013), but there's no such advice for Compose UI.
+
+**Options Considered:**
+1. **Robolectric in `:app`:** chosen. Runs on the Mac and in CI via `./gradlew test`.
+2. **Emulator in CI only:** most realistic, but +10–15 min per run and no local feedback.
+3. **No screen tests:** rely on the user's phone tests.
+
+**Decision:**
+- Robolectric 4.17 (supports SDK 37) in `:app`'s unit tests with the Compose `v2` `createComposeRule`.
+- These tests are JUnit 4 (the Compose test APIs require it). They run next to the JUnit Jupiter tests via the JUnit Vintage engine on the same JUnit Platform.
+- Set up at the start of RND-B, the first screen whose rendering needs checking (four states). Then add the other §10 screen tests.
+
+**Consequences:** Builds take a little longer, maybe 1–2 minutes on this Mac. Rendering is simulated, so the user's phone test stays the final check for looks, readability and size (for example the 26-tile grid).
+
+---
+
+### DEC-022: Round mode is street by street, as in the prototype
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User (chose the prototype layout on Claude's recommendation)
+**Related:** RND-A, RND-B, RND-D, RND-10, DEC-018, DEC-019, DEC-020
+
+**Context:** Plan RND-03 describes one long list of all addresses grouped by street. The approved prototype ("1 · Looproute", "2 · Straatdeel") walks street by street, with Previous/Next street buttons, and its route overview shows totals and all sections.
+
+**Decision:**
+- **Walking route overview (RND-A):** route name, totals (sections · newspapers · leaflets; RND-02, DEC-019), all sections in walking order with their counts. Tap a section to start there, or use "Start at street section 1".
+- **Round street screen (RND-B):**
+  - "Street section 3 / 6", street, side · range, and counts at the top.
+  - The editor's tiles (colour + icons + label) in walking order.
+  - Large **Previous / Next street** buttons showing the adjacent street names. At the end, "Finish round" returns home.
+  - Previous/Next replace the screen, so back always returns to the overview.
+- **Tap on a house:** opens the "Sticker on mailbox" sheet for a quick correction, without delete or "Apartment building".
+- **Buildings:** tapping the row opens the mailbox grid directly (DEC-020), in a round variant without Select, Add or Delete.
+- **RND-04:** "Show skipped houses" toggle (NEE/NEE tiles), default on, stored in settings. "Does not exist" is hidden by default (ADR-04), with a Settings switch. **RND-08:** screen stays on (Settings switch, default on).
+- **RND-10 ("next up")** is covered by the Next button, which shows the next street (DEC-018). No separate compact view.
+
+**Consequences:** Plan RND-03's single long list is replaced. NFR-03 sizes apply to the round screens: Previous/Next buttons at least 72dp, tiles as in the editor.
+
+---
+
+### DEC-023: Touch target sizes and spacing
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User (asked for research; approved Claude's proposal)
+**Related:** NFR-03, NFR-04, BLD-03, RND-B, DEC-015
+
+**Context:** The deliverer taps with one hand, often with gloves, in the dark. The user asked for research-based minimums and said scrolling is fine. Research (2026):
+- Android/Material: 48×48 dp (about 9 mm) with 8 dp between targets.
+- WCAG 2.2: 2.5.8 AA is 24×24 px; 2.5.5 AAA is 44×44 px.
+- Studies of one-handed thumb use: 9.2–9.6 mm, and about 1×1 cm for adjacent targets.
+- Fingertip: 8–10 mm. Gloves need larger targets.
+
+**Decision:**
+1. **Everywhere:** tappable elements are at least **48×48 dp**, with at least **8 dp** between them.
+2. **Things tapped while walking** (street tiles, mailboxes, sheet options, section rows): at least **64×64 dp** (about 12 mm).
+3. **Primary round actions** (Previous/Next, Start round, Set sticker): at least **72 dp** high.
+4. **The BLD-03 criterion "26 tiles fit one screen" is dropped** (user: scrolling is fine). The building grid goes back to 4 columns with 8 dp spacing.
+5. Constants live in `ui/common/TouchTargets.kt`. Robolectric screen tests check sizes and spacing on a small 360 dp wide phone.
+
+**Consequences:** Buildings with many apartments need scrolling. The plan's 56 dp (NFR-03) is superseded by 64 dp for walking targets.

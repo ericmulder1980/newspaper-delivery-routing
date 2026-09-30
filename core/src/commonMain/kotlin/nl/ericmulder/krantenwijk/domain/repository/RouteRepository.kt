@@ -32,6 +32,9 @@ interface RouteRepository {
     /** A segment with its buildings and addresses in walking order; null once the segment is deleted. */
     fun observeSegmentContents(segmentId: Long): Flow<SegmentContents?>
 
+    /** Every address in the route (houses and apartments), for route-wide totals (RND-02). */
+    fun observeAllAddresses(): Flow<List<Address>>
+
     /** Number of existing addresses per segment id, excluding "does not exist" (ADR-04). */
     fun observeAddressCounts(): Flow<Map<Long, Int>>
 

@@ -10,8 +10,6 @@
     <string name="onboarding_title">Welkom</string>
     <string name="route_editor_title">Wijk</string>
     <string name="address_title">Adres</string>
-    <string name="round_start_title">Ronde starten</string>
-    <string name="round_title">Ronde</string>
 
     <string name="settings_title">Instellingen</string>
     <string name="settings_theme">Thema</string>
@@ -158,4 +156,25 @@
     <string name="apartment_invalid_letter">Vul één letter in, A–Z.</string>
     <string name="apartment_invalid_number">Vul een nummer boven 0 in.</string>
     <string name="apartment_duplicate">%1$s bestaat al.</string>
+    <string name="round_overview_title">Looproute</string>
+    <string name="round_no_sections">Er zijn nog geen straatdelen. Voeg ze eerst toe via Wijk bewerken.</string>
+    <string name="round_start_first">Begin bij straatdeel 1</string>
+    <string name="round_total_sections">Straatdelen</string>
+    <string name="round_total_newspapers">Kranten</string>
+    <string name="round_total_leaflets">Folders</string>
+    <string name="round_street_kicker">Straatdeel %1$d / %2$d</string>
+    <plurals name="round_hidden_skipped">
+        <item quantity="one">%d huis dat niets krijgt is verborgen.</item>
+        <item quantity="other">%d huizen die niets krijgen zijn verborgen.</item>
+    </plurals>
+    <string name="round_previous">Vorige</string>
+    <string name="round_next">Volgende</string>
+    <string name="round_finish">Ronde klaar</string>
+    <string name="round_start_of_route">Begin route</string>
+    <string name="round_end_of_route">Einde route</string>
+    <string name="round_building_back">Terug naar %1$s</string>
+    <string name="settings_round">Ronde</string>
+    <string name="settings_show_skipped">Huizen die niets krijgen tonen</string>
+    <string name="settings_show_non_existing">Nummers die niet bestaan tonen</string>
+    <string name="settings_keep_screen_on">Scherm aan houden tijdens een ronde</string>
 </resources>

@@ -182,13 +182,7 @@ class SegmentDetailViewModel @AssistedInject constructor(
     fun apply(option: StickerOption, addressIds: Collection<Long>) {
         if (addressIds.isEmpty()) return
         viewModelScope.launch {
-            when (option) {
-                is StickerOption.Set -> {
-                    routes.setSticker(addressIds, option.sticker)
-                    routes.setExists(addressIds, true)
-                }
-                StickerOption.DoesNotExist -> routes.setExists(addressIds, false)
-            }
+            routes.applyStickerOption(option, addressIds)
             stopSelecting()
         }
     }

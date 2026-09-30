@@ -12,6 +12,8 @@ import nl.ericmulder.krantenwijk.R
 import nl.ericmulder.krantenwijk.ui.home.HomeScreen
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderLink
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderScreen
+import nl.ericmulder.krantenwijk.ui.round.RoundOverviewScreen
+import nl.ericmulder.krantenwijk.ui.round.RoundStreetScreen
 import nl.ericmulder.krantenwijk.ui.route.AddSectionScreen
 import nl.ericmulder.krantenwijk.ui.route.BuildingDetailScreen
 import nl.ericmulder.krantenwijk.ui.route.RouteEditorScreen
@@ -44,7 +46,7 @@ fun AppNavigation() {
         entryProvider = entryProvider {
             entry<Home> {
                 HomeScreen(
-                    onStartRound = { go(RoundStart) },
+                    onStartRound = { go(RoundOverview) },
                     onEditRoute = { go(RouteEditor) },
                     onSettings = { go(Settings) },
                 )
@@ -75,17 +77,27 @@ fun AppNavigation() {
             }
             entry<BuildingDetail> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back) }
             entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "STK-A", ::back) }
-            entry<RoundStart> {
-                PlaceholderScreen(
-                    title = stringResource(R.string.round_start_title),
-                    featureId = "RND-A",
+            entry<RoundOverview> {
+                RoundOverviewScreen(
                     onBack = ::back,
-                    links = listOf(
-                        PlaceholderLink(stringResource(R.string.round_title)) { go(RoundMode(newspaper = true, leaflets = false)) },
-                    ),
+                    onOpenSection = { go(RoundStreet(it)) },
+                    onEditRoute = { go(RouteEditor) },
                 )
             }
-            entry<RoundMode> { PlaceholderScreen(stringResource(R.string.round_title), "RND-B", ::back) }
+            entry<RoundStreet> { key ->
+                RoundStreetScreen(
+                    segmentId = key.segmentId,
+                    onBack = ::back,
+                    // Previous/Next replace the street, so back always returns to the overview.
+                    onGoTo = { id ->
+                        backStack.removeAt(backStack.lastIndex)
+                        go(RoundStreet(id))
+                    },
+                    onFinish = { while (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                    onOpenBuilding = { go(RoundBuilding(it)) },
+                )
+            }
+            entry<RoundBuilding> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back, roundMode = true) }
         },
     )
 }

@@ -23,7 +23,7 @@ fun AccentButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifie
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().heightIn(min = 72.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = PrimaryActionHeight),
         shape = ButtonShape,
         border = if (enabled) BorderStroke(2.dp, colors.accentFillBorder) else null,
         colors = ButtonDefaults.buttonColors(containerColor = colors.accentFill, contentColor = colors.onAccentFill),

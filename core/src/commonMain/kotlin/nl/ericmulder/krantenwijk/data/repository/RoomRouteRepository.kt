@@ -71,6 +71,9 @@ class RoomRouteRepository(
         }
     }
 
+    override fun observeAllAddresses(): Flow<List<Address>> =
+        addressDao.observeAll().map { rows -> rows.map { it.toDomain() } }
+
     override fun observeAddressCounts(): Flow<Map<Long, Int>> =
         addressDao.observeExistingCounts().map { rows -> rows.associate { it.segmentId to it.count } }
 

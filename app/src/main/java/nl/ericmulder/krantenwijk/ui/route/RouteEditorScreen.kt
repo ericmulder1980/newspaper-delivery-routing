@@ -29,6 +29,7 @@ import nl.ericmulder.krantenwijk.R
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
+import nl.ericmulder.krantenwijk.ui.common.PrimaryActionHeight
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.label
 
@@ -109,7 +110,7 @@ private fun SegmentRow(position: Int, segment: Segment, addressCount: Int, onCli
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp).clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().heightIn(min = PrimaryActionHeight).clickable(onClick = onClick),
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text("$position. ${segment.streetName}", style = MaterialTheme.typography.titleMedium)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,11 +41,13 @@ import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.model.unitLabel
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
+import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
+import nl.ericmulder.krantenwijk.ui.common.TargetSpacing
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 
-/** Five columns so 26 mailboxes (A–Z) fit one portrait screen (BLD-03). */
-private const val BUILDING_COLUMNS = 5
+/** Four columns keep mailboxes at least 64 dp wide on a 360 dp phone (DEC-023); the grid may scroll. */
+private const val BUILDING_COLUMNS = 4
 
 /** Apartment building zoomed in: the bank of mailboxes (BLD-03..05). */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +55,8 @@ private const val BUILDING_COLUMNS = 5
 fun BuildingDetailScreen(
     buildingId: Long,
     onBack: () -> Unit,
+    /** Round variant (DEC-022): stickers only; no select, add or delete. */
+    roundMode: Boolean = false,
     viewModel: BuildingDetailViewModel = hiltViewModel<BuildingDetailViewModel, BuildingDetailViewModel.Factory>(
         key = "building-$buildingId",
         creationCallback = { it.create(buildingId) },
@@ -80,29 +86,35 @@ fun BuildingDetailScreen(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), itemVerticalAlignment = Alignment.CenterVertically) {
-            Text(
-                pluralStringResource(R.plurals.apartment_count, ready.existingCount, ready.existingCount),
-                style = MaterialTheme.typography.titleMedium,
-            )
-            CountWithIcon(R.drawable.ic_newspaper, pluralStringResource(R.plurals.newspaper_count, ready.counts.newspapers, ready.counts.newspapers))
-            CountWithIcon(R.drawable.ic_leaflets, pluralStringResource(R.plurals.leaflet_count, ready.counts.leaflets, ready.counts.leaflets))
-        }
-        Text(
-            text = stringResource(if (ready.selecting) R.string.building_select_hint else R.string.building_tap_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (ready.selecting) {
-                SecondaryButton(stringResource(R.string.select_all), viewModel::selectAll, Modifier.weight(1f))
-                SecondaryButton(stringResource(R.string.cancel), viewModel::stopSelecting, Modifier.weight(1f))
-            } else {
-                SecondaryButton(stringResource(R.string.select), viewModel::startSelecting, Modifier.weight(1f))
+        // Counts and Select share one row to keep the header short.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                itemVerticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    pluralStringResource(R.plurals.apartment_count, ready.existingCount, ready.existingCount),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                CountWithIcon(R.drawable.ic_newspaper, ready.counts.newspapers.toString())
+                CountWithIcon(R.drawable.ic_leaflets, ready.counts.leaflets.toString())
+            }
+            if (!roundMode) {
+                TextButton(
+                    onClick = if (ready.selecting) viewModel::stopSelecting else viewModel::startSelecting,
+                    modifier = Modifier.heightIn(min = MinTouchTarget),
+                ) {
+                    Text(
+                        stringResource(if (ready.selecting) R.string.cancel else R.string.select),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
             }
         }
         MailboxGrid(
             ready = ready,
+            showAddTile = !roundMode && !ready.selecting,
             onTap = { apartment ->
                 if (ready.selecting) viewModel.toggleSelected(apartment) else sheetApartmentId = apartment.id
             },
@@ -111,15 +123,24 @@ fun BuildingDetailScreen(
                 adding = true
             },
         )
+        Text(
+            text = stringResource(if (ready.selecting) R.string.building_select_hint else R.string.building_tap_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         val selected = ready.selection
         if (selected != null) {
+            SecondaryButton(stringResource(R.string.select_all), viewModel::selectAll)
             AccentButton(
                 text = stringResource(R.string.set_sticker_count, selected.size),
                 onClick = { sheetForSelection = true },
                 enabled = selected.isNotEmpty(),
             )
         } else {
-            AccentButton(text = stringResource(R.string.building_done, ready.streetName), onClick = onBack)
+            AccentButton(
+                text = stringResource(if (roundMode) R.string.round_building_back else R.string.building_done, ready.streetName),
+                onClick = onBack,
+            )
         }
 
         val targets = when {
@@ -145,10 +166,14 @@ fun BuildingDetailScreen(
                     viewModel.apply(option, targets.map { it.id })
                     close()
                 },
-                onDelete = {
-                    val ids = targets.map { it.id }
-                    close()
-                    if (ids.size == 1) viewModel.delete(ids) else confirmDeleteIds = ids
+                onDelete = if (roundMode) {
+                    null
+                } else {
+                    {
+                        val ids = targets.map { it.id }
+                        close()
+                        if (ids.size == 1) viewModel.delete(ids) else confirmDeleteIds = ids
+                    }
                 },
                 onDismiss = close,
             )
@@ -176,11 +201,11 @@ fun BuildingDetailScreen(
 }
 
 @Composable
-private fun MailboxGrid(ready: BuildingDetailUiState.Ready, onTap: (Address) -> Unit, onAdd: () -> Unit) {
-    val cells = if (ready.selecting) ready.apartments else ready.apartments + null // null = "Add" tile
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+private fun MailboxGrid(ready: BuildingDetailUiState.Ready, showAddTile: Boolean, onTap: (Address) -> Unit, onAdd: () -> Unit) {
+    val cells = if (showAddTile) ready.apartments + null else ready.apartments // null = "Add" tile
+    Column(verticalArrangement = Arrangement.spacedBy(TargetSpacing)) {
         cells.chunked(BUILDING_COLUMNS).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(TargetSpacing)) {
                 row.forEach { apartment ->
                     Box(Modifier.weight(1f)) {
                         if (apartment == null) {

@@ -29,8 +29,8 @@ android {
         applicationId = "nl.ericmulder.krantenwijk"
         minSdk = 26
         targetSdk = 37
-        versionCode = 8
-        versionName = "0.8.0"
+        versionCode = 9
+        versionName = "0.9.0"
     }
 
     signingConfigs {
@@ -78,7 +78,13 @@ android {
     }
 
     testOptions {
-        unitTests.all { it.useJUnitPlatform() }
+        // Robolectric screen tests (DEC-021) need the merged resources.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.useJUnitPlatform()
+            // Robolectric on SDK 37 needs this JDK-internal package (robolectric/robolectric#11434).
+            it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
+        }
     }
 }
 
@@ -110,6 +116,19 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+
+    // Compose screen tests on the JVM with Robolectric (DEC-021). They are JUnit 4 tests in
+    // src/testDebug (the test activity comes from ui-test-manifest, a debug-only dependency) and
+    // run next to the JUnit Jupiter tests through the Vintage engine.
+    testDebugImplementation(platform(libs.compose.bom))
+    testDebugImplementation(libs.compose.ui.test.junit4)
+    testDebugImplementation(libs.robolectric)
+    testDebugImplementation(libs.junit4)
+    // Newer than what ui-test-junit4 pulls in; the older Espresso calls APIs removed in SDK 37.
+    testDebugImplementation(libs.androidx.test.core)
+    testDebugImplementation(libs.espresso.core)
+    testRuntimeOnly(libs.junit.vintage.engine)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 // NFR-01 / DEC-003: the app must never request network access, including via a dependency's manifest.

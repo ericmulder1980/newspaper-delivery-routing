@@ -173,6 +173,16 @@ class RouteRepositoryTest {
         }
 
         @Test
+        fun `all addresses of the route, including apartments`() = runTest {
+            val even = kerkstraatEven()
+            repo.addSegment("Molenweg", Side.ALL, 1, 10, Direction.ASCENDING)
+            repo.createBuilding(even, 12, SuffixType.LETTER, "A", "C")
+            val all = repo.observeAllAddresses().first()
+            assertEquals(11 + 3 + 10, all.size)
+            assertEquals(3, all.count { it.buildingId != null })
+        }
+
+        @Test
         fun `address counts exclude does not exist`() = runTest {
             val even = kerkstraatEven()
             val other = repo.addSegment("Molenweg", Side.ALL, 1, 10, Direction.ASCENDING)

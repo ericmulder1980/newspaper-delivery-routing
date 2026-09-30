@@ -1,5 +1,7 @@
 package nl.ericmulder.krantenwijk.ui.route
 
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,6 +64,9 @@ import nl.ericmulder.krantenwijk.domain.rules.deliveryKind
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.DeliveryIcons
 import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
+import nl.ericmulder.krantenwijk.ui.common.PrimaryActionHeight
+import nl.ericmulder.krantenwijk.ui.common.TargetSpacing
+import nl.ericmulder.krantenwijk.ui.common.WalkTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import nl.ericmulder.krantenwijk.ui.common.dashedBorder
@@ -78,7 +83,10 @@ import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.unitsOrNull
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 
-// Tiles, sheets and dialogs shared by the street screen and the building screen.
+// Tiles, grids, sheets and dialogs shared by the street, building and round screens.
+
+/** Columns in a street's number grid. */
+private const val COLUMNS = 4
 
 @Composable
 internal fun CountWithIcon(icon: Int, text: String) {
@@ -120,7 +128,7 @@ internal fun StickerTile(
         border = selectionBorder ?: if (style.dashedBorder) null else BorderStroke(2.dp, style.border),
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (compact) 68.dp else 84.dp)
+            .height(if (compact) PrimaryActionHeight else 84.dp)
             .then(if (style.dashedBorder && selected != true) Modifier.dashedBorder(style.border) else Modifier)
             .clickable(onClick = onClick)
             .clearAndSetSemantics {
@@ -170,7 +178,7 @@ internal fun AddTile(onClick: () -> Unit, compact: Boolean = false) {
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-        modifier = Modifier.fillMaxWidth().height(if (compact) 68.dp else 84.dp).clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().height(if (compact) PrimaryActionHeight else 84.dp).clickable(onClick = onClick),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text("+", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
@@ -188,7 +196,7 @@ internal fun StickerSheet(
     deleteCount: Int,
     onMakeBuilding: (() -> Unit)?,
     onPick: (StickerOption) -> Unit,
-    onDelete: () -> Unit,
+    onDelete: (() -> Unit)?,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
@@ -207,11 +215,13 @@ internal fun StickerSheet(
                     onClick = onMakeBuilding,
                 )
             }
-            TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
-                Text(
-                    pluralStringResource(R.plurals.delete_numbers_action, deleteCount, deleteCount),
-                    color = MaterialTheme.colorScheme.error,
-                )
+            if (onDelete != null) {
+                TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
+                    Text(
+                        pluralStringResource(R.plurals.delete_numbers_action, deleteCount, deleteCount),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
             Spacer(Modifier.height(12.dp))
         }
@@ -237,7 +247,7 @@ internal fun StickerOptionRow(option: StickerOption, isCurrent: Boolean, onClick
         border = if (style.dashedBorder) null else BorderStroke(2.dp, if (isCurrent) MaterialTheme.colorScheme.onSurface else style.border),
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp)
+            .heightIn(min = WalkTouchTarget)
             .then(if (style.dashedBorder) Modifier.dashedBorder(style.border) else Modifier)
             .clickable(onClick = onClick)
             .semantics(mergeDescendants = true) {
@@ -292,7 +302,7 @@ internal fun SheetAction(title: String, subtitle: String, onClick: () -> Unit, d
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(onClick = onClick).semantics(mergeDescendants = true) {
+        modifier = Modifier.fillMaxWidth().heightIn(min = WalkTouchTarget).clickable(onClick = onClick).semantics(mergeDescendants = true) {
             role = Role.Button
         },
     ) {
@@ -304,6 +314,173 @@ internal fun SheetAction(title: String, subtitle: String, onClick: () -> Unit, d
                 color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             )
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+/** "12" or "14A": a standalone house number with its addition. */
+internal fun Address.houseLabel() = "$houseNumber${addition.orEmpty()}"
+
+/** Colour key, as in the prototype; each entry also shows the icons so colour is never the only cue. */
+@Composable
+internal fun Legend() {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        listOf(DeliveryKind.BOTH, DeliveryKind.NEWSPAPER_ONLY, DeliveryKind.NOTHING, DeliveryKind.DOES_NOT_EXIST).forEach { kind ->
+            val style = kind.style()
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Box(
+                    Modifier
+                        .size(16.dp)
+                        .then(
+                            if (style.dashedBorder) {
+                                Modifier.dashedBorder(style.border, 1.5.dp, 4.dp)
+                            } else {
+                                Modifier.border(2.dp, style.border, RoundedCornerShape(4.dp))
+                            },
+                        )
+                        .background(style.fill ?: androidx.compose.ui.graphics.Color.Transparent, RoundedCornerShape(4.dp)),
+                )
+                Text(stringResource(kind.label()), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+@Composable
+internal fun NumberGrid(
+    cells: List<SegmentCell>,
+    selection: Set<Long>?,
+    onTap: (Address) -> Unit,
+    onTapBuilding: (BuildingSummary) -> Unit,
+    onAdd: (() -> Unit)?,
+) {
+    // Houses fill rows of four; a building takes a full row at the position of its number.
+    val rows = buildList<List<SegmentCell?>> {
+        var current = mutableListOf<SegmentCell?>()
+        fun flush() {
+            if (current.isNotEmpty()) add(current)
+            current = mutableListOf()
+        }
+        val withAdd: List<SegmentCell?> = if (onAdd == null) cells else cells + null // null = "Add" tile
+        withAdd.forEach { cell ->
+            if (cell is SegmentCell.Apartments) {
+                flush()
+                add(listOf(cell))
+            } else {
+                current += cell
+                if (current.size == COLUMNS) flush()
+            }
+        }
+        flush()
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(TargetSpacing)) {
+        rows.forEach { row ->
+            val only = row.singleOrNull()
+            if (only is SegmentCell.Apartments) {
+                BuildingRow(only.summary, dimmed = selection != null) { onTapBuilding(only.summary) }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(TargetSpacing)) {
+                    row.forEach { cell ->
+                        Box(Modifier.weight(1f)) {
+                            when (cell) {
+                                null -> AddTile(onAdd ?: {})
+                                is SegmentCell.House -> StickerTile(
+                                    address = cell.address,
+                                    label = cell.address.houseLabel(),
+                                    spokenLabel = cell.address.houseLabel(),
+                                    selected = selection?.contains(cell.address.id),
+                                    onClick = { onTap(cell.address) },
+                                )
+                                is SegmentCell.Apartments -> Unit
+                            }
+                        }
+                    }
+                    repeat(COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+/** A building as one row (BLD-02): number, apartment count and range, sticker summary, colour strip, counts. */
+@Composable
+internal fun BuildingRow(summary: BuildingSummary, dimmed: Boolean, onClick: () -> Unit) {
+    val building = summary.building
+    val first = summary.apartments.firstOrNull()?.addition
+    val last = summary.apartments.lastOrNull()?.addition
+    val range = if (first != null && last != null) "${building.unitLabel(first)}–${building.unitLabel(last)}" else ""
+    val stickers = stickerSummaryText(summary)
+    val description = stringResource(
+        R.string.building_row_description,
+        building.houseNumber,
+        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
+        stickers.ifEmpty { stringResource(R.string.sticker_none) },
+    )
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 96.dp)
+            .clickable(enabled = !dimmed, onClick = onClick)
+            .clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+            },
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(building.houseNumber.toString(), style = MaterialTheme.typography.displaySmall)
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount) +
+                            if (range.isNotEmpty()) " · $range" else "",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    if (stickers.isNotEmpty()) {
+                        Text(stickers, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                if (!dimmed) {
+                    Text(stringResource(R.string.building_zoom_in), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            UnitStrip(summary.apartments)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CountWithIcon(R.drawable.ic_newspaper, pluralStringResource(R.plurals.newspaper_count, summary.counts.newspapers, summary.counts.newspapers))
+                CountWithIcon(R.drawable.ic_leaflets, pluralStringResource(R.plurals.leaflet_count, summary.counts.leaflets, summary.counts.leaflets))
+            }
+        }
+    }
+}
+
+/** "3 NEE/JA · 2 NEE/NEE": only stickers that block something are listed, as in plan BLD-02. */
+@Composable
+internal fun stickerSummaryText(summary: BuildingSummary): String = listOfNotNull(
+    summary.stickers.neeJa.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_ja)}" },
+    summary.stickers.neeNee.takeIf { it > 0 }?.let { "$it ${stringResource(R.string.sticker_short_nee_nee)}" },
+).joinToString(" · ")
+
+/** One small block per apartment in its delivery colour, like the prototype's strip. */
+@Composable
+internal fun UnitStrip(apartments: List<Address>) {
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.fillMaxWidth()) {
+        apartments.forEach { apartment ->
+            val style = deliveryKind(apartment).style()
+            Box(
+                Modifier
+                    .weight(1f)
+                    .height(10.dp)
+                    .then(
+                        if (style.dashedBorder) {
+                            Modifier.dashedBorder(style.border, 1.dp, 2.dp)
+                        } else {
+                            Modifier.border(1.dp, style.border, RoundedCornerShape(2.dp))
+                        },
+                    )
+                    .background(style.fill ?: androidx.compose.ui.graphics.Color.Transparent, RoundedCornerShape(2.dp)),
+            )
         }
     }
 }
