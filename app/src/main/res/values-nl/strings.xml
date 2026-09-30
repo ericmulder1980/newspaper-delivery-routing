@@ -192,4 +192,28 @@
     <string name="save">Opslaan</string>
     <string name="settings_you">Jij</string>
     <string name="settings_route">Wijk</string>
+    <string name="backup_title">Back-up</string>
+    <string name="backup_explanation">Bewaar je wijk in een bestand, bijvoorbeeld voordat je de app bijwerkt of als je een nieuwe telefoon krijgt. Het bestand bevat je adressen en stickers, dus bewaar het op een veilige plek.</string>
+    <string name="backup_save">Back-up opslaan</string>
+    <string name="backup_restore">Back-up terugzetten</string>
+    <string name="backup_restore_existing">Nieuwe telefoon? Zet een back-up terug</string>
+    <string name="backup_working">Even geduld…</string>
+    <string name="backup_saved">Back-up opgeslagen: %1$s, %2$s.</string>
+    <string name="backup_restored">%1$s teruggezet (%2$s).</string>
+    <string name="backup_confirm_title">Deze back-up terugzetten?</string>
+    <string name="backup_confirm_text">%1$s · %2$s · %3$s · opgeslagen op %4$s.
+
+Dit vervangt je huidige wijk.</string>
+    <string name="backup_confirm_restore">Terugzetten</string>
+    <string name="backup_error_no_route">Er is nog geen wijk om te bewaren.</string>
+    <string name="backup_error_write">De back-up kon niet worden opgeslagen. Kies een andere plek.</string>
+    <string name="backup_error_read">Het bestand kon niet worden gelezen.</string>
+    <string name="backup_error_not_a_backup">Dit is geen back-up van Krantenwijk.</string>
+    <string name="backup_error_too_new">Deze back-up is gemaakt met een nieuwere versie van de app. Werk de app eerst bij.</string>
+    <string name="backup_error_damaged">Deze back-up is beschadigd en kan niet worden teruggezet.</string>
+    <string name="backup_error_restore">Terugzetten is mislukt. Je huidige wijk is niet veranderd.</string>
+    <plurals name="section_count">
+        <item quantity="one">%d straatdeel</item>
+        <item quantity="other">%d straatdelen</item>
+    </plurals>
 </resources>

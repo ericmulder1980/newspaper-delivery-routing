@@ -9,6 +9,9 @@ import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
+import nl.ericmulder.krantenwijk.domain.model.BuildingSnapshot
+import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
+import nl.ericmulder.krantenwijk.domain.model.SectionSnapshot
 import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
@@ -153,6 +156,44 @@ class FakeRouteRepository : RouteRepository {
         val id = nextId++
         addresses.value += Address(building.houseNumber, clean, segmentId = building.segmentId, buildingId = buildingId, id = id)
         return id
+    }
+
+    var failNextReplace = false
+
+    override suspend fun snapshot(): RouteSnapshot? = route.value?.let { r ->
+        RouteSnapshot(
+            route = r,
+            sections = segments.value.sortedBy { it.position }.map { seg ->
+                SectionSnapshot(
+                    segment = seg,
+                    addresses = addresses.value.filter { it.segmentId == seg.id && it.buildingId == null },
+                    buildings = buildings.value.filter { it.segmentId == seg.id }.map { b ->
+                        BuildingSnapshot(b, addresses.value.filter { it.buildingId == b.id })
+                    },
+                )
+            },
+        )
+    }
+
+    override suspend fun replaceAll(snapshot: RouteSnapshot) {
+        if (failNextReplace) {
+            failNextReplace = false
+            error("Simulated restore failure")
+        }
+        route.value = snapshot.route.copy(id = 1)
+        segments.value = emptyList()
+        addresses.value = emptyList()
+        buildings.value = emptyList()
+        snapshot.sections.forEachIndexed { position, section ->
+            val segId = nextId++
+            segments.value += section.segment.copy(id = segId, position = position)
+            addresses.value += section.addresses.map { it.copy(id = nextId++, segmentId = segId, buildingId = null) }
+            section.buildings.forEach { b ->
+                val bId = nextId++
+                buildings.value += b.building.copy(id = bId, segmentId = segId)
+                addresses.value += b.apartments.map { it.copy(id = nextId++, segmentId = segId, buildingId = bId) }
+            }
+        }
     }
 
     override suspend fun removeBuilding(buildingId: Long) {

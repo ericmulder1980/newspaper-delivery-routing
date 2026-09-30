@@ -72,7 +72,7 @@ fun AppNavigation(startWithSetup: Boolean) {
             entry<Settings> { SettingsScreen(onBack = ::back) }
 
             // Setup wizard (ONB-A): name → route → street + numbers (repeat) → walking route.
-            entry<OnboardingName> { OnboardingNameScreen(onNext = { go(OnboardingRoute) }) }
+            entry<OnboardingName> { OnboardingNameScreen(onNext = { go(OnboardingRoute) }, onRestored = { resetTo(Home) }) }
             entry<OnboardingRoute> {
                 OnboardingRouteScreen(
                     onBack = ::back,

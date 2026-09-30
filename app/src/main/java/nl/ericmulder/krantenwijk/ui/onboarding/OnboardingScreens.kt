@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.ericmulder.krantenwijk.R
+import nl.ericmulder.krantenwijk.ui.backup.BackupSection
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
@@ -27,7 +28,13 @@ import nl.ericmulder.krantenwijk.ui.round.SectionRowSummary
 
 /** Step 1: "What should we call you?" */
 @Composable
-fun OnboardingNameScreen(onNext: () -> Unit, viewModel: OnboardingViewModel = hiltViewModel()) {
+fun OnboardingNameScreen(
+    onNext: () -> Unit,
+    onRestored: () -> Unit = {},
+    viewModel: OnboardingViewModel = hiltViewModel(),
+    /** Hidden in screen tests, which have no Hilt; the restore flow is tested separately. */
+    showRestore: Boolean = true,
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var name by rememberSaveable { mutableStateOf("") }
     // Prefill when returning to this step.
@@ -51,6 +58,8 @@ fun OnboardingNameScreen(onNext: () -> Unit, viewModel: OnboardingViewModel = hi
             onClick = { viewModel.saveName(name, onNext) },
             enabled = name.isNotBlank(),
         )
+        // New phone: restore the route from a backup instead of entering it again (DATA-02).
+        if (showRestore) BackupSection(restoreOnly = true, onRestored = onRestored)
     }
 }
 

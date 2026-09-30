@@ -32,7 +32,7 @@ class OnboardingNameScreenTest {
         val settings = FakeSettingsRepository()
         val vm = OnboardingViewModel(FakeRouteRepository(), settings)
         var next = 0
-        compose.setContent { KrantenwijkTheme(dark = true) { OnboardingNameScreen(onNext = { next++ }, viewModel = vm) } }
+        compose.setContent { KrantenwijkTheme(dark = true) { OnboardingNameScreen(onNext = { next++ }, viewModel = vm, showRestore = false) } }
 
         compose.onNodeWithText("Step 1 / 4", useUnmergedTree = true).assertExists()
         compose.onNode(hasText("Next")).assertIsNotEnabled()

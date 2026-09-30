@@ -511,3 +511,34 @@ Track significant decisions. Each decision is immutable once accepted — supers
 The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Skew is baked into coordinates, since VectorDrawable has no skew.
 
 **Consequences:** At home-screen size the details are small. If it looks too busy on the phone, the options are thicker lines on the paper or dropping the speed bars.
+
+---
+
+### DEC-026: Backup format and restore behaviour
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** Claude (presented with DATA-A)
+**Related:** DATA-A (DATA-01, DATA-02), NFR-06, DEC-003, DEC-011
+
+**Decision:**
+- **Format:** pretty-printed JSON (`BackupFormat`, kotlinx.serialization) with `app`, `formatVersion` (1), `exportedAtMillis` and `appVersion`. The route has its sections in walking order, and each section its standalone addresses and buildings with apartments. There are no database ids. Field names are part of the format: add fields, never rename them. Unknown fields are ignored, so newer backups with extra fields still load.
+- **Only the route is included**, not settings (theme, visibility switches, nickname).
+- **Files** go through the Storage Access Framework (the system file picker), so no storage permission and still no INTERNET. The suggested name is `krantenwijk-backup-YYYY-MM-DD.json`.
+- **Restore** always shows a summary and asks for confirmation ("replaces your current route"). It replaces everything in one Room transaction (`BackupDao.replaceAll`): either everything is restored or nothing changes. It's also offered in wizard step 1 ("New phone? Restore a backup") and completes setup.
+- **Errors** with clear messages: not a Krantenwijk backup, made by a newer app version (`formatVersion` too high), damaged contents, read or write failure.
+
+**Consequences:** The backup file contains personal data (addresses + stickers). The UI tells the user to keep it safe, and it only leaves the device by the user's own action (NFR-06).
+
+---
+
+### DEC-027: Supported Android versions: newest minus 5 (minSdk 31, Android 12)
+**Date:** 2026-09-30
+**Status:** Accepted (supersedes the "minimum Android 8.0 (API 26)" part of NFR-07 and DEC-010)
+**Deciders:** User
+
+**Decision:** Support the newest Android version and the five before it. Today that's Android 17 (API 37) back to **Android 12 (API 31)**, so `minSdk = 31` in `:app` and `:core`. This is a **rolling policy**: at the yearly target-SDK update (plan §11.3), when a new Android version is out, raise `minSdk` accordingly (Android 18 → minimum Android 13, API 33).
+
+**Consequences:**
+- `fullBackupContent` is removed from the manifest; `data_extraction_rules` (API 31+) keeps backups off (DEC-011).
+- Code may use API 31 features without version checks. Lint's `NewApi` check still guards anything newer (for example it caught `InputStream.readNBytes`, API 33, in DATA-A).
+- Test phones and emulators must run Android 12 or newer.

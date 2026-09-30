@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -17,7 +18,8 @@ kotlin {
     android {
         namespace = "nl.ericmulder.krantenwijk.core"
         compileSdk = 37
-        minSdk = 26
+        // Newest Android minus 5 (DEC-027): Android 12 = API 31.
+        minSdk = 31
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     }
 
@@ -32,6 +34,7 @@ kotlin {
             api(libs.room.runtime)
             api(libs.datastore.preferences.core)
             implementation(libs.sqlite.bundled)
+            implementation(libs.kotlinx.serialization.json)
         }
         jvmTest.dependencies {
             implementation(project.dependencies.platform(libs.junit.bom))

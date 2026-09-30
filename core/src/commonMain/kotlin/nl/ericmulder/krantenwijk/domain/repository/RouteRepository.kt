@@ -5,6 +5,7 @@ import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
+import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
 import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
@@ -86,6 +87,15 @@ interface RouteRepository {
      * @throws DuplicateAddressException if the apartment already exists.
      */
     suspend fun addApartment(buildingId: Long, suffix: String): Long
+
+    /** The whole route as it is now, for a backup (DATA-02); null when there is no route. */
+    suspend fun snapshot(): RouteSnapshot?
+
+    /**
+     * Replaces the whole route with [snapshot] in one transaction (restore, DATA-02): either
+     * everything is restored or nothing changes.
+     */
+    suspend fun replaceAll(snapshot: RouteSnapshot)
 
     /** Removes a building and its apartments and puts back a plain address with its number ("no longer a building"). */
     suspend fun removeBuilding(buildingId: Long)

@@ -27,10 +27,11 @@ android {
 
     defaultConfig {
         applicationId = "nl.ericmulder.krantenwijk"
-        minSdk = 26
+        // Newest Android minus 5 (DEC-027): Android 12 = API 31.
+        minSdk = 31
         targetSdk = 37
-        versionCode = 11
-        versionName = "0.10.1"
+        versionCode = 12
+        versionName = "0.11.0"
     }
 
     signingConfigs {

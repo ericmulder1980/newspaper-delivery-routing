@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import nl.ericmulder.krantenwijk.ui.backup.BackupSection
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.MaterialTheme
@@ -87,6 +88,8 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
             SwitchRow(stringResource(R.string.settings_show_non_existing), prefs.showNonExisting, viewModel::setShowNonExisting)
             SwitchRow(stringResource(R.string.settings_keep_screen_on), prefs.keepScreenOn, viewModel::setKeepScreenOn)
         }
+        SectionHeading(stringResource(R.string.backup_title))
+        BackupSection()
         Text(
             text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
             style = MaterialTheme.typography.bodyMedium,

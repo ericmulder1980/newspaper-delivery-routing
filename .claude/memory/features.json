@@ -51,7 +51,7 @@
     {
       "id": "M2",
       "title": "MVP: a round can be walked (end of Phase 3)",
-      "status": "in_progress",
+      "status": "complete",
       "features": [
         "ADR-A",
         "ADR-B",
@@ -64,7 +64,7 @@
         "RND-B",
         "RND-D"
       ],
-      "notes": "Round mode done (RND-A/B/D). Remaining for MVP: ONB-A (setup wizard + home). Exit: a full round can be walked (DEC-022)."
+      "notes": "MVP complete 2026-09-30: route entry, setup wizard, round mode street by street (user approved)."
     },
     {
       "id": "M2b",
@@ -479,8 +479,8 @@
         "ADR-C",
         "BLD-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan ADR-01",
         "Phase 2 exit: the real route, including buildings, can be entered in under 45 minutes (user test)"
@@ -491,16 +491,15 @@
           "Start decision: wizard only if setup never completed and no route exists (existing users go home)",
           "Home = prototype main screen: route name, totals (sections/newspapers/leaflets), Start round → section 1 directly, sections (tap to start there), Edit route, settings icon (Lucide)",
           "Settings: edit name, route name and town (ADR-01)",
-          "Removed placeholder screens and RoundOverview destination; tests: OnboardingViewModelTest, OnboardingNameScreenTest (Robolectric); version 0.10.0 (10)"
+          "Removed placeholder screens and RoundOverview destination; tests: OnboardingViewModelTest, OnboardingNameScreenTest (Robolectric); version 0.10.0 (10)",
+          "CI green ecd695d/12609cc; user approved 2026-09-30 (also approved app icon, DEC-025)"
         ],
-        "remaining": [
-          "User phone test (fresh install to see the wizard: uninstall or clear app data)",
-          "Commit + push after approval"
-        ],
+        "remaining": [],
         "notes": [
           "Walking-order up/down arrows from the prototype's step 4 left out (ADR-05 nice-to-have, DEC-018)"
         ]
-      }
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "RND-A",
@@ -636,11 +635,25 @@
       "dependencies": [
         "FND-004"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Export -> uninstall -> reinstall -> import yields an identical route"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: RouteSnapshot, BackupFormat v1 (JSON, formatVersion, ignore unknown fields), BackupDao.snapshot/replaceAll in one transaction (DEC-026)",
+          "Tests: export → new empty DB → import gives identical route (all features); failing restore leaves route untouched; not-a-backup / too-new / damaged / unknown fields",
+          "App: BackupStorage via Storage Access Framework (no permissions); BackupViewModel; Settings 'Backup' section (save / restore with confirmation summary); wizard step 1 'New phone? Restore a backup'",
+          "Lint caught InputStream.readNBytes (API 33) → replaced with a size-limited read (works from API 26)",
+          "218 tests; APK permissions unchanged (no INTERNET); version 0.11.0 (12)",
+          "DEC-027: minSdk 26 → 31 (Android 12); fullBackupContent removed"
+        ],
+        "remaining": [
+          "User phone test: save to Downloads/Drive, restore, check identical",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "REL-A",
@@ -888,8 +901,8 @@
     }
   ],
   "current": {
-    "feature": "ONB-A",
-    "next_recommended": "Finish ONB-A (phone test) → M2 complete; then DATA-A (backup)"
+    "feature": "DATA-A",
+    "next_recommended": "Finish DATA-A (phone test), then REL-A (settings/release wrap-up) or REL-B (Releases)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet."

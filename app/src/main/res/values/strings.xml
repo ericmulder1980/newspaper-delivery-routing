@@ -199,4 +199,28 @@
     <string name="save">Save</string>
     <string name="settings_you">You</string>
     <string name="settings_route">Route</string>
+    <string name="backup_title">Backup</string>
+    <string name="backup_explanation">Save your route to a file, for example before updating the app or when you get a new phone. The file contains your addresses and stickers, so keep it somewhere safe.</string>
+    <string name="backup_save">Save backup</string>
+    <string name="backup_restore">Restore backup</string>
+    <string name="backup_restore_existing">New phone? Restore a backup</string>
+    <string name="backup_working">One moment…</string>
+    <string name="backup_saved">Backup saved: %1$s, %2$s.</string>
+    <string name="backup_restored">%1$s restored (%2$s).</string>
+    <string name="backup_confirm_title">Restore this backup?</string>
+    <string name="backup_confirm_text">%1$s · %2$s · %3$s · saved on %4$s.
+
+This replaces your current route.</string>
+    <string name="backup_confirm_restore">Restore</string>
+    <string name="backup_error_no_route">There is no route to back up yet.</string>
+    <string name="backup_error_write">The backup could not be saved. Try another location.</string>
+    <string name="backup_error_read">The file could not be read.</string>
+    <string name="backup_error_not_a_backup">This is not a Krantenwijk backup.</string>
+    <string name="backup_error_too_new">This backup was made by a newer version of the app. Update the app first.</string>
+    <string name="backup_error_damaged">This backup is damaged and cannot be restored.</string>
+    <string name="backup_error_restore">Restoring failed. Your current route has not been changed.</string>
+    <plurals name="section_count">
+        <item quantity="one">%d street section</item>
+        <item quantity="other">%d street sections</item>
+    </plurals>
 </resources>

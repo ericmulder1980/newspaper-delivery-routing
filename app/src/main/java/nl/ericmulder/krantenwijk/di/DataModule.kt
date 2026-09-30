@@ -8,6 +8,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import nl.ericmulder.krantenwijk.data.BackupStorage
+import nl.ericmulder.krantenwijk.data.ContentResolverBackupStorage
 import nl.ericmulder.krantenwijk.data.createDatabase
 import nl.ericmulder.krantenwijk.data.createSettingsDataStore
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
@@ -15,6 +17,7 @@ import nl.ericmulder.krantenwijk.data.repository.RoomRouteRepository
 import nl.ericmulder.krantenwijk.data.settings.DataStoreSettingsRepository
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -30,10 +33,18 @@ object DataModule {
     fun settingsDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         createSettingsDataStore(context)
 
+    /** Current time in epoch millis; injectable so tests can fix it. */
+    @Provides
+    @Named("clock")
+    fun clock(): @JvmSuppressWildcards () -> Long = System::currentTimeMillis
+
     @Provides
     @Singleton
-    fun routeRepository(db: KrantenwijkDatabase): RouteRepository =
-        RoomRouteRepository(db, clock = System::currentTimeMillis)
+    fun routeRepository(db: KrantenwijkDatabase, @Named("clock") clock: @JvmSuppressWildcards () -> Long): RouteRepository =
+        RoomRouteRepository(db, clock = clock)
+
+    @Provides
+    fun backupStorage(storage: ContentResolverBackupStorage): BackupStorage = storage
 
     @Provides
     @Singleton

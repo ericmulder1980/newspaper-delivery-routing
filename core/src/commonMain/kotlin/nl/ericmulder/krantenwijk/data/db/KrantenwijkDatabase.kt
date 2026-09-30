@@ -28,6 +28,8 @@ abstract class KrantenwijkDatabase : RoomDatabase() {
 
     abstract fun addressDao(): AddressDao
 
+    abstract fun backupDao(): BackupDao
+
     companion object {
         const val FILE_NAME = "krantenwijk.db"
     }

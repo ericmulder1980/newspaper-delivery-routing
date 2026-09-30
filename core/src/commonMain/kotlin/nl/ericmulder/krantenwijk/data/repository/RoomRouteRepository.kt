@@ -16,6 +16,7 @@ import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
+import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
 import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
@@ -149,6 +150,10 @@ class RoomRouteRepository(
     }
 
     override suspend fun removeBuilding(buildingId: Long) = buildingDao.removeAndRestore(buildingId)
+
+    override suspend fun snapshot(): RouteSnapshot? = db.backupDao().snapshot()
+
+    override suspend fun replaceAll(snapshot: RouteSnapshot) = db.backupDao().replaceAll(snapshot)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeBuildingContents(buildingId: Long): Flow<BuildingContents?> =
