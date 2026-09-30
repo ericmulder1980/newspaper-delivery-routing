@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import nl.ericmulder.krantenwijk.domain.model.AppSettings
+import kotlinx.coroutines.flow.first
+import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
+import nl.ericmulder.krantenwijk.ui.onboarding.needsOnboarding
 import nl.ericmulder.krantenwijk.ui.navigation.AppNavigation
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 import nl.ericmulder.krantenwijk.ui.theme.isDark
@@ -29,11 +33,21 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var routeRepository: RouteRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val settingsFlow = remember { settingsRepository.settings }
             val settings by settingsFlow.collectAsStateWithLifecycle(initialValue = null)
+            // Decided once per launch: the wizard only when setup was never finished and there's no route.
+            val startWithSetup by produceState<Boolean?>(null) {
+                value = needsOnboarding(
+                    onboardingCompleted = settingsRepository.settings.first().onboardingCompleted,
+                    hasRoute = routeRepository.observeRoute().first() != null,
+                )
+            }
             val dark = (settings ?: AppSettings()).theme.isDark()
 
             // Status and navigation bar icons follow the app theme, not only the system theme.
@@ -50,7 +64,8 @@ class MainActivity : ComponentActivity() {
             KrantenwijkTheme(dark = dark) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
                     // Wait for the stored theme so the screen doesn't flash in the wrong theme.
-                    if (settings != null) AppNavigation()
+                    val start = startWithSetup
+                    if (settings != null && start != null) AppNavigation(startWithSetup = start)
                 }
             }
         }

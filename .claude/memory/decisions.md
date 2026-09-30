@@ -474,3 +474,24 @@ Track significant decisions. Each decision is immutable once accepted — supers
 5. Constants live in `ui/common/TouchTargets.kt`. Robolectric screen tests check sizes and spacing on a small 360 dp wide phone.
 
 **Consequences:** Buildings with many apartments need scrolling. The plan's 56 dp (NFR-03) is superseded by 64 dp for walking targets.
+
+---
+
+### DEC-024: Built-in updater from GitHub Releases (relaxes DEC-003 for updates only)
+**Date:** 2026-09-30
+**Status:** Accepted (implementation planned as a Should-have, REL-B/REL-C)
+**Deciders:** User (chose this over Obtainium/button-only after research)
+**Related:** DEC-003, NFR-01, NFR-06, NFR-09, DEC-008, plan §11
+
+**Context:** Updating via the CI artefact is many steps: a GitHub login, download zip, unzip, install. Artefacts also expire after 90 days. Research (2026) found three options: GitHub Releases plus Obtainium (app stays offline), a built-in updater (needs internet), or a button that opens the Releases page. Google developer verification (Brazil/Indonesia/Singapore/Thailand from 2026-09-30, global incl. NL in 2027) applies to all of them. Plan §11.2 already covers registering a limited-distribution account.
+
+**Decision:**
+- **CI publishes a GitHub Release per version** (tag `vX.Y.Z`), with the signed APK attached directly (not zipped) and its SHA-256 checksum. This is permanent and needs no login (public repo).
+- **Settings gets "Check for updates"**, manual only (no background checks, NFR-09). It asks the GitHub Releases API for the latest release, compares its version code with the installed one, and offers "Install update".
+- The app downloads the APK over HTTPS, checks the published SHA-256, and installs through Android's `PackageInstaller`. Android also refuses updates signed with a different key (DEC-008).
+- **Permissions:** `INTERNET` and `REQUEST_INSTALL_PACKAGES`. The user allows "install unknown apps" for Krantenwijk once. Later updates may run without an extra confirmation once Krantenwijk is the installer of record (Android 12+).
+
+**Consequences:**
+- **DEC-003 / NFR-01 relaxed:** the app may contact **only** `api.github.com` / `github.com` release downloads, **only** when the user taps "Check for updates". It sends no personal or route data (NFR-06 stays), and there's still no analytics or SDKs. Everything else keeps working offline.
+- The build check `verify*NoInternetPermission` becomes a check that INTERNET is only used by the updater: allowlisted in the manifest, and no other networking code.
+- **Releases are created only on the user's explicit command** ("release this version"), not automatically per feature (user, 2026-09-30). Claude then tags `vX.Y.Z` and CI publishes the Release.

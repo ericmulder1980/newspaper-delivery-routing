@@ -44,6 +44,7 @@ import nl.ericmulder.krantenwijk.domain.rules.previewSample
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
+import nl.ericmulder.krantenwijk.ui.common.WizardProgress
 import nl.ericmulder.krantenwijk.ui.common.label
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 
@@ -52,6 +53,8 @@ import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 fun AddSectionScreen(
     onBack: () -> Unit,
     onSaved: (segmentId: Long) -> Unit,
+    /** Shows the setup wizard's progress (step 3) when adding streets during first launch. */
+    wizardStep: Int? = null,
     viewModel: AddSectionViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -59,6 +62,7 @@ fun AddSectionScreen(
     LaunchedEffect(savedSegmentId) { savedSegmentId?.let(onSaved) }
 
     ScreenScaffold(title = stringResource(R.string.add_section_title), onBack = onBack) {
+        wizardStep?.let { WizardProgress(it) }
         Text(
             text = stringResource(R.string.add_section_kicker, state.sectionNumber),
             style = MaterialTheme.typography.labelLarge,

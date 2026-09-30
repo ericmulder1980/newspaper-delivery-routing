@@ -8,14 +8,22 @@ import kotlinx.serialization.modules.polymorphic
 
 /**
  * Every screen in plan §6. Keys are serializable so the back stack survives process death.
- * Most are placeholders until their feature is built (noted per key).
+ * Every screen is real now; the setup wizard (ONB-A) reuses AddSection and SegmentDetail.
  */
 @Serializable
 sealed interface Destination : NavKey
 
-/** First-launch setup wizard (ONB-A). */
+/** Setup wizard step 1: name (ONB-A, ADR-01). */
 @Serializable
-data object Onboarding : Destination
+data object OnboardingName : Destination
+
+/** Setup wizard step 2: route name and town. */
+@Serializable
+data object OnboardingRoute : Destination
+
+/** Setup wizard step 4: the walking route so far, add more or finish. */
+@Serializable
+data object OnboardingSections : Destination
 
 @Serializable
 data object Home : Destination
@@ -24,25 +32,17 @@ data object Home : Destination
 @Serializable
 data object RouteEditor : Destination
 
-/** Add a street section with live preview (ADR-A). */
+/** Add a street section with live preview (ADR-A); [wizard] = step 3 of the setup wizard. */
 @Serializable
-data object AddSection : Destination
+data class AddSection(val wizard: Boolean = false) : Destination
 
-/** One street section's addresses (ADR-B, STK-A). */
+/** One street section's addresses (ADR-B, STK-A); [wizard] = number check in the setup wizard. */
 @Serializable
-data class SegmentDetail(val segmentId: Long) : Destination
+data class SegmentDetail(val segmentId: Long, val wizard: Boolean = false) : Destination
 
 /** Apartment grid (BLD-B). */
 @Serializable
 data class BuildingDetail(val buildingId: Long) : Destination
-
-/** Sticker, exists, exceptions, note for one address (ADR-B, ADR-09/10). */
-@Serializable
-data class AddressDetail(val addressId: Long) : Destination
-
-/** Walking route: totals and all sections (RND-A, DEC-022). */
-@Serializable
-data object RoundOverview : Destination
 
 /** One street section while delivering (RND-B, DEC-022). */
 @Serializable

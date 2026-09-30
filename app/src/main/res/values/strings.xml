@@ -3,7 +3,6 @@
     <string name="app_name" translatable="false">Krantenwijk</string>
 
     <string name="nav_back">Back</string>
-    <string name="placeholder_built_in">This screen is built in %1$s.</string>
 
     <string name="home_no_route">Your route will appear here.</string>
     <string name="home_start_round">Start round</string>
@@ -11,7 +10,6 @@
 
     <string name="onboarding_title">Welcome</string>
     <string name="route_editor_title">Route</string>
-    <string name="address_title">Address</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_theme">Theme</string>
@@ -165,7 +163,6 @@
     <string name="apartment_duplicate">%1$s already exists.</string>
     <string name="round_overview_title">Walking route</string>
     <string name="round_no_sections">There are no street sections yet. Add them in Edit route first.</string>
-    <string name="round_start_first">Start at street section 1</string>
     <string name="round_total_sections">Sections</string>
     <string name="round_total_newspapers">Newspapers</string>
     <string name="round_total_leaflets">Leaflets</string>
@@ -184,4 +181,22 @@
     <string name="settings_show_skipped">Show houses that get nothing</string>
     <string name="settings_show_non_existing">Show numbers that don’t exist</string>
     <string name="settings_keep_screen_on">Keep the screen on during a round</string>
+    <string name="wizard_step">Step %1$d / %2$d</string>
+    <string name="onboarding_name_question">What should we call you?</string>
+    <string name="onboarding_name_intro">Krantenwijk keeps your walking route, streets and house numbers organised. First, let’s get acquainted.</string>
+    <string name="onboarding_name_label">Name or nickname</string>
+    <string name="onboarding_name_hint">e.g. Sam</string>
+    <string name="onboarding_name_local">Only stored on this phone.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_route_title">Your route</string>
+    <string name="onboarding_greeting">Hi %1$s!</string>
+    <string name="onboarding_route_intro">Give your route a name. Then add the streets in the order you walk them.</string>
+    <string name="onboarding_add_streets">Add streets</string>
+    <string name="onboarding_street_done">Done with this street</string>
+    <string name="onboarding_sections_title">Your walking route</string>
+    <string name="onboarding_sections_intro">These are your street sections in walking order. Add more, or finish.</string>
+    <string name="onboarding_done">Done · to my route</string>
+    <string name="save">Save</string>
+    <string name="settings_you">You</string>
+    <string name="settings_route">Route</string>
 </resources>

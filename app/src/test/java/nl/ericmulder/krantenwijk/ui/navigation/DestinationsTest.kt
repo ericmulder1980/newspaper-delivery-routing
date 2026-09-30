@@ -23,14 +23,14 @@ class DestinationsTest {
     companion object {
         @JvmStatic
         fun destinations() = listOf(
-            Onboarding,
+            OnboardingName,
+            OnboardingRoute,
+            OnboardingSections,
             Home,
             RouteEditor,
-            AddSection,
-            SegmentDetail(segmentId = 7),
+            AddSection(wizard = true),
+            SegmentDetail(segmentId = 7, wizard = true),
             BuildingDetail(buildingId = 3),
-            AddressDetail(addressId = 42),
-            RoundOverview,
             RoundStreet(segmentId = 5),
             RoundBuilding(buildingId = 9),
             Settings,

@@ -226,3 +226,25 @@ NEXT SESSION:
 ================================================================================
 [2026-09-30] DECISION: DEC-019 — no round contents choice; round list and counts always show
 newspaper + leaflets. RND-01 dropped; RND-A redefined (start round → live list + counts).
+
+================================================================================
+[2026-09-30] SESSION END
+Features: STK-A, BLD-A, BLD-B, ADR-C, RND-A, RND-B, RND-D all COMPLETE (user approved)
+Last commit: 3d0e2d4 (v0.9.0), CI green
+
+DECISIONS this session: DEC-017..024
+- 017/019: round = newspaper + optional leaflets; no contents choice; list shows both
+- 018: sections in creation order; next up = next section; drag-and-drop = nice-to-have (ADR-05)
+- 020: round mode opens buildings directly
+- 021: Robolectric screen tests (JDK flag + espresso 3.7.0 pinned for SDK 37)
+- 022: round mode street by street (prototype), tap = sticker sheet
+- 023: touch targets (48 min, 64 walk, 72 primary, 8 spacing); 26-on-one-screen dropped
+- 024: built-in updater from GitHub Releases (REL-B, REL-C); INTERNET only for that;
+       releases only on the user's explicit command
+
+TESTS: 196/196 (92 domain, 35 data, 69 app incl. 9 Robolectric screen tests)
+
+NEXT SESSION:
+- ONB-A (setup wizard + home) completes the MVP (M2); or REL-B first (user decides).
+- Open: ISS-001 (low), MVP target date, M0 real route walk.
+================================================================================

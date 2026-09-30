@@ -1,18 +1,17 @@
 package nl.ericmulder.krantenwijk.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
-import nl.ericmulder.krantenwijk.R
 import nl.ericmulder.krantenwijk.ui.home.HomeScreen
-import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderLink
-import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderScreen
-import nl.ericmulder.krantenwijk.ui.round.RoundOverviewScreen
+import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingNameScreen
+import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingRouteScreen
+import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingSectionsScreen
 import nl.ericmulder.krantenwijk.ui.round.RoundStreetScreen
 import nl.ericmulder.krantenwijk.ui.route.AddSectionScreen
 import nl.ericmulder.krantenwijk.ui.route.BuildingDetailScreen
@@ -25,15 +24,34 @@ private val SavedStateConfig = SavedStateConfiguration { serializersModule = Des
 /**
  * App navigation (Navigation 3). The back stack is a plain list of [Destination] keys: navigating
  * adds a key, back removes the last one. Each entry gets its own saved state and ViewModels.
+ *
+ * @param startWithSetup open the setup wizard instead of Home (first launch, ONB-A).
  */
 @Composable
-fun AppNavigation() {
-    val backStack = rememberNavBackStack(SavedStateConfig, Home)
+fun AppNavigation(startWithSetup: Boolean) {
+    val backStack = rememberNavBackStack(SavedStateConfig, if (startWithSetup) OnboardingName else Home)
     fun go(destination: Destination) {
         backStack.add(destination)
     }
     fun back() {
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
+    }
+    fun replaceTop(destination: Destination) {
+        backStack.removeAt(backStack.lastIndex)
+        go(destination)
+    }
+    fun resetTo(destination: Destination) {
+        backStack.clear()
+        go(destination)
+    }
+    /** Wizard: after checking a street's numbers, return to (or open) the walking route step. */
+    fun toWizardSections() {
+        val index = backStack.indexOfLast { it == OnboardingSections }
+        if (index >= 0) {
+            while (backStack.lastIndex > index) backStack.removeAt(backStack.lastIndex)
+        } else {
+            replaceTop(OnboardingSections)
+        }
     }
 
     NavDisplay(
@@ -46,54 +64,62 @@ fun AppNavigation() {
         entryProvider = entryProvider {
             entry<Home> {
                 HomeScreen(
-                    onStartRound = { go(RoundOverview) },
+                    onStartAt = { go(RoundStreet(it)) },
                     onEditRoute = { go(RouteEditor) },
                     onSettings = { go(Settings) },
                 )
             }
             entry<Settings> { SettingsScreen(onBack = ::back) }
-            entry<Onboarding> {
-                PlaceholderScreen(stringResource(R.string.onboarding_title), "ONB-A", ::back)
+
+            // Setup wizard (ONB-A): name → route → street + numbers (repeat) → walking route.
+            entry<OnboardingName> { OnboardingNameScreen(onNext = { go(OnboardingRoute) }) }
+            entry<OnboardingRoute> {
+                OnboardingRouteScreen(
+                    onBack = ::back,
+                    onNext = { if (backStack.contains(OnboardingSections)) toWizardSections() else go(AddSection(wizard = true)) },
+                )
             }
+            entry<OnboardingSections> {
+                OnboardingSectionsScreen(
+                    onBack = ::back,
+                    onAddSection = { go(AddSection(wizard = true)) },
+                    onOpenSection = { go(SegmentDetail(it, wizard = true)) },
+                    onFinished = { resetTo(Home) },
+                )
+            }
+
             entry<RouteEditor> {
                 RouteEditorScreen(
                     onBack = ::back,
-                    onAddSection = { go(AddSection) },
+                    onAddSection = { go(AddSection()) },
                     onOpenSection = { go(SegmentDetail(it)) },
                 )
             }
-            entry<AddSection> {
+            entry<AddSection> { key ->
                 AddSectionScreen(
                     onBack = ::back,
-                    // Replace the form with the number check, so back from there returns to the route.
-                    onSaved = { id ->
-                        backStack.removeAt(backStack.lastIndex)
-                        go(SegmentDetail(id))
-                    },
+                    wizardStep = if (key.wizard) 3 else null,
+                    // Replace the form with the number check, so back from there returns to where we came from.
+                    onSaved = { id -> replaceTop(SegmentDetail(id, wizard = key.wizard)) },
                 )
             }
             entry<SegmentDetail> { key ->
-                SegmentDetailScreen(segmentId = key.segmentId, onBack = ::back, onOpenBuilding = { go(BuildingDetail(it)) })
-            }
-            entry<BuildingDetail> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back) }
-            entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "STK-A", ::back) }
-            entry<RoundOverview> {
-                RoundOverviewScreen(
+                SegmentDetailScreen(
+                    segmentId = key.segmentId,
                     onBack = ::back,
-                    onOpenSection = { go(RoundStreet(it)) },
-                    onEditRoute = { go(RouteEditor) },
+                    onDone = if (key.wizard) ::toWizardSections else ::back,
+                    wizardStep = if (key.wizard) 3 else null,
+                    onOpenBuilding = { go(BuildingDetail(it)) },
                 )
             }
+            entry<BuildingDetail> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back) }
             entry<RoundStreet> { key ->
                 RoundStreetScreen(
                     segmentId = key.segmentId,
                     onBack = ::back,
-                    // Previous/Next replace the street, so back always returns to the overview.
-                    onGoTo = { id ->
-                        backStack.removeAt(backStack.lastIndex)
-                        go(RoundStreet(id))
-                    },
-                    onFinish = { while (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                    // Previous/Next replace the street, so back always returns home.
+                    onGoTo = { replaceTop(RoundStreet(it)) },
+                    onFinish = { resetTo(Home) },
                     onOpenBuilding = { go(RoundBuilding(it)) },
                 )
             }
@@ -101,3 +127,5 @@ fun AppNavigation() {
         },
     )
 }
+
+private fun List<NavKey>.contains(key: Destination) = any { it == key }

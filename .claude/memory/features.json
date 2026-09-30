@@ -51,7 +51,7 @@
     {
       "id": "M2",
       "title": "MVP: a round can be walked (end of Phase 3)",
-      "status": "pending",
+      "status": "in_progress",
       "features": [
         "ADR-A",
         "ADR-B",
@@ -64,7 +64,7 @@
         "RND-B",
         "RND-D"
       ],
-      "notes": "Exit: a full round can be walked with the live list (check-offs dropped, DEC-014)."
+      "notes": "Round mode done (RND-A/B/D). Remaining for MVP: ONB-A (setup wizard + home). Exit: a full round can be walked (DEC-022)."
     },
     {
       "id": "M2b",
@@ -479,12 +479,28 @@
         "ADR-C",
         "BLD-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan ADR-01",
         "Phase 2 exit: the real route, including buildings, can be entered in under 45 minutes (user test)"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "Setup wizard as in prototype: Step n / 4 progress; 1 name (Next disabled until filled, 'only stored on this phone'); 2 'Hi <name>!' route + town; 3 = AddSection + number check with progress, 'Done with this street'; 4 walking route list, add section, 'Done · to my route'",
+          "Start decision: wizard only if setup never completed and no route exists (existing users go home)",
+          "Home = prototype main screen: route name, totals (sections/newspapers/leaflets), Start round → section 1 directly, sections (tap to start there), Edit route, settings icon (Lucide)",
+          "Settings: edit name, route name and town (ADR-01)",
+          "Removed placeholder screens and RoundOverview destination; tests: OnboardingViewModelTest, OnboardingNameScreenTest (Robolectric); version 0.10.0 (10)"
+        ],
+        "remaining": [
+          "User phone test (fresh install to see the wizard: uninstall or clear app data)",
+          "Commit + push after approval"
+        ],
+        "notes": [
+          "Walking-order up/down arrows from the prototype's step 4 left out (ADR-05 nice-to-have, DEC-018)"
+        ]
+      }
     },
     {
       "id": "RND-A",
@@ -497,8 +513,8 @@
       "dependencies": [
         "STK-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Totals match the existing addresses (DEC-019)",
         "Tapping a section opens it in round mode"
@@ -509,13 +525,12 @@
       "progress": {
         "done": [
           "Walking route overview: route name, totals (sections, newspapers, leaflets), sections with counts, tap to start there, 'Start at street section 1'",
-          "core: observeAllAddresses (+1 test)"
+          "core: observeAllAddresses (+1 test)",
+          "CI green 3d0e2d4; user approved v0.9.0 on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test (walk a real street)",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "RND-B",
@@ -533,8 +548,8 @@
       "dependencies": [
         "RND-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan RND-03, RND-04, RND-08; smooth scroll with 1,000 addresses"
       ],
@@ -548,13 +563,12 @@
           "Keep screen on (RND-08); does-not-exist hidden unless setting; Settings: show skipped / show non-existing / keep screen on",
           "Robolectric screen tests (DEC-021): DeliveryTileTest (4 states, NL, DE→EN fallback, both themes), BuildingGridFitsTest (6.1\" and 5\"), RoundStreetScreenTest",
           "JDK flag --add-exports java.base/jdk.internal.access (robolectric#11434); espresso 3.7.0 + androidx.test core 1.7.0 pinned for SDK 37",
-          "DEC-023 touch targets: walk targets ≥64dp, primary actions ≥72dp, 8dp spacing; TouchTargetTest on a 360dp phone (replaces the grid-fit test)"
+          "DEC-023 touch targets: walk targets ≥64dp, primary actions ≥72dp, 8dp spacing; TouchTargetTest on a 360dp phone (replaces the grid-fit test)",
+          "CI green 3d0e2d4; user approved v0.9.0 on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test (walk a real street)",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "RND-C",
@@ -592,8 +606,8 @@
         "RND-B",
         "BLD-B"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan BLD-06"
       ],
@@ -603,13 +617,12 @@
       ],
       "progress": {
         "done": [
-          "Building row tap in round → mailbox grid directly (DEC-020), round variant without select/add/delete, 'Back to <street>'"
+          "Building row tap in round → mailbox grid directly (DEC-020), round variant without select/add/delete, 'Back to <street>'",
+          "CI green 3d0e2d4; user approved v0.9.0 on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test (walk a real street)",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "DATA-A",
@@ -663,6 +676,41 @@
       "status": "pending",
       "notes": [
         "Nice-to-have per user (DEC-018); default order = creation order; repository.reorderSegments exists"
+      ]
+    },
+    {
+      "id": "REL-B",
+      "title": "GitHub Release per version with direct APK download",
+      "priority": "medium",
+      "description": "CI creates a GitHub Release for each version tag (vX.Y.Z) with the signed APK and its SHA-256 attached (DEC-024). Replaces the zipped, 90-day CI artefact as the install source.",
+      "dependencies": [
+        "REL-A"
+      ],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Pushing tag v0.9.0 creates a Release with krantenwijk-0.9.0.apk and a .sha256",
+        "The APK downloads without GitHub login and installs over the existing app"
+      ],
+      "notes": [
+        "Release only on the user's explicit command (DEC-024)"
+      ]
+    },
+    {
+      "id": "REL-C",
+      "title": "Built-in updater in Settings",
+      "priority": "medium",
+      "description": "Settings 'Check for updates' (manual only): GitHub Releases API → compare versionCode → download APK over HTTPS → verify SHA-256 → install via PackageInstaller (DEC-024). INTERNET only for this; no background checks.",
+      "dependencies": [
+        "REL-B"
+      ],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Up to date → 'You have the latest version'",
+        "Newer release → shows version and 'Install update'; after confirming, the app updates and keeps all data",
+        "Checksum mismatch or no network → clear message, nothing installed",
+        "No network use anywhere except this button (build check)"
       ]
     },
     {
@@ -840,8 +888,8 @@
     }
   ],
   "current": {
-    "feature": "RND-B",
-    "next_recommended": "Phone test of round mode (v0.9.0), then ONB-A (setup wizard + home)"
+    "feature": "ONB-A",
+    "next_recommended": "Finish ONB-A (phone test) → M2 complete; then DATA-A (backup)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet."

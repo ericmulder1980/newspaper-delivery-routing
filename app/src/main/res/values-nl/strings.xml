@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="nav_back">Terug</string>
-    <string name="placeholder_built_in">Dit scherm wordt gebouwd in %1$s.</string>
 
     <string name="home_no_route">Je wijk verschijnt hier.</string>
     <string name="home_start_round">Ronde starten</string>
@@ -9,7 +8,6 @@
 
     <string name="onboarding_title">Welkom</string>
     <string name="route_editor_title">Wijk</string>
-    <string name="address_title">Adres</string>
 
     <string name="settings_title">Instellingen</string>
     <string name="settings_theme">Thema</string>
@@ -158,7 +156,6 @@
     <string name="apartment_duplicate">%1$s bestaat al.</string>
     <string name="round_overview_title">Looproute</string>
     <string name="round_no_sections">Er zijn nog geen straatdelen. Voeg ze eerst toe via Wijk bewerken.</string>
-    <string name="round_start_first">Begin bij straatdeel 1</string>
     <string name="round_total_sections">Straatdelen</string>
     <string name="round_total_newspapers">Kranten</string>
     <string name="round_total_leaflets">Folders</string>
@@ -177,4 +174,22 @@
     <string name="settings_show_skipped">Huizen die niets krijgen tonen</string>
     <string name="settings_show_non_existing">Nummers die niet bestaan tonen</string>
     <string name="settings_keep_screen_on">Scherm aan houden tijdens een ronde</string>
+    <string name="wizard_step">Stap %1$d / %2$d</string>
+    <string name="onboarding_name_question">Hoe mogen we je noemen?</string>
+    <string name="onboarding_name_intro">Krantenwijk houdt je looproute, straten en huisnummers overzichtelijk bij. Eerst even kennismaken.</string>
+    <string name="onboarding_name_label">Naam of bijnaam</string>
+    <string name="onboarding_name_hint">Bijv. Sam</string>
+    <string name="onboarding_name_local">Wordt alleen op deze telefoon bewaard.</string>
+    <string name="onboarding_next">Volgende</string>
+    <string name="onboarding_route_title">Je wijk</string>
+    <string name="onboarding_greeting">Hoi %1$s!</string>
+    <string name="onboarding_route_intro">Geef je wijk een naam. Daarna voeg je de straten toe in de volgorde waarin je loopt.</string>
+    <string name="onboarding_add_streets">Straten toevoegen</string>
+    <string name="onboarding_street_done">Klaar met deze straat</string>
+    <string name="onboarding_sections_title">Je looproute</string>
+    <string name="onboarding_sections_intro">Dit zijn je straatdelen in looprichting. Voeg er meer toe of rond af.</string>
+    <string name="onboarding_done">Klaar · naar mijn wijk</string>
+    <string name="save">Opslaan</string>
+    <string name="settings_you">Jij</string>
+    <string name="settings_route">Wijk</string>
 </resources>

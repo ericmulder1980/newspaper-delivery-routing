@@ -9,7 +9,8 @@ import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
 class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRepository {
     override val settings = MutableStateFlow(initial)
 
-    override suspend fun setNickname(nickname: String?) = settings.update { it.copy(nickname = nickname) }
+    override suspend fun setNickname(nickname: String?) =
+        settings.update { it.copy(nickname = nickname?.trim()?.ifEmpty { null }) }
 
     override suspend fun setOnboardingCompleted(completed: Boolean) = settings.update { it.copy(onboardingCompleted = completed) }
 

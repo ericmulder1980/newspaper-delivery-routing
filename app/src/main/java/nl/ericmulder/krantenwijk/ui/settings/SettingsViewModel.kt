@@ -9,12 +9,30 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import nl.ericmulder.krantenwijk.domain.model.AppSettings
+import nl.ericmulder.krantenwijk.domain.model.Route
+import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.model.ThemeMode
 import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(private val settings: SettingsRepository) : ViewModel() {
+class SettingsViewModel @Inject constructor(
+    private val settings: SettingsRepository,
+    private val routes: RouteRepository,
+) : ViewModel() {
+
+    /** The route, for editing its name and town (ADR-01). */
+    val route: StateFlow<Route?> = routes.observeRoute()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initialValue = null)
+
+    fun setNickname(name: String) {
+        viewModelScope.launch { settings.setNickname(name) }
+    }
+
+    fun saveRoute(name: String, town: String) {
+        if (name.isBlank()) return
+        viewModelScope.launch { routes.saveRoute(name, town) }
+    }
 
     val theme: StateFlow<ThemeMode?> = settings.settings
         .map { it.theme }

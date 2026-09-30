@@ -63,6 +63,7 @@ import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.DeliveryIcons
 import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
+import nl.ericmulder.krantenwijk.ui.common.WizardProgress
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import nl.ericmulder.krantenwijk.ui.common.dashedBorder
 import nl.ericmulder.krantenwijk.ui.common.label
@@ -96,6 +97,9 @@ fun SegmentDetailScreen(
     segmentId: Long,
     onBack: () -> Unit,
     onOpenBuilding: (buildingId: Long) -> Unit,
+    /** "Done": back to the route, or to the wizard's walking route step. */
+    onDone: () -> Unit = onBack,
+    wizardStep: Int? = null,
     viewModel: SegmentDetailViewModel = hiltViewModel<SegmentDetailViewModel, SegmentDetailViewModel.Factory>(
         key = "segment-$segmentId",
         creationCallback = { it.create(segmentId) },
@@ -126,6 +130,7 @@ fun SegmentDetailScreen(
         onBack = if (ready?.selecting == true) viewModel::stopSelecting else onBack,
     ) {
         if (ready == null) return@ScreenScaffold
+        wizardStep?.let { WizardProgress(it) }
         Header(ready)
         if (!ready.selecting) {
             ReverseToggle(
@@ -159,7 +164,10 @@ fun SegmentDetailScreen(
                 enabled = selected.isNotEmpty(),
             )
         } else {
-            AccentButton(text = stringResource(R.string.segment_done), onClick = onBack)
+            AccentButton(
+                text = stringResource(if (wizardStep != null) R.string.onboarding_street_done else R.string.segment_done),
+                onClick = onDone,
+            )
             TextButton(
                 onClick = { confirmDeleteSection = true },
                 modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget),
