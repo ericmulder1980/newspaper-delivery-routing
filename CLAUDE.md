@@ -10,6 +10,7 @@ addresses get the newspaper and/or leaflets, based on mailbox stickers. Offline,
 - Supported Android: 12 (API 31) to 17 (API 37), rolling "newest minus 5" (DEC-027)
 - Toolchain (local, no Android Studio): prefix Gradle with `export JAVA_HOME=$(ls -d ~/Library/Java/JavaVirtualMachines/jdk-21*/Contents/Home)`; SDK at `~/Library/Android/sdk` (`local.properties`). Intel Mac, 2 cores, so builds are slow and the first run takes ~5 min
 - Test builds: the user installs APKs by file transfer (no adb). Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
+- Releases (REL-B, DEC-024): **only on the user's explicit command.** Check that `versionName` is committed and CI is green, then `git tag vX.Y.Z && git push origin vX.Y.Z`. `.github/workflows/release.yml` tests, signs, checks tag against versionName and publishes a GitHub Release with `krantenwijk-X.Y.Z.apk` + `.sha256`
 - Branch: `git branch --show-current`
 - Memory: `.claude/memory/features.json`
 - Spec (source of truth): `docs/specs/krantenwijk-project-plan.md`. Work one feature (plan requirement IDs in `plan_refs`) at a time

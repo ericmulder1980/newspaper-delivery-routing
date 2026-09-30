@@ -1,0 +1,72 @@
+name: Release
+
+# Publishes a GitHub Release with the signed APK (REL-B, DEC-024).
+# Runs only when a version tag is pushed, which happens only on the user's explicit command.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the Release
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history and tags, for the release notes
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # A release must pass the same checks as every push.
+      - name: Lint and unit tests
+        run: ./gradlew lint test --console=plain
+
+      - name: Test summary
+        if: ${{ !cancelled() }}
+        run: python3 .github/scripts/test_summary.py
+
+      # Unlike CI, a release requires the signing key: an unsigned APK can't update the installed app.
+      - name: Decode release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KRANTENWIJK_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "::error::Signing secrets are missing"; exit 1; fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "KRANTENWIJK_KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK
+        env:
+          KRANTENWIJK_KEYSTORE_PASSWORD: ${{ secrets.KRANTENWIJK_KEYSTORE_PASSWORD }}
+          KRANTENWIJK_KEY_ALIAS: ${{ secrets.KRANTENWIJK_KEY_ALIAS }}
+          KRANTENWIJK_KEY_PASSWORD: ${{ secrets.KRANTENWIJK_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --console=plain
+
+      - name: Check version and signature, prepare assets
+        run: |
+          BUILD_TOOLS="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+          .github/scripts/prepare_release.sh "$GITHUB_REF_NAME" app/build/outputs/apk/release/app-release.apk \
+            "$BUILD_TOOLS/aapt2" "$BUILD_TOOLS/apksigner" "$RUNNER_TEMP/release"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            "$RUNNER_TEMP/release/krantenwijk-$VERSION.apk" \
+            "$RUNNER_TEMP/release/krantenwijk-$VERSION.apk.sha256" \
+            --title "Krantenwijk $VERSION" \
+            --notes-file "$RUNNER_TEMP/release/release-notes.md" \
+            --verify-tag

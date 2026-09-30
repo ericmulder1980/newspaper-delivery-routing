@@ -635,8 +635,8 @@
       "dependencies": [
         "FND-004"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Export -> uninstall -> reinstall -> import yields an identical route"
       ],
@@ -647,13 +647,12 @@
           "App: BackupStorage via Storage Access Framework (no permissions); BackupViewModel; Settings 'Backup' section (save / restore with confirmation summary); wizard step 1 'New phone? Restore a backup'",
           "Lint caught InputStream.readNBytes (API 33) → replaced with a size-limited read (works from API 26)",
           "218 tests; APK permissions unchanged (no INTERNET); version 0.11.0 (12)",
-          "DEC-027: minSdk 26 → 31 (Android 12); fullBackupContent removed"
+          "DEC-027: minSdk 26 → 31 (Android 12); fullBackupContent removed",
+          "CI green 928992f; user approved backup + restore on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test: save to Downloads/Drive, restore, check identical",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "REL-A",
@@ -699,15 +698,27 @@
       "dependencies": [
         "REL-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Pushing tag v0.9.0 creates a Release with krantenwijk-0.9.0.apk and a .sha256",
         "The APK downloads without GitHub login and installs over the existing app"
       ],
       "notes": [
         "Release only on the user's explicit command (DEC-024)"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "release.yml: on tag v*: lint + tests + summary, requires signing secrets, signed assembleRelease, prepare_release.sh, gh release create (contents: write)",
+          ".github/scripts/prepare_release.sh: tag format check, tag == versionName, package check, apksigner verify, krantenwijk-X.Y.Z.apk + .sha256, release notes (changes since previous v* tag, versionCode, sha256)",
+          "Script tested locally in a temporary clone: good release, version mismatch, bad tag, unsigned APK",
+          "Procedure documented in CLAUDE.md"
+        ],
+        "remaining": [
+          "First real release on the user's explicit command (tests the workflow on GitHub)",
+          "User downloads the APK from the Release page and installs"
+        ]
+      }
     },
     {
       "id": "REL-C",
@@ -901,8 +912,8 @@
     }
   ],
   "current": {
-    "feature": "DATA-A",
-    "next_recommended": "Finish DATA-A (phone test), then REL-A (settings/release wrap-up) or REL-B (Releases)"
+    "feature": "REL-B",
+    "next_recommended": "REL-B (GitHub Releases), then REL-A"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet."
