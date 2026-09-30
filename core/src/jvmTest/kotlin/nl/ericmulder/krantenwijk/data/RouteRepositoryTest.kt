@@ -293,6 +293,49 @@ class RouteRepositoryTest {
     }
 
     @Nested
+    inner class BuildingContentsAndApartments {
+        @Test
+        fun `building contents list apartments naturally with the street name`() = runTest {
+            val id = kerkstraatEven()
+            val buildingId = repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "12")
+            val c = checkNotNull(repo.observeBuildingContents(buildingId).first())
+            assertEquals("Kerkstraat", c.streetName)
+            assertEquals((1..12).map(Int::toString), c.apartments.map { it.addition })
+        }
+
+        @Test
+        fun `add apartment 12M after 12L (BLD-05)`() = runTest {
+            val id = kerkstraatEven()
+            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "L")
+            repo.addApartment(buildingId, " m ")
+            val apartments = checkNotNull(repo.observeBuildingContents(buildingId).first()).apartments
+            assertEquals("M", apartments.last().addition)
+            assertEquals(buildingId, apartments.last().buildingId)
+            assertEquals(13, apartments.size)
+        }
+
+        @Test
+        fun `invalid or duplicate apartment is rejected`() = runTest {
+            val id = kerkstraatEven()
+            val letters = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
+            val numbers = repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "3")
+            assertThrows<IllegalArgumentException> { repo.addApartment(letters, "AB") }
+            assertThrows<IllegalArgumentException> { repo.addApartment(letters, "4") }
+            assertThrows<IllegalArgumentException> { repo.addApartment(numbers, "0") }
+            assertThrows<DuplicateAddressException> { repo.addApartment(letters, "b") }
+            assertThrows<DuplicateAddressException> { repo.addApartment(numbers, "02") }
+        }
+
+        @Test
+        fun `contents end when the building is removed`() = runTest {
+            val id = kerkstraatEven()
+            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
+            repo.removeBuilding(buildingId)
+            assertNull(repo.observeBuildingContents(buildingId).first())
+        }
+    }
+
+    @Nested
     inner class Buildings {
         @Test
         fun `apartments belong to a building and are deleted with it`() = runTest {

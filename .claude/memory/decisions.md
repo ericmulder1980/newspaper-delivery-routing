@@ -389,3 +389,19 @@ Track significant decisions. Each decision is immutable once accepted — supers
 **Consequences:**
 - RND-A shrinks to "Start round → live list with both counts at the top". The `RoundStart` placeholder screen and the `RoundMode(newspaper, leaflets)` navigation key are simplified when RND-A is built.
 - `RoundContents` remains only as the rules' parameter, always `FullRound`. It can be simplified away later if nothing else needs it.
+
+---
+
+### DEC-020: In round mode, tapping a building opens its apartments directly
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User
+**Related:** RND-D (BLD-06), BLD-A, BLD-B
+
+**Context:** In the editor (BLD-A), tapping a building row opens a sheet ("Zoom in" / "No longer a building"), which costs an extra tap. Plan BLD-06 says that in round mode a building row "expands inline to the per-apartment list or grid".
+
+**Decision:**
+- **Round mode:** tapping a building row goes straight to the building's apartment view, with no sheet and no inline expand. Back returns to the round list at the same place.
+- **Editor:** keeps the sheet, which is fine there according to the user, because it also offers "No longer a building".
+
+**Consequences:** RND-D becomes "building row in the round list + direct zoom-in", reusing the apartment view from BLD-B (read-only or round-oriented, to be decided when RND-D is built). The plan's inline expand is replaced.

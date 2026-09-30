@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Building
+import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.Segment
@@ -16,10 +17,12 @@ import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
+import nl.ericmulder.krantenwijk.domain.rules.AddressNumberOrder
 import nl.ericmulder.krantenwijk.domain.rules.generateRange
 import nl.ericmulder.krantenwijk.domain.rules.generateUnits
 import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.inWalkingOrder
+import nl.ericmulder.krantenwijk.domain.rules.normaliseSuffix
 
 /** In-memory [RouteRepository] for ViewModel tests, mirroring the Room implementation's rules. */
 class FakeRouteRepository : RouteRepository {
@@ -123,6 +126,28 @@ class FakeRouteRepository : RouteRepository {
         addresses.value = addresses.value.filterNot {
             it.segmentId == segmentId && it.houseNumber == houseNumber && it.addition == null && it.buildingId == null
         } + suffixes.map { Address(houseNumber, it, segmentId = segmentId, buildingId = id, id = nextId++) }
+        return id
+    }
+
+    override fun observeBuildingContents(buildingId: Long): Flow<BuildingContents?> =
+        combine(segments, addresses, buildings) { segs, addrs, blds ->
+            blds.firstOrNull { it.id == buildingId }?.let { building ->
+                BuildingContents(
+                    building,
+                    segs.single { it.id == building.segmentId }.streetName,
+                    addrs.filter { it.buildingId == buildingId }.sortedWith(AddressNumberOrder),
+                )
+            }
+        }
+
+    override suspend fun addApartment(buildingId: Long, suffix: String): Long {
+        val building = buildings.value.single { it.id == buildingId }
+        val clean = requireNotNull(normaliseSuffix(suffix, building.suffixType))
+        if (addresses.value.any { it.buildingId == buildingId && it.addition == clean }) {
+            throw DuplicateAddressException(building.houseNumber, clean)
+        }
+        val id = nextId++
+        addresses.value += Address(building.houseNumber, clean, segmentId = building.segmentId, buildingId = buildingId, id = id)
         return id
     }
 

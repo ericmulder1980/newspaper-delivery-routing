@@ -13,6 +13,7 @@ import nl.ericmulder.krantenwijk.ui.home.HomeScreen
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderLink
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderScreen
 import nl.ericmulder.krantenwijk.ui.route.AddSectionScreen
+import nl.ericmulder.krantenwijk.ui.route.BuildingDetailScreen
 import nl.ericmulder.krantenwijk.ui.route.RouteEditorScreen
 import nl.ericmulder.krantenwijk.ui.route.SegmentDetailScreen
 import nl.ericmulder.krantenwijk.ui.settings.SettingsScreen
@@ -72,7 +73,7 @@ fun AppNavigation() {
             entry<SegmentDetail> { key ->
                 SegmentDetailScreen(segmentId = key.segmentId, onBack = ::back, onOpenBuilding = { go(BuildingDetail(it)) })
             }
-            entry<BuildingDetail> { PlaceholderScreen(stringResource(R.string.building_title), "BLD-B", ::back) }
+            entry<BuildingDetail> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back) }
             entry<AddressDetail> { PlaceholderScreen(stringResource(R.string.address_title), "STK-A", ::back) }
             entry<RoundStart> {
                 PlaceholderScreen(

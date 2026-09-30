@@ -62,4 +62,14 @@ class UnitsTest {
         val building = Building(1, 12, SuffixType.NUMBER, "-")
         assertEquals("12-3", building.unitLabel("3"))
     }
+
+    @Test
+    fun `typed suffixes are normalised or rejected`() {
+        assertEquals("M", normaliseSuffix(" m ", SuffixType.LETTER))
+        assertEquals(null, normaliseSuffix("AB", SuffixType.LETTER))
+        assertEquals(null, normaliseSuffix("1", SuffixType.LETTER))
+        assertEquals("7", normaliseSuffix("07", SuffixType.NUMBER))
+        assertEquals(null, normaliseSuffix("0", SuffixType.NUMBER))
+        assertEquals(null, normaliseSuffix("A", SuffixType.NUMBER))
+    }
 }

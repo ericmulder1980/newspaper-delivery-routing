@@ -1,7 +1,10 @@
 package nl.ericmulder.krantenwijk.data.repository
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import nl.ericmulder.krantenwijk.data.db.BuildingEntity
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
@@ -10,6 +13,7 @@ import nl.ericmulder.krantenwijk.data.db.SegmentEntity
 import nl.ericmulder.krantenwijk.data.db.toDomain
 import nl.ericmulder.krantenwijk.data.db.toEntity
 import nl.ericmulder.krantenwijk.domain.model.Address
+import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.Segment
@@ -20,10 +24,12 @@ import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
+import nl.ericmulder.krantenwijk.domain.rules.AddressNumberOrder
 import nl.ericmulder.krantenwijk.domain.rules.generateRange
 import nl.ericmulder.krantenwijk.domain.rules.generateUnits
 import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.inWalkingOrder
+import nl.ericmulder.krantenwijk.domain.rules.normaliseSuffix
 
 class RoomRouteRepository(
     private val db: KrantenwijkDatabase,
@@ -140,4 +146,36 @@ class RoomRouteRepository(
     }
 
     override suspend fun removeBuilding(buildingId: Long) = buildingDao.removeAndRestore(buildingId)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun observeBuildingContents(buildingId: Long): Flow<BuildingContents?> =
+        buildingDao.observe(buildingId).flatMapLatest { building ->
+            if (building == null) {
+                flowOf(null)
+            } else {
+                combine(segmentDao.observe(building.segmentId), addressDao.observeForBuilding(buildingId)) { segment, apartments ->
+                    segment?.let {
+                        BuildingContents(
+                            building = building.toDomain(),
+                            streetName = it.streetName,
+                            apartments = apartments.map { a -> a.toDomain() }.sortedWith(AddressNumberOrder),
+                        )
+                    }
+                }
+            }
+        }
+
+    override suspend fun addApartment(buildingId: Long, suffix: String): Long {
+        val building = requireNotNull(buildingDao.get(buildingId)) { "Building $buildingId does not exist" }
+        val clean = requireNotNull(normaliseSuffix(suffix, building.suffixType)) {
+            "\"$suffix\" is not a valid ${building.suffixType} suffix"
+        }
+        if (addressDao.count(building.segmentId, building.houseNumber, clean) > 0) {
+            throw DuplicateAddressException(building.houseNumber, clean)
+        }
+        return addressDao.insert(
+            Address(houseNumber = building.houseNumber, addition = clean, segmentId = building.segmentId, buildingId = buildingId)
+                .toEntity(),
+        )
+    }
 }

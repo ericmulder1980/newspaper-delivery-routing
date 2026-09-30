@@ -341,7 +341,8 @@
         "See plan ADR-05, ADR-06"
       ],
       "notes": [
-        "Route editor list exists (ADR-A). Drag-and-drop reordering split out to ADR-05 (nice-to-have, DEC-018)"
+        "Route editor list exists (ADR-A). Drag-and-drop reordering split out to ADR-05 (nice-to-have, DEC-018)",
+        "User noticed on 2026-09-30 that direction can't be changed after creation yet; this feature adds it"
       ]
     },
     {
@@ -397,8 +398,8 @@
       "dependencies": [
         "ADR-B"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan BLD-01, BLD-02"
       ],
@@ -408,16 +409,15 @@
           "Sticker sheet 'Apartment building' → sheet with Letters/Numbers, First/Last, live preview '12 apartments: 12A … 12L' (BLD-01)",
           "Building as one full-width row at its number's position: count + range, NEE/JA · NEE/NEE summary, colour strip, counts; follows walking direction (BLD-02)",
           "Building sheet: Zoom in (→ BuildingDetail placeholder, BLD-B) and No longer a building (confirm; restores plain number)",
-          "Header counts include apartments; Select all excludes apartments; 42 app tests; version 0.6.0 (6)"
+          "Header counts include apartments; Select all excludes apartments; 42 app tests; version 0.6.0 (6)",
+          "CI green c61f184; user approved on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push after approval"
-        ],
+        "remaining": [],
         "notes": [
           "Building name (BLD-08) and grouping existing numbers (BLD-09) are separate Should features"
         ]
-      }
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "BLD-B",
@@ -433,11 +433,25 @@
         "BLD-A",
         "STK-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan BLD-03..05; 26 tiles fit one portrait phone screen"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: observeBuildingContents, addApartment with normaliseSuffix + duplicate check (+5 tests)",
+          "Building screen: 'Building · Kerkstraat 12', counts, 5-column compact mailbox grid (68dp tiles) sorted A..Z / 1..20, 'Done · back to <street>' (BLD-03)",
+          "Tap → shared sticker sheet; Select / Select all / Set sticker (n); bulk delete with confirm (BLD-04)",
+          "+ Add tile: letter or number per building type, 12M after 12L; duplicate/invalid errors (BLD-05)",
+          "Refactor: shared tiles/sheets/dialogs in ui/route/AddressEditing.kt used by street and building screens",
+          "49 app tests; mutation check passes; version 0.7.0 (7)"
+        ],
+        "remaining": [
+          "User phone test incl. whether 26 tiles fit one portrait screen",
+          "Commit + push after approval"
+        ]
+      }
     },
     {
       "id": "ONB-A",
@@ -530,8 +544,8 @@
     },
     {
       "id": "RND-D",
-      "title": "Buildings in round mode (live counts, inline expand)",
-      "description": "Building row shows per-round counts from the live apartments and expands inline to the per-apartment list; apartments receiving nothing are dimmed. No per-apartment check-off (BLD-07 dropped, DEC-014).",
+      "title": "Buildings in round mode (row + direct zoom-in)",
+      "description": "Building row in the round list shows the building's live counts; tapping it opens the apartment view directly (DEC-020), back returns to the same place in the list. Apartments receiving nothing are dimmed by style (DEC-015).",
       "priority": "high",
       "plan_refs": [
         "BLD-06"
@@ -544,6 +558,9 @@
       "status": "pending",
       "acceptance_criteria": [
         "See plan BLD-06"
+      ],
+      "notes": [
+        "DEC-020 replaces the plan's inline expand"
       ]
     },
     {
@@ -775,8 +792,8 @@
     }
   ],
   "current": {
-    "feature": "BLD-A",
-    "next_recommended": "Finish BLD-A (phone test), then BLD-B (apartment grid + bulk)"
+    "feature": "BLD-B",
+    "next_recommended": "Finish BLD-B (phone test), then ADR-C (direction afterwards)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",

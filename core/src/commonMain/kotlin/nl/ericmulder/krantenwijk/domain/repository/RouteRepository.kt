@@ -2,6 +2,7 @@ package nl.ericmulder.krantenwijk.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import nl.ericmulder.krantenwijk.domain.model.Address
+import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.Segment
@@ -72,6 +73,16 @@ interface RouteRepository {
      * @throws IllegalArgumentException if the unit range is invalid.
      */
     suspend fun createBuilding(segmentId: Long, houseNumber: Int, suffixType: SuffixType, fromSuffix: String, toSuffix: String): Long
+
+    /** A building with its street name and apartments; null once the building is removed. */
+    fun observeBuildingContents(buildingId: Long): Flow<BuildingContents?>
+
+    /**
+     * Adds one apartment to a building (BLD-05) and returns its id.
+     * @throws IllegalArgumentException if [suffix] doesn't fit the building's type (e.g. "AB" or "0").
+     * @throws DuplicateAddressException if the apartment already exists.
+     */
+    suspend fun addApartment(buildingId: Long, suffix: String): Long
 
     /** Removes a building and its apartments and puts back a plain address with its number ("no longer a building"). */
     suspend fun removeBuilding(buildingId: Long)

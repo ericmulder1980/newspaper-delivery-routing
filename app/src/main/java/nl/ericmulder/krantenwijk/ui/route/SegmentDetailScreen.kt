@@ -297,14 +297,6 @@ private fun Header(ready: SegmentDetailUiState.Ready) {
     )
 }
 
-@Composable
-private fun CountWithIcon(icon: Int, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(20.dp))
-        Text(text, style = MaterialTheme.typography.titleMedium)
-    }
-}
-
 /** Colour key, as in the prototype; each entry also shows the icons so colour is never the only cue. */
 @Composable
 private fun Legend() {
@@ -381,6 +373,8 @@ private fun NumberGrid(
                                 null -> AddTile(onAdd)
                                 is SegmentCell.House -> StickerTile(
                                     address = cell.address,
+                                    label = cell.address.label(),
+                                    spokenLabel = cell.address.label(),
                                     selected = ready.selection?.contains(cell.address.id),
                                     onClick = { onTap(cell.address) },
                                 )
@@ -478,173 +472,6 @@ private fun UnitStrip(apartments: List<Address>) {
     }
 }
 
-/**
- * A number coloured by what it receives in a full round, with icons and the sticker as text (STK-03).
- * [selected] is null outside selection mode.
- */
-@Composable
-private fun StickerTile(address: Address, selected: Boolean?, onClick: () -> Unit) {
-    val kind = deliveryKind(address)
-    val style = kind.style()
-    val gone = kind == DeliveryKind.DOES_NOT_EXIST
-    val outlineOnly = style.fill == null
-    val description = stringResource(
-        R.string.tile_description,
-        address.label(),
-        if (gone) stringResource(R.string.does_not_exist) else stringResource(address.sticker.label()),
-        stringResource(kind.label()),
-    )
-    val shape = RoundedCornerShape(14.dp)
-    val selectionBorder = if (selected == true) BorderStroke(4.dp, MaterialTheme.colorScheme.onSurface) else null
-    Surface(
-        shape = shape,
-        color = style.fill ?: MaterialTheme.colorScheme.surface,
-        contentColor = style.content,
-        border = selectionBorder ?: if (style.dashedBorder) null else BorderStroke(2.dp, style.border),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(84.dp)
-            .then(if (style.dashedBorder && selected != true) Modifier.dashedBorder(style.border) else Modifier)
-            .clickable(onClick = onClick)
-            .clearAndSetSemantics {
-                contentDescription = description
-                role = if (selected != null) Role.Checkbox else Role.Button
-                if (selected != null) this.selected = selected
-            },
-    ) {
-        Box {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-            ) {
-                Text(
-                    text = address.label(),
-                    style = MaterialTheme.typography.headlineMedium,
-                    textDecoration = if (gone) TextDecoration.LineThrough else null,
-                )
-                DeliveryIcons(kind, tint = style.content, size = 18.dp)
-                Text(
-                    text = if (gone) stringResource(R.string.does_not_exist) else stringResource(address.sticker.shortLabel()),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = if (outlineOnly) FontWeight.Normal else FontWeight.Bold,
-                    color = style.subContent,
-                )
-            }
-            if (selected == true) {
-                Box(
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(22.dp)
-                        .background(MaterialTheme.colorScheme.onSurface, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(painterResource(R.drawable.ic_check), null, Modifier.size(16.dp), MaterialTheme.colorScheme.surface)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AddTile(onClick: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-        modifier = Modifier.fillMaxWidth().height(84.dp).clickable(onClick = onClick),
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text("+", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
-            Text(stringResource(R.string.number_add), style = MaterialTheme.typography.labelMedium)
-        }
-    }
-}
-
-/** "Sticker on mailbox": the four stickers plus "does not exist" (as in the prototype), and delete. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StickerSheet(
-    title: String,
-    current: StickerOption?,
-    deleteCount: Int,
-    onMakeBuilding: (() -> Unit)?,
-    onPick: (StickerOption) -> Unit,
-    onDelete: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                stringResource(R.string.sticker_sheet_kicker),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(title, style = MaterialTheme.typography.headlineMedium)
-            StickerOption.all.forEach { option -> StickerOptionRow(option, isCurrent = option == current) { onPick(option) } }
-            if (onMakeBuilding != null) {
-                SheetAction(
-                    title = stringResource(R.string.building_make),
-                    subtitle = stringResource(R.string.building_make_sub),
-                    onClick = onMakeBuilding,
-                )
-            }
-            TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
-                Text(
-                    pluralStringResource(R.plurals.delete_numbers_action, deleteCount, deleteCount),
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-            Spacer(Modifier.height(12.dp))
-        }
-    }
-}
-
-@Composable
-private fun StickerOptionRow(option: StickerOption, isCurrent: Boolean, onClick: () -> Unit) {
-    val kind = when (option) {
-        is StickerOption.Set -> deliveryKind(Address(houseNumber = 1, sticker = option.sticker))
-        StickerOption.DoesNotExist -> DeliveryKind.DOES_NOT_EXIST
-    }
-    val style = kind.style()
-    val title = when (option) {
-        is StickerOption.Set -> stringResource(option.sticker.label())
-        StickerOption.DoesNotExist -> stringResource(R.string.does_not_exist)
-    }
-    val result = if (option == StickerOption.DoesNotExist) stringResource(R.string.delivery_skip) else stringResource(kind.label())
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = style.fill ?: MaterialTheme.colorScheme.surface,
-        contentColor = style.content,
-        border = if (style.dashedBorder) null else BorderStroke(2.dp, if (isCurrent) MaterialTheme.colorScheme.onSurface else style.border),
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .then(if (style.dashedBorder) Modifier.dashedBorder(style.border) else Modifier)
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) {
-                role = Role.RadioButton
-                selected = isCurrent
-            },
-    ) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(result, style = MaterialTheme.typography.bodyMedium, color = style.subContent)
-            }
-            DeliveryIcons(kind, tint = style.content)
-            if (isCurrent) {
-                Text(
-                    stringResource(R.string.sticker_current),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(start = 10.dp),
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddNumberSheet(error: AddNumberError?, onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
@@ -682,52 +509,6 @@ private fun AddNumberSheet(error: AddNumberError?, onDismiss: () -> Unit, onAdd:
             }
             AccentButton(text = stringResource(R.string.number_add), onClick = { onAdd(number, addition) }, enabled = number.isNotEmpty())
             Spacer(Modifier.height(12.dp))
-        }
-    }
-}
-
-@Composable
-private fun ConfirmDialog(
-    title: String,
-    text: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    confirmLabel: String = stringResource(R.string.delete),
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(text) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text(confirmLabel, color = MaterialTheme.colorScheme.error) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
-}
-
-@Composable
-private fun ErrorText(text: String) {
-    Text(text, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
-}
-
-@Composable
-private fun SheetAction(title: String, subtitle: String, onClick: () -> Unit, destructive: Boolean = false) {
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).clickable(onClick = onClick).semantics(mergeDescendants = true) {
-            role = Role.Button
-        },
-    ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-            )
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

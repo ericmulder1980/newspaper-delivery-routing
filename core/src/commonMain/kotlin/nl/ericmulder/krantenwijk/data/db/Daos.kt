@@ -87,6 +87,9 @@ abstract class BuildingDao {
     @Query("SELECT * FROM building WHERE id = :id")
     abstract suspend fun get(id: Long): BuildingEntity?
 
+    @Query("SELECT * FROM building WHERE id = :id")
+    abstract fun observe(id: Long): Flow<BuildingEntity?>
+
     @Insert
     abstract suspend fun insert(building: BuildingEntity): Long
 
@@ -163,6 +166,9 @@ abstract class BuildingDao {
 interface AddressDao {
     @Query("SELECT * FROM address WHERE segmentId = :segmentId")
     fun observeForSegment(segmentId: Long): Flow<List<AddressEntity>>
+
+    @Query("SELECT * FROM address WHERE buildingId = :buildingId")
+    fun observeForBuilding(buildingId: Long): Flow<List<AddressEntity>>
 
     @Query("SELECT * FROM address WHERE id = :id")
     suspend fun get(id: Long): AddressEntity?

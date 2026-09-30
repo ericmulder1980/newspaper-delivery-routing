@@ -38,3 +38,15 @@ fun separatorFor(type: SuffixType): String = when (type) {
 /** The apartment suffixes for the given input, or null if it isn't a valid range (for the live preview). */
 fun unitsOrNull(from: String, to: String, type: SuffixType): List<String>? =
     runCatching { generateUnits(from, to, type) }.getOrNull()
+
+/**
+ * A single apartment suffix typed by the user (BLD-05), normalised: one letter A–Z for letter
+ * buildings, a positive number for numbered buildings. Null if it doesn't fit the building's type.
+ */
+fun normaliseSuffix(input: String, type: SuffixType): String? {
+    val value = input.trim().uppercase()
+    return when (type) {
+        SuffixType.LETTER -> value.takeIf { it.length == 1 && it[0] in 'A'..'Z' }
+        SuffixType.NUMBER -> value.toIntOrNull()?.takeIf { it in 1..999 }?.toString()
+    }
+}
