@@ -18,13 +18,14 @@ private val ButtonShape = RoundedCornerShape(16.dp)
 
 /** The prototype's big yellow action button (e.g. "Start round"). */
 @Composable
-fun AccentButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun AccentButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val colors = KrantenwijkTheme.colors
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth().heightIn(min = 72.dp),
         shape = ButtonShape,
-        border = BorderStroke(2.dp, colors.accentFillBorder),
+        border = if (enabled) BorderStroke(2.dp, colors.accentFillBorder) else null,
         colors = ButtonDefaults.buttonColors(containerColor = colors.accentFill, contentColor = colors.onAccentFill),
     ) {
         Text(text, style = MaterialTheme.typography.headlineMedium)

@@ -23,4 +23,40 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_version">Version %1$s (%2$d)</string>
+    <string name="route_create_intro">First give your route a name.</string>
+    <string name="route_name_label">Route name</string>
+    <string name="route_name_hint">e.g. Route 07</string>
+    <string name="route_town_label">Town (optional)</string>
+    <string name="route_create">Create route</string>
+    <string name="route_no_sections">No street sections yet.</string>
+    <string name="route_add_section">Add street section</string>
+    <string name="section_range" translatable="false">%1$d → %2$d</string>
+    <string name="section_range_reverse">reverse %1$d → %2$d</string>
+
+    <string name="add_section_title">Add street</string>
+    <string name="add_section_kicker">Street section %1$d</string>
+    <string name="street_label">Street name</string>
+    <string name="street_hint">e.g. Kerkstraat</string>
+    <string name="street_suggestions">Used before:</string>
+    <string name="side_question">Which side do you walk in this section?</string>
+    <string name="side_even">Even</string>
+    <string name="side_odd">Odd</string>
+    <string name="side_all">Both</string>
+    <string name="numbers_label">House numbers</string>
+    <string name="numbers_from">From</string>
+    <string name="numbers_to">To (inclusive)</string>
+    <string name="reverse_label">Walk in reverse order</string>
+    <plurals name="preview_count">
+        <item quantity="one">%d address</item>
+        <item quantity="other">%d addresses</item>
+    </plurals>
+    <string name="preview_ascending">ascending %1$d → %2$d</string>
+    <string name="preview_reverse">reverse %1$d → %2$d</string>
+    <string name="range_from_after_to">Enter the lowest number first. To walk the other way, tick “Walk in reverse order”.</string>
+    <string name="range_no_numbers">No house numbers fall in this range.</string>
+    <string name="range_too_many">That’s more than 300 numbers. Split the street into smaller sections.</string>
+    <string name="range_even_side">The even side has even numbers. The odd numbers are skipped.</string>
+    <string name="range_odd_side">The odd side has odd numbers. The even numbers are skipped.</string>
+    <string name="add_section_save">Save street section</string>
+    <string name="add_section_save_failed">The street section could not be saved. Please try again.</string>
 </resources>

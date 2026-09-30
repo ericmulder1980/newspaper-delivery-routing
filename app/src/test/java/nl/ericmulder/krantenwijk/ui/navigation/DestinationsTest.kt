@@ -26,6 +26,7 @@ class DestinationsTest {
             Onboarding,
             Home,
             RouteEditor,
+            AddSection,
             SegmentDetail(segmentId = 7),
             BuildingDetail(buildingId = 3),
             AddressDetail(addressId = 42),

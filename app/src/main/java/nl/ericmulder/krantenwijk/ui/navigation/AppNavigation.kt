@@ -12,6 +12,8 @@ import nl.ericmulder.krantenwijk.R
 import nl.ericmulder.krantenwijk.ui.home.HomeScreen
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderLink
 import nl.ericmulder.krantenwijk.ui.placeholder.PlaceholderScreen
+import nl.ericmulder.krantenwijk.ui.route.AddSectionScreen
+import nl.ericmulder.krantenwijk.ui.route.RouteEditorScreen
 import nl.ericmulder.krantenwijk.ui.settings.SettingsScreen
 
 private val SavedStateConfig = SavedStateConfiguration { serializersModule = DestinationSerializersModule }
@@ -50,16 +52,13 @@ fun AppNavigation() {
                 PlaceholderScreen(stringResource(R.string.onboarding_title), "ONB-A", ::back)
             }
             entry<RouteEditor> {
-                PlaceholderScreen(
-                    title = stringResource(R.string.route_editor_title),
-                    featureId = "ADR-C",
+                RouteEditorScreen(
                     onBack = ::back,
-                    links = listOf(
-                        PlaceholderLink(stringResource(R.string.segment_title)) { go(SegmentDetail(segmentId = 0)) },
-                        PlaceholderLink(stringResource(R.string.onboarding_title)) { go(Onboarding) },
-                    ),
+                    onAddSection = { go(AddSection) },
+                    onOpenSection = { go(SegmentDetail(it)) },
                 )
             }
+            entry<AddSection> { AddSectionScreen(onBack = ::back, onSaved = ::back) }
             entry<SegmentDetail> {
                 PlaceholderScreen(
                     title = stringResource(R.string.segment_title),

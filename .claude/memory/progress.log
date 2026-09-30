@@ -170,3 +170,30 @@ CONTEXT FOR NEXT SESSION:
 If a Room entity changes, run a full build (not just jvmTest) or copyRoomSchemas may
 complain about a stale android schema copy. Optional: restrict APK ABIs to ARM (-2.4 MB).
 ================================================================================
+
+================================================================================
+[2026-09-30] SESSION END
+Feature: FND-002 (COMPLETE, a2bfc19) · ADR-A — Add street section (testing)
+
+COMPLETED:
+- FND-002 confirmed on phone; milestone M1 (foundation) complete.
+- CI test summary step (104b086). Theme/navigation/settings (a2bfc19).
+- ADR-A built: add-street screen with live preview, suggestions, reverse checkbox;
+  minimal route editor (create route, list sections).
+
+TESTS: 128/128 (81 domain, 22 data, 25 app). Lint clean except the deliberate sqlite pin.
+
+DECISIONS: DEC-015 theme/contrast (dimming by style).
+
+BLOCKERS: none
+
+NEXT SESSION:
+- User phone test of ADR-A (v0.3.0); commit + push after approval.
+- Then ADR-B: number check screen (ADR-12) + address editing (ADR-03/04).
+- Open: UI-test approach (device vs Robolectric) before RND-B; RND-10 redefine/drop.
+
+CONTEXT FOR NEXT SESSION:
+If Gradle fails with NoSuchFileException under scratchpad/gradle-*, run `./gradlew --stop`
+(a stale daemon from the wrapper bootstrap). ViewModel tests use FakeRouteRepository +
+MainDispatcherExtension (app/src/test/.../ui/testing).
+================================================================================

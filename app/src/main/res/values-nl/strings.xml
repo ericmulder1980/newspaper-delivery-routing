@@ -21,4 +21,39 @@
     <string name="settings_theme_light">Licht</string>
     <string name="settings_theme_dark">Donker</string>
     <string name="settings_version">Versie %1$s (%2$d)</string>
+    <string name="route_create_intro">Geef je wijk eerst een naam.</string>
+    <string name="route_name_label">Naam van de wijk</string>
+    <string name="route_name_hint">Bijv. Wijk 07</string>
+    <string name="route_town_label">Plaats (optioneel)</string>
+    <string name="route_create">Wijk aanmaken</string>
+    <string name="route_no_sections">Nog geen straatdelen.</string>
+    <string name="route_add_section">Straatdeel toevoegen</string>
+    <string name="section_range_reverse">omgekeerd %1$d → %2$d</string>
+
+    <string name="add_section_title">Straat toevoegen</string>
+    <string name="add_section_kicker">Straatdeel %1$d</string>
+    <string name="street_label">Straatnaam</string>
+    <string name="street_hint">Bijv. Kerkstraat</string>
+    <string name="street_suggestions">Eerder gebruikt:</string>
+    <string name="side_question">Welke kant loop je in dit deel?</string>
+    <string name="side_even">Even</string>
+    <string name="side_odd">Oneven</string>
+    <string name="side_all">Beide</string>
+    <string name="numbers_label">Huisnummers</string>
+    <string name="numbers_from">Van</string>
+    <string name="numbers_to">Tot en met</string>
+    <string name="reverse_label">In omgekeerde volgorde lopen</string>
+    <plurals name="preview_count">
+        <item quantity="one">%d adres</item>
+        <item quantity="other">%d adressen</item>
+    </plurals>
+    <string name="preview_ascending">oplopend %1$d → %2$d</string>
+    <string name="preview_reverse">omgekeerd %1$d → %2$d</string>
+    <string name="range_from_after_to">Vul eerst het laagste nummer in. Wil je andersom lopen, vink dan “In omgekeerde volgorde lopen” aan.</string>
+    <string name="range_no_numbers">Er vallen geen nummers in dit bereik.</string>
+    <string name="range_too_many">Dat zijn meer dan 300 nummers. Splits de straat in kleinere delen.</string>
+    <string name="range_even_side">Bij de even kant horen even nummers. De oneven nummers worden overgeslagen.</string>
+    <string name="range_odd_side">Bij de oneven kant horen oneven nummers. De even nummers worden overgeslagen.</string>
+    <string name="add_section_save">Straatdeel opslaan</string>
+    <string name="add_section_save_failed">Het straatdeel kon niet worden opgeslagen. Probeer het opnieuw.</string>
 </resources>

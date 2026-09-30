@@ -24,6 +24,10 @@ data object Home : Destination
 @Serializable
 data object RouteEditor : Destination
 
+/** Add a street section with live preview (ADR-A). */
+@Serializable
+data object AddSection : Destination
+
 /** One street section's addresses (ADR-B, STK-A). */
 @Serializable
 data class SegmentDetail(val segmentId: Long) : Destination

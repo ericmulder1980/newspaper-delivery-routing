@@ -1,7 +1,7 @@
 {
   "project": "Krantenwijk",
   "version": "0.1.0",
-  "last_updated": "2026-09-29",
+  "last_updated": "2026-09-30",
   "metadata": {
     "created": "2026-09-25",
     "initialized_by": "user",
@@ -39,14 +39,14 @@
     {
       "id": "M1",
       "title": "Foundation complete (end of Phase 1)",
-      "status": "in_progress",
+      "status": "complete",
       "features": [
         "FND-001",
         "FND-002",
         "FND-003",
         "FND-004"
       ],
-      "notes": "FND-001, FND-003, FND-004 complete; FND-002 remaining"
+      "notes": "All foundation features complete 2026-09-30"
     },
     {
       "id": "M2",
@@ -145,8 +145,8 @@
       "dependencies": [
         "FND-001"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Theme follows system and can be forced light/dark",
         "App launches in Dutch on a Dutch device, English on an unsupported locale (e.g. German)",
@@ -161,13 +161,12 @@
           "Home (route name, Start round, Edit route, Settings) and placeholder screens naming the feature that builds them",
           "Settings: theme System/Light/Dark (SET-01, stored in DataStore) + version info (SET-02)",
           "Status/navigation bar icons follow the app theme; EN + NL strings",
-          "103 tests (13 app: ThemeContrastTest, DestinationsTest); lint clean apart from the deliberate sqlite pin"
+          "103 tests (13 app: ThemeContrastTest, DestinationsTest); lint clean apart from the deliberate sqlite pin",
+          "CI green a2bfc19; user confirmed on phone (themes, navigation, Dutch) 2026-09-30"
         ],
-        "remaining": [
-          "User phone test: theme switching, navigation/back, Dutch via per-app language",
-          "Commit + push after approval"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "FND-003",
@@ -264,14 +263,31 @@
         "FND-002",
         "FND-004"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan ADR-02, ADR-07, ADR-11"
       ],
       "notes": [
         "DEC-012: from/to entered low to high (reject from > to); replace prototype swap button with a 'walk in reverse order' checkbox"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: previewSection/previewSample/suggestStreetNames (+13 tests)",
+          "AddSectionScreen + AddSectionViewModel: street with 'used before' suggestions, Even/Odd/Both toggle, From/To (digits, max 4), 'Walk in reverse order' checkbox (DEC-012), live preview + prototype warnings, save; form survives process death (SavedStateHandle)",
+          "RouteEditor made minimally real so ADR-A is testable: create route (name + optional town), list sections, Add street section",
+          "EN + NL strings incl. plurals; 25 app tests (ViewModel tests with FakeRouteRepository); mutation check passes",
+          "Version 0.3.0 (3)"
+        ],
+        "remaining": [
+          "User phone test",
+          "Commit + push after approval"
+        ],
+        "notes": [
+          "Save goes straight to the route editor; ADR-B inserts the number-check step ('Nummers controleren')",
+          "Route creation form here becomes step 2 of the ONB-A wizard"
+        ]
+      }
     },
     {
       "id": "ADR-B",
@@ -308,6 +324,9 @@
       "status": "pending",
       "acceptance_criteria": [
         "See plan ADR-05, ADR-06"
+      ],
+      "notes": [
+        "Route editor screen exists (ADR-A): list + add. ADR-C adds reorder (ADR-05) and direction toggle (ADR-06)"
       ]
     },
     {
@@ -681,8 +700,8 @@
     }
   ],
   "current": {
-    "feature": "FND-002",
-    "next_recommended": "Finish FND-002 (phone test), then ADR-A (add street section)"
+    "feature": "ADR-A",
+    "next_recommended": "Finish ADR-A (phone test), then ADR-B (number check + address editing)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
