@@ -65,8 +65,8 @@
         <item quantity="one">%d address</item>
         <item quantity="other">%d addresses</item>
     </plurals>
-    <string name="segment_kicker">Street section %1$d · check</string>
-    <string name="segment_tap_hint">Tap a number to change it. Stickers are set later per street.</string>
+    <string name="segment_kicker">Street section %1$d</string>
+    <string name="segment_tap_hint">Tap a number to set its sticker. Use Select to change several at once.</string>
     <string name="segment_done">Done</string>
     <string name="segment_delete">Delete street section</string>
     <string name="segment_delete_title">Delete %1$s?</string>
@@ -74,19 +74,52 @@
         <item quantity="one">This street section and its %d number are removed.</item>
         <item quantity="other">This street section and its %d numbers are removed.</item>
     </plurals>
-    <string name="number_tile_description">Number %1$s</string>
-    <string name="number_tile_gone_description">%1$s, does not exist</string>
     <string name="number_sheet_title">No. %1$s</string>
-    <string name="number_mark_gone">Does not exist</string>
-    <string name="number_mark_gone_sub">This number isn’t there. It never gets anything.</string>
-    <string name="number_mark_exists">Exists after all</string>
-    <string name="number_mark_exists_sub">Undo “does not exist”.</string>
-    <string name="number_delete">Delete</string>
-    <string name="number_delete_sub">Remove this number from the list.</string>
     <string name="number_add">Add</string>
     <string name="number_add_title">Add number</string>
     <string name="number_house_number">House number</string>
     <string name="number_addition">Addition (optional)</string>
     <string name="number_add_invalid">Enter a house number above 0.</string>
     <string name="number_add_duplicate">%1$s is already in this street section.</string>
+    <string name="sticker_none">No sticker</string>
+    <string name="sticker_ja">JA sticker</string>
+    <string name="sticker_nee_ja">NEE/JA sticker</string>
+    <string name="sticker_nee_nee">NEE/NEE sticker</string>
+    <string name="sticker_short_none">None</string>
+    <string name="sticker_short_ja" translatable="false">JA</string>
+    <string name="sticker_short_nee_ja" translatable="false">NEE/JA</string>
+    <string name="sticker_short_nee_nee" translatable="false">NEE/NEE</string>
+    <string name="delivery_both">Newspaper + leaflets</string>
+    <string name="delivery_newspaper_only">Newspaper only</string>
+    <string name="delivery_leaflets_only">Leaflets only</string>
+    <string name="delivery_nothing">Nothing</string>
+    <string name="delivery_skip">Skip</string>
+    <plurals name="newspaper_count">
+        <item quantity="one">%d newspaper</item>
+        <item quantity="other">%d newspapers</item>
+    </plurals>
+    <plurals name="leaflet_count">
+        <item quantity="one">%d leaflet</item>
+        <item quantity="other">%d leaflets</item>
+    </plurals>
+    <string name="tile_description" translatable="false">%1$s, %2$s, %3$s</string>
+    <string name="sticker_sheet_kicker">Sticker on mailbox</string>
+    <string name="sticker_current">Current</string>
+    <string name="select">Select</string>
+    <string name="select_all">Select all</string>
+    <string name="segment_select_hint">Tap numbers to select them, then set a sticker for all of them at once.</string>
+    <string name="set_sticker_count">Set sticker (%1$d)</string>
+    <plurals name="numbers_selected">
+        <item quantity="one">%d number selected</item>
+        <item quantity="other">%d numbers selected</item>
+    </plurals>
+    <plurals name="delete_numbers_action">
+        <item quantity="one">Delete number</item>
+        <item quantity="other">Delete %d numbers</item>
+    </plurals>
+    <plurals name="delete_numbers_title">
+        <item quantity="one">Delete %d number?</item>
+        <item quantity="other">Delete %d numbers?</item>
+    </plurals>
+    <string name="cannot_undo">This cannot be undone.</string>
 </resources>

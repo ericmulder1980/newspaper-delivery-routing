@@ -62,8 +62,8 @@
         <item quantity="one">%d adres</item>
         <item quantity="other">%d adressen</item>
     </plurals>
-    <string name="segment_kicker">Straatdeel %1$d · controleren</string>
-    <string name="segment_tap_hint">Tik op een nummer om het aan te passen. Stickers stel je later per straat in.</string>
+    <string name="segment_kicker">Straatdeel %1$d</string>
+    <string name="segment_tap_hint">Tik op een nummer om de sticker in te stellen. Met Selecteren pas je er meerdere tegelijk aan.</string>
     <string name="segment_done">Klaar</string>
     <string name="segment_delete">Straatdeel verwijderen</string>
     <string name="segment_delete_title">%1$s verwijderen?</string>
@@ -71,19 +71,48 @@
         <item quantity="one">Dit straatdeel en het %d nummer erin worden verwijderd.</item>
         <item quantity="other">Dit straatdeel en de %d nummers erin worden verwijderd.</item>
     </plurals>
-    <string name="number_tile_description">Nummer %1$s</string>
-    <string name="number_tile_gone_description">%1$s, bestaat niet</string>
     <string name="number_sheet_title">Nr. %1$s</string>
-    <string name="number_mark_gone">Bestaat niet</string>
-    <string name="number_mark_gone_sub">Dit nummer is er niet. Het krijgt nooit iets.</string>
-    <string name="number_mark_exists">Bestaat toch</string>
-    <string name="number_mark_exists_sub">“Bestaat niet” ongedaan maken.</string>
-    <string name="number_delete">Verwijderen</string>
-    <string name="number_delete_sub">Haal dit nummer uit de lijst.</string>
     <string name="number_add">Toevoegen</string>
     <string name="number_add_title">Nummer toevoegen</string>
     <string name="number_house_number">Huisnummer</string>
     <string name="number_addition">Toevoeging (optioneel)</string>
     <string name="number_add_invalid">Vul een huisnummer boven 0 in.</string>
     <string name="number_add_duplicate">%1$s staat al in dit straatdeel.</string>
+    <string name="sticker_none">Geen sticker</string>
+    <string name="sticker_ja">JA-sticker</string>
+    <string name="sticker_nee_ja">NEE/JA-sticker</string>
+    <string name="sticker_nee_nee">NEE/NEE-sticker</string>
+    <string name="sticker_short_none">Geen</string>
+    <string name="delivery_both">Krant + folder</string>
+    <string name="delivery_newspaper_only">Alleen krant</string>
+    <string name="delivery_leaflets_only">Alleen folder</string>
+    <string name="delivery_nothing">Niets</string>
+    <string name="delivery_skip">Overslaan</string>
+    <plurals name="newspaper_count">
+        <item quantity="one">%d krant</item>
+        <item quantity="other">%d kranten</item>
+    </plurals>
+    <plurals name="leaflet_count">
+        <item quantity="one">%d folder</item>
+        <item quantity="other">%d folders</item>
+    </plurals>
+    <string name="sticker_sheet_kicker">Sticker op brievenbus</string>
+    <string name="sticker_current">Huidig</string>
+    <string name="select">Selecteren</string>
+    <string name="select_all">Alles selecteren</string>
+    <string name="segment_select_hint">Tik op nummers om ze te selecteren en stel daarna voor allemaal tegelijk de sticker in.</string>
+    <string name="set_sticker_count">Sticker instellen (%1$d)</string>
+    <plurals name="numbers_selected">
+        <item quantity="one">%d nummer geselecteerd</item>
+        <item quantity="other">%d nummers geselecteerd</item>
+    </plurals>
+    <plurals name="delete_numbers_action">
+        <item quantity="one">Nummer verwijderen</item>
+        <item quantity="other">%d nummers verwijderen</item>
+    </plurals>
+    <plurals name="delete_numbers_title">
+        <item quantity="one">%d nummer verwijderen?</item>
+        <item quantity="other">%d nummers verwijderen?</item>
+    </plurals>
+    <string name="cannot_undo">Dit kan niet ongedaan worden gemaakt.</string>
 </resources>

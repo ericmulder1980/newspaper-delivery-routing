@@ -269,7 +269,8 @@
         "See plan ADR-02, ADR-07, ADR-11"
       ],
       "notes": [
-        "DEC-012: from/to entered low to high (reject from > to); replace prototype swap button with a 'walk in reverse order' checkbox"
+        "DEC-012: from/to entered low to high (reject from > to); replace prototype swap button with a 'walk in reverse order' checkbox",
+        "ISS-001 (low): From/To placeholder always even example"
       ],
       "progress": {
         "done": [
@@ -301,8 +302,8 @@
       "dependencies": [
         "ADR-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan ADR-12, ADR-03, ADR-04"
       ],
@@ -312,17 +313,16 @@
           "SegmentDetail: position, side, range, existing count; tile grid in walking order; does-not-exist tiles dashed + struck through",
           "Tap sheet: Does not exist / Exists after all, Delete; Add sheet: number + optional addition, invalid/duplicate errors",
           "Delete street section with confirmation; Done returns to route; route list shows address counts",
-          "core: DuplicateAddressException, observeAddressCounts (+3 tests); 31 app tests; version 0.4.0 (4)"
+          "core: DuplicateAddressException, observeAddressCounts (+3 tests); 31 app tests; version 0.4.0 (4)",
+          "CI green ab9aa92; user approved on phone 2026-09-30 (one minor issue: ISS-001)"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push after approval"
-        ],
+        "remaining": [],
         "notes": [
           "'Make building' option is added to the tap sheet in BLD-A",
           "Address detail (sticker etc.) is STK-A / ADR-09/10"
         ]
-      }
+      },
+      "completed": "2026-09-30"
     },
     {
       "id": "ADR-C",
@@ -359,10 +359,30 @@
       "dependencies": [
         "ADR-B"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "See plan STK-01..03"
+      ],
+      "progress": {
+        "done": [
+          "core: DeliveryKind + deliveryKind(address, round = FullRound) (+9 tests)",
+          "Street screen: tiles coloured by delivery with newspaper/leaflet/nothing icons + sticker label; header counts (addresses, newspapers, leaflets); legend",
+          "Sticker sheet as in prototype: No sticker / JA / NEE/JA / NEE/NEE / Does not exist, 'Current' marked; delete from sheet",
+          "Bulk: Select, Select all, Set sticker (n), bulk delete with confirmation (STK-02)",
+          "TalkBack: tile reads number, sticker and delivery; selection announced (NFR-04)",
+          "Lucide icons (ISC) as vector drawables; 36 app tests; version 0.5.0 (5)"
+        ],
+        "remaining": [
+          "User phone test",
+          "Commit + push after approval"
+        ],
+        "notes": [
+          "LEAFLETS_ONLY borrows the 'both' style until RND-B; propose own colour then (needs user approval)"
+        ]
+      },
+      "notes": [
+        "LEAFLETS_ONLY is not a valid state (DEC-017); removed once RND-A/ADR-09 rules are confirmed"
       ]
     },
     {
@@ -442,6 +462,9 @@
       "status": "pending",
       "acceptance_criteria": [
         "See plan RND-01, RND-02"
+      ],
+      "notes": [
+        "DEC-017: only nothing / newspaper only / newspaper + leaflets; confirm rule with user before building"
       ]
     },
     {
@@ -571,7 +594,10 @@
         "RND-B"
       ],
       "phase": "inception",
-      "status": "pending"
+      "status": "pending",
+      "notes": [
+        "DEC-017: only nothing / newspaper only / newspaper + leaflets; confirm rule with user before building"
+      ]
     },
     {
       "id": "ADR-10",
@@ -716,13 +742,14 @@
     }
   ],
   "current": {
-    "feature": "ADR-B",
-    "next_recommended": "Finish ADR-B (phone test), then STK-A (stickers) or ADR-C (reorder/direction)"
+    "feature": "STK-A",
+    "next_recommended": "Finish STK-A (phone test), then ADR-C (reorder + direction) or BLD-A"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
     "RND-10 compact 'next up' view: redefine without check-offs, or drop? (DEC-014)",
-    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B"
+    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B",
+    "DEC-017 follow-up: does a round always include the newspaper (RND-01)? What does 'exception: no newspaper' mean (ADR-09)? Then remove LEAFLETS_ONLY"
   ],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",

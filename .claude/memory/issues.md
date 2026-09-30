@@ -38,7 +38,29 @@ Track problems and their resolutions. Build institutional knowledge.
 
 ## Open Issues
 
-*No open issues.*
+### ISS-001: From/To placeholder shows even example numbers for every side
+**Reported:** 2026-09-30
+**Status:** Open
+**Severity:** Low
+**Related Feature:** ADR-A
+
+**Symptoms:**
+- On "Add street", the empty From/To fields show the example "2" and "24", also when Odd or Both is selected (reported by the user on the phone, v0.4.0).
+
+**Investigation Log:**
+- Cause is known: `NumberFields` in `app/src/main/java/nl/ericmulder/krantenwijk/ui/route/AddSectionScreen.kt` passes fixed hints "2" and "24".
+
+**Root Cause:**
+Hard-coded placeholder text, independent of the selected side.
+
+**Resolution:**
+To do (user: pick up at a later stage). Suggested: Even → 2 / 24, Odd → 1 / 23, Both → 1 / 10, plus a ViewModel or UI test.
+
+**Prevention:**
+- [ ] Added test case
+
+---
+
 
 ---
 

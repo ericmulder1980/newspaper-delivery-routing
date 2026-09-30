@@ -330,3 +330,21 @@ Track significant decisions. Each decision is immutable once accepted — supers
 **Decision:** "Check numbers" saves the section immediately and opens the street-section screen. The same screen serves the number check after adding (ADR-12) and later edits (ADR-03). Each change is written straight away (NFR-05). Navigation replaces the add form with the number check, so back returns to the route.
 
 **Consequences:** One screen and one set of tests instead of two. Abandoning the check leaves a saved section, which can be deleted with "Delete street section" (with confirmation).
+
+---
+
+### DEC-017: "Leaflets only" is not a valid delivery state
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User
+**Related:** STK-A, RND-A (RND-01), ADR-09, plan §1.2, §3.6
+
+**Context:** Plan §1.2 lists four states (newspaper only, leaflets only, both, nothing), and §3.6 / RND-01 allow a round without the newspaper. STK-A added `DeliveryKind.LEAFLETS_ONLY` and proposed a colour for it later.
+
+**Decision:** An address only ever shows one of three states: **nothing**, **newspaper only**, or **newspaper + leaflets**. No colour or UI is needed for leaflets only.
+
+**Consequences / follow-up:**
+- In STK-A, `LEAFLETS_ONLY` can't occur, because there are no exceptions yet and the editor always uses a full round.
+- **RND-A:** a round presumably always includes the newspaper, with leaflets optional. Confirm with the user before building RND-01, since the plan says "at least one must be on".
+- **ADR-09:** decide what "exception: no newspaper" means (probably nothing at all). Confirm with the user before building it.
+- Then remove `LEAFLETS_ONLY` from `DeliveryKind` and make the rules unable to produce it, with tests.

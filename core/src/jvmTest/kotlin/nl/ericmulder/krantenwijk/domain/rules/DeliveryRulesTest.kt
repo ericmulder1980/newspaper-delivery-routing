@@ -2,6 +2,7 @@ package nl.ericmulder.krantenwijk.domain.rules
 
 import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Delivery
+import nl.ericmulder.krantenwijk.domain.model.DeliveryKind
 import nl.ericmulder.krantenwijk.domain.model.RoundContents
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -80,6 +81,28 @@ class DeliveryRulesTest {
         fun `exceptions never add items the sticker blocks`() {
             val address = Address(houseNumber = 4, sticker = Sticker.NEE_NEE, exceptionNoLeaflets = true)
             assertEquals(Delivery.NOTHING, deliveryFor(address, both))
+        }
+    }
+
+    @Nested
+    inner class Kind {
+        @ParameterizedTest(name = "{0} → {1}")
+        @CsvSource("NONE, BOTH", "JA, BOTH", "NEE_JA, NEWSPAPER_ONLY", "NEE_NEE, NOTHING")
+        fun `editor shows the full-round result`(sticker: Sticker, kind: DeliveryKind) {
+            assertEquals(kind, deliveryKind(Address(houseNumber = 2, sticker = sticker)))
+        }
+
+        @ParameterizedTest
+        @EnumSource(Sticker::class)
+        fun `does not exist wins over any sticker`(sticker: Sticker) {
+            assertEquals(DeliveryKind.DOES_NOT_EXIST, deliveryKind(Address(houseNumber = 2, exists = false, sticker = sticker)))
+        }
+
+        @Test
+        fun `leaflets only via exception or a leaflets-only round`() {
+            assertEquals(DeliveryKind.LEAFLETS_ONLY, deliveryKind(Address(houseNumber = 2, exceptionNoNewspaper = true)))
+            assertEquals(DeliveryKind.LEAFLETS_ONLY, deliveryKind(Address(houseNumber = 2), leafletsOnly))
+            assertEquals(DeliveryKind.NOTHING, deliveryKind(Address(houseNumber = 2, sticker = Sticker.NEE_JA), leafletsOnly))
         }
     }
 
