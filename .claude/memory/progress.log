@@ -197,3 +197,32 @@ If Gradle fails with NoSuchFileException under scratchpad/gradle-*, run `./gradl
 (a stale daemon from the wrapper bootstrap). ViewModel tests use FakeRouteRepository +
 MainDispatcherExtension (app/src/test/.../ui/testing).
 ================================================================================
+
+================================================================================
+[2026-09-30] SESSION END
+Feature: ADR-B (COMPLETE, ab9aa92) · STK-A — Stickers + bulk edit (testing, cb5de5d)
+
+COMPLETED:
+- ADR-B: number check / street screen (does not exist, delete, add with addition,
+  delete section); DEC-016 save-then-check. User approved; ISS-001 (low) logged.
+- STK-A: sticker tiles with icons + labels, sticker sheet, bulk select, header counts,
+  legend. Pushed as v0.5.0; CI green.
+- DEC-017 resolved with user: round = newspaper + optional leaflets; no-newspaper
+  exception = nothing; LEAFLETS_ONLY removed (uncommitted, see below).
+- DEC-018: sections ordered by creation; RND-10 'next up' = next section; drag-and-drop
+  reorder split out as ADR-05 (nice-to-have). ADR-C is now only 'change direction'.
+
+TESTS: 149/149 (89 domain, 24 data, 36 app). Mutation checks pass.
+
+UNCOMMITTED: DEC-017/018 code + memory changes (RoundContents(leaflets), DeliveryKind
+without LEAFLETS_ONLY). Commit together with the next feature or on request.
+
+BLOCKERS: none
+
+NEXT SESSION:
+- User phone test of STK-A (v0.5.0).
+- Next feature: ADR-C (direction toggle), BLD-A (buildings) or RND-A (start round, now small: DEC-019).
+- Open: UI-test approach before RND-B; MVP target date.
+================================================================================
+[2026-09-30] DECISION: DEC-019 — no round contents choice; round list and counts always show
+newspaper + leaflets. RND-01 dropped; RND-A redefined (start round → live list + counts).

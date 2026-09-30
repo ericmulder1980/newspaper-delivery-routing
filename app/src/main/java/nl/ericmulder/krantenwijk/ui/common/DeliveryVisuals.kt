@@ -18,16 +18,13 @@ import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
 import nl.ericmulder.krantenwijk.ui.theme.StateStyle
 
-/**
- * Colours for a delivery state. LEAFLETS_ONLY can't occur in the editor yet (it needs exceptions,
- * ADR-09, or a leaflets-only round); it borrows the "both" style until round mode gives it its own.
- */
+/** Colours for a delivery state (DEC-015). */
 @Composable
 @ReadOnlyComposable
 fun DeliveryKind.style(): StateStyle {
     val colors = KrantenwijkTheme.colors
     return when (this) {
-        DeliveryKind.BOTH, DeliveryKind.LEAFLETS_ONLY -> colors.both
+        DeliveryKind.BOTH -> colors.both
         DeliveryKind.NEWSPAPER_ONLY -> colors.newspaperOnly
         DeliveryKind.NOTHING -> colors.nothing
         DeliveryKind.DOES_NOT_EXIST -> colors.doesNotExist
@@ -38,7 +35,6 @@ fun DeliveryKind.style(): StateStyle {
 fun DeliveryKind.label(): Int = when (this) {
     DeliveryKind.BOTH -> R.string.delivery_both
     DeliveryKind.NEWSPAPER_ONLY -> R.string.delivery_newspaper_only
-    DeliveryKind.LEAFLETS_ONLY -> R.string.delivery_leaflets_only
     DeliveryKind.NOTHING -> R.string.delivery_nothing
     DeliveryKind.DOES_NOT_EXIST -> R.string.does_not_exist
 }
@@ -70,7 +66,7 @@ fun Sticker.shortLabel(): Int = when (this) {
 fun DeliveryIcons(kind: DeliveryKind, tint: Color, modifier: Modifier = Modifier, size: Dp = 22.dp) {
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         val newspaper = kind == DeliveryKind.BOTH || kind == DeliveryKind.NEWSPAPER_ONLY
-        val leaflets = kind == DeliveryKind.BOTH || kind == DeliveryKind.LEAFLETS_ONLY
+        val leaflets = kind == DeliveryKind.BOTH
         if (newspaper) Icon(painterResource(R.drawable.ic_newspaper), null, Modifier.size(size), tint)
         if (leaflets) Icon(painterResource(R.drawable.ic_leaflets), null, Modifier.size(size), tint)
         if (kind == DeliveryKind.NOTHING) Icon(painterResource(R.drawable.ic_nothing), null, Modifier.size(size), tint)

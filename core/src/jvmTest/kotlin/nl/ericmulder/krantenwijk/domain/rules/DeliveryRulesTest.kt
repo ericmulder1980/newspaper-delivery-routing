@@ -8,16 +8,14 @@ import nl.ericmulder.krantenwijk.domain.model.Sticker
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 
 class DeliveryRulesTest {
 
-    private val both = RoundContents(newspaper = true, leaflets = true)
-    private val newspaperOnly = RoundContents(newspaper = true, leaflets = false)
-    private val leafletsOnly = RoundContents(newspaper = false, leaflets = true)
+    private val both = RoundContents(leaflets = true)
+    private val newspaperOnly = RoundContents(leaflets = false)
 
     @Nested
     inner class StickerTable {
@@ -57,18 +55,17 @@ class DeliveryRulesTest {
             assertEquals(deliveryFor(sticker).newspaper, delivery.newspaper)
         }
 
-        @ParameterizedTest
-        @EnumSource(Sticker::class)
-        fun `round without newspaper gives no newspaper anywhere`(sticker: Sticker) {
-            val delivery = deliveryFor(Address(houseNumber = 2, sticker = sticker), leafletsOnly)
-            assertEquals(false, delivery.newspaper)
-            assertEquals(deliveryFor(sticker).leaflets, delivery.leaflets)
+        @Test
+        fun `every round includes the newspaper`() {
+            assertEquals(true, both.newspaper)
+            assertEquals(true, newspaperOnly.newspaper)
         }
 
-        @Test
-        fun `exception blocks newspaper despite sticker`() {
-            val address = Address(houseNumber = 4, sticker = Sticker.JA, exceptionNoNewspaper = true)
-            assertEquals(Delivery(newspaper = false, leaflets = true), deliveryFor(address, both))
+        @ParameterizedTest
+        @EnumSource(Sticker::class)
+        fun `no newspaper exception means nothing at all (DEC-017)`(sticker: Sticker) {
+            val address = Address(houseNumber = 4, sticker = sticker, exceptionNoNewspaper = true)
+            assertEquals(Delivery.NOTHING, deliveryFor(address, both))
         }
 
         @Test
@@ -99,15 +96,22 @@ class DeliveryRulesTest {
         }
 
         @Test
-        fun `leaflets only via exception or a leaflets-only round`() {
-            assertEquals(DeliveryKind.LEAFLETS_ONLY, deliveryKind(Address(houseNumber = 2, exceptionNoNewspaper = true)))
-            assertEquals(DeliveryKind.LEAFLETS_ONLY, deliveryKind(Address(houseNumber = 2), leafletsOnly))
-            assertEquals(DeliveryKind.NOTHING, deliveryKind(Address(houseNumber = 2, sticker = Sticker.NEE_JA), leafletsOnly))
+        fun `leaflets are never delivered without the newspaper (DEC-017)`() {
+            val combos = Sticker.entries.flatMap { sticker ->
+                listOf(true, false).flatMap { exists ->
+                    listOf(true, false).flatMap { noNewspaper ->
+                        listOf(true, false).flatMap { noLeaflets ->
+                            listOf(both, newspaperOnly).map { round ->
+                                deliveryFor(
+                                    Address(2, exists = exists, sticker = sticker, exceptionNoNewspaper = noNewspaper, exceptionNoLeaflets = noLeaflets),
+                                    round,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            assertEquals(emptyList<Delivery>(), combos.filter { it.leaflets && !it.newspaper })
         }
-    }
-
-    @Test
-    fun `round must include at least one item`() {
-        assertThrows<IllegalArgumentException> { RoundContents(newspaper = false, leaflets = false) }
     }
 }

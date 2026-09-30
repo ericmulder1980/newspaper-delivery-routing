@@ -26,26 +26,28 @@ class SummariesTest {
 
     @Test
     fun `delivery summary for a full round`() {
-        val counts = deliverySummary(apartments, RoundContents(newspaper = true, leaflets = true))
+        val counts = deliverySummary(apartments, RoundContents(leaflets = true))
         assertEquals(DeliveryCounts(newspapers = 4, leaflets = 2, deliverableAddresses = 4), counts)
     }
 
     @Test
     fun `delivery summary for a round without leaflets`() {
-        val counts = deliverySummary(apartments, RoundContents(newspaper = true, leaflets = false))
+        val counts = deliverySummary(apartments, RoundContents(leaflets = false))
         assertEquals(DeliveryCounts(newspapers = 4, leaflets = 0, deliverableAddresses = 4), counts)
     }
 
     @Test
     fun `delivery summary respects exceptions`() {
-        val withException = apartments + Address(12, "G", exceptionNoNewspaper = true)
-        val counts = deliverySummary(withException, RoundContents(newspaper = true, leaflets = true))
-        assertEquals(DeliveryCounts(newspapers = 4, leaflets = 3, deliverableAddresses = 5), counts)
+        val withExceptions = apartments +
+            Address(12, "G", exceptionNoNewspaper = true) +
+            Address(12, "H", exceptionNoLeaflets = true)
+        val counts = deliverySummary(withExceptions, RoundContents(leaflets = true))
+        assertEquals(DeliveryCounts(newspapers = 5, leaflets = 2, deliverableAddresses = 5), counts)
     }
 
     @Test
     fun `empty building has zero counts`() {
         assertEquals(StickerCounts(0, 0, 0, 0), stickerSummary(emptyList()))
-        assertEquals(DeliveryCounts(0, 0, 0), deliverySummary(emptyList(), RoundContents(true, false)))
+        assertEquals(DeliveryCounts(0, 0, 0), deliverySummary(emptyList(), RoundContents(leaflets = false)))
     }
 }

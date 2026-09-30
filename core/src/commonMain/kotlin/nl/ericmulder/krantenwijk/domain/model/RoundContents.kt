@@ -1,8 +1,9 @@
 package nl.ericmulder.krantenwijk.domain.model
 
-/** What is being delivered in a round (RND-01). At least one item must be included. */
-data class RoundContents(val newspaper: Boolean, val leaflets: Boolean) {
-    init {
-        require(newspaper || leaflets) { "A round must include the newspaper, leaflets, or both" }
-    }
+/**
+ * What is delivered in a round. The newspaper is always included; leaflets vary per week and are
+ * chosen at round start (RND-01, DEC-017).
+ */
+data class RoundContents(val leaflets: Boolean) {
+    val newspaper: Boolean get() = true
 }

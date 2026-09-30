@@ -85,7 +85,6 @@
     <string name="sticker_short_none">Geen</string>
     <string name="delivery_both">Krant + folder</string>
     <string name="delivery_newspaper_only">Alleen krant</string>
-    <string name="delivery_leaflets_only">Alleen folder</string>
     <string name="delivery_nothing">Niets</string>
     <string name="delivery_skip">Overslaan</string>
     <plurals name="newspaper_count">

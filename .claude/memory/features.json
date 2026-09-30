@@ -326,11 +326,10 @@
     },
     {
       "id": "ADR-C",
-      "title": "Route editor: order and direction",
-      "description": "Route editor listing segments in walking order with drag-and-drop reordering and ascending/descending toggle per segment.",
+      "title": "Route editor: walking direction per section",
+      "description": "Change a section's walking direction afterwards (walk in reverse order) from the route editor / street screen (ADR-06).",
       "priority": "high",
       "plan_refs": [
-        "ADR-05",
         "ADR-06"
       ],
       "dependencies": [
@@ -342,7 +341,7 @@
         "See plan ADR-05, ADR-06"
       ],
       "notes": [
-        "Route editor screen exists (ADR-A): list + add. ADR-C adds reorder (ADR-05) and direction toggle (ADR-06)"
+        "Route editor list exists (ADR-A). Drag-and-drop reordering split out to ADR-05 (nice-to-have, DEC-018)"
       ]
     },
     {
@@ -359,8 +358,8 @@
       "dependencies": [
         "ADR-B"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "See plan STK-01..03"
       ],
@@ -371,19 +370,19 @@
           "Sticker sheet as in prototype: No sticker / JA / NEE/JA / NEE/NEE / Does not exist, 'Current' marked; delete from sheet",
           "Bulk: Select, Select all, Set sticker (n), bulk delete with confirmation (STK-02)",
           "TalkBack: tile reads number, sticker and delivery; selection announced (NFR-04)",
-          "Lucide icons (ISC) as vector drawables; 36 app tests; version 0.5.0 (5)"
+          "Lucide icons (ISC) as vector drawables; 36 app tests; version 0.5.0 (5)",
+          "DEC-017 follow-up: RoundContents(leaflets) with newspaper always true; no-newspaper exception = nothing; LEAFLETS_ONLY removed (+exhaustive invariant test)",
+          "User approved on phone 2026-09-30"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push after approval"
-        ],
+        "remaining": [],
         "notes": [
           "LEAFLETS_ONLY borrows the 'both' style until RND-B; propose own colour then (needs user approval)"
         ]
       },
       "notes": [
-        "LEAFLETS_ONLY is not a valid state (DEC-017); removed once RND-A/ADR-09 rules are confirmed"
-      ]
+        "DEC-017 applied: LEAFLETS_ONLY removed; round = newspaper + optional leaflets"
+      ],
+      "completed": "2026-09-30"
     },
     {
       "id": "BLD-A",
@@ -448,11 +447,10 @@
     },
     {
       "id": "RND-A",
-      "title": "Round start: choose contents, counts to take along",
-      "description": "Round start screen with newspaper/leaflets toggles; take-along counts calculated from the live address list (deliverySummary). No snapshot, nothing stored per round (DEC-014).",
+      "title": "Start round: live list with take-along counts",
+      "description": "'Start round' opens the round list directly (no contents choice, DEC-019). Counts of newspapers and leaflets for the whole route are shown at the top, calculated live from the addresses (deliverySummary with FullRound). Nothing is stored per round (DEC-014).",
       "priority": "high",
       "plan_refs": [
-        "RND-01",
         "RND-02"
       ],
       "dependencies": [
@@ -461,10 +459,11 @@
       "phase": "inception",
       "status": "pending",
       "acceptance_criteria": [
-        "See plan RND-01, RND-02"
+        "Start round opens the walking list without extra steps",
+        "Header shows newspapers and leaflets to take along; counts match the existing addresses (does-not-exist and NEE/NEE excluded as per rules)"
       ],
       "notes": [
-        "DEC-017: only nothing / newspaper only / newspaper + leaflets; confirm rule with user before building"
+        "RND-01 dropped (DEC-019). Simplify nav: remove RoundStart placeholder; RoundMode becomes a data object"
       ]
     },
     {
@@ -570,6 +569,22 @@
       ]
     },
     {
+      "id": "ADR-05",
+      "title": "Drag-and-drop reordering of street sections",
+      "priority": "medium",
+      "plan_refs": [
+        "ADR-05"
+      ],
+      "dependencies": [
+        "ADR-C"
+      ],
+      "phase": "inception",
+      "status": "pending",
+      "notes": [
+        "Nice-to-have per user (DEC-018); default order = creation order; repository.reorderSegments exists"
+      ]
+    },
+    {
       "id": "ADR-08",
       "title": "Duplicate address detection",
       "priority": "medium",
@@ -596,7 +611,8 @@
       "phase": "inception",
       "status": "pending",
       "notes": [
-        "DEC-017: only nothing / newspaper only / newspaper + leaflets; confirm rule with user before building"
+        "DEC-017: only nothing / newspaper only / newspaper + leaflets; confirm rule with user before building",
+        "DEC-017: 'no newspaper' exception = nothing at all (already in deliveryFor)"
       ]
     },
     {
@@ -655,7 +671,7 @@
     },
     {
       "id": "RND-10",
-      "title": "Compact 'next up' view",
+      "title": "Compact 'next up' view (current + next street section)",
       "priority": "medium",
       "plan_refs": [
         "RND-10"
@@ -664,10 +680,11 @@
         "RND-C"
       ],
       "phase": "inception",
-      "status": "blocked",
+      "status": "pending",
       "notes": [
-        "Open question (DEC-014): 'next 3 deliveries' assumed check-offs; redefine (e.g. scroll position) or drop"
-      ]
+        "Redefined 2026-09-30 (DEC-018): 'next up' = next street section, not next deliveries"
+      ],
+      "description": "Toggle between the full list and a compact view: the current street section in large type plus the next section in the route order (DEC-018)."
     },
     {
       "id": "RND-11",
@@ -742,14 +759,12 @@
     }
   ],
   "current": {
-    "feature": "STK-A",
-    "next_recommended": "Finish STK-A (phone test), then ADR-C (reorder + direction) or BLD-A"
+    "feature": "BLD-A",
+    "next_recommended": "BLD-A (create apartment building, collapsed row)"
   },
   "open_questions": [
     "No target date for the MVP (M2) set yet.",
-    "RND-10 compact 'next up' view: redefine without check-offs, or drop? (DEC-014)",
-    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B",
-    "DEC-017 follow-up: does a round always include the newspaper (RND-01)? What does 'exception: no newspaper' mean (ADR-09)? Then remove LEAFLETS_ONLY"
+    "UI tests (plan §10 Compose UI tests) need a device or Robolectric in :app; decide before RND-B / BLD-B"
   ],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",
@@ -765,5 +780,39 @@
     "blocked": "Cannot proceed without external input",
     "complete": "Phase finished successfully",
     "skipped": "Phase intentionally skipped"
-  }
+  },
+  "dropped_requirements": [
+    {
+      "id": "RND-01",
+      "reason": "DEC-019: no round contents choice"
+    },
+    {
+      "id": "RND-05",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "RND-06",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "RND-07",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "RND-09",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "BLD-07",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "RND-11",
+      "reason": "DEC-014"
+    },
+    {
+      "id": "RND-12",
+      "reason": "DEC-014"
+    }
+  ]
 }

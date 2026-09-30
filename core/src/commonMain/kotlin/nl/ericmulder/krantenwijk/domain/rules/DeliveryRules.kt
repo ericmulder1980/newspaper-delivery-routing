@@ -24,20 +24,24 @@ fun deliveryFor(sticker: Sticker): Delivery = when (sticker) {
 
 /**
  * What [address] receives in a round with [round] contents: nothing if the address does not exist;
- * otherwise the sticker result, minus items blocked by per-address exceptions (ADR-09), minus items
- * not in this round.
+ * otherwise the sticker result, minus items blocked by per-address exceptions (ADR-09), minus
+ * leaflets when the round has none.
+ *
+ * Leaflets never go without the newspaper (DEC-017), so an address that gets no newspaper gets
+ * nothing: a NEE/NEE sticker, or the "no newspaper" exception.
  */
 fun deliveryFor(address: Address, round: RoundContents): Delivery {
     if (!address.exists) return Delivery.NOTHING
     val bySticker = deliveryFor(address.sticker)
+    val newspaper = bySticker.newspaper && !address.exceptionNoNewspaper && round.newspaper
     return Delivery(
-        newspaper = bySticker.newspaper && !address.exceptionNoNewspaper && round.newspaper,
-        leaflets = bySticker.leaflets && !address.exceptionNoLeaflets && round.leaflets,
+        newspaper = newspaper,
+        leaflets = newspaper && bySticker.leaflets && !address.exceptionNoLeaflets && round.leaflets,
     )
 }
 
 /** A round with both items: what the editor shows next to each address (STK-03). */
-val FullRound = RoundContents(newspaper = true, leaflets = true)
+val FullRound = RoundContents(leaflets = true)
 
 /** The state shown for [address] in a round with [round] contents (default: the editor's full round). */
 fun deliveryKind(address: Address, round: RoundContents = FullRound): DeliveryKind {
@@ -46,7 +50,6 @@ fun deliveryKind(address: Address, round: RoundContents = FullRound): DeliveryKi
     return when {
         delivery.newspaper && delivery.leaflets -> DeliveryKind.BOTH
         delivery.newspaper -> DeliveryKind.NEWSPAPER_ONLY
-        delivery.leaflets -> DeliveryKind.LEAFLETS_ONLY
         else -> DeliveryKind.NOTHING
     }
 }

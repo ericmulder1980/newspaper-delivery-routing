@@ -343,8 +343,49 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 **Decision:** An address only ever shows one of three states: **nothing**, **newspaper only**, or **newspaper + leaflets**. No colour or UI is needed for leaflets only.
 
-**Consequences / follow-up:**
-- In STK-A, `LEAFLETS_ONLY` can't occur, because there are no exceptions yet and the editor always uses a full round.
-- **RND-A:** a round presumably always includes the newspaper, with leaflets optional. Confirm with the user before building RND-01, since the plan says "at least one must be on".
-- **ADR-09:** decide what "exception: no newspaper" means (probably nothing at all). Confirm with the user before building it.
-- Then remove `LEAFLETS_ONLY` from `DeliveryKind` and make the rules unable to produce it, with tests.
+**Follow-up (resolved with the user, 2026-09-30):**
+- NEE/NEE means nothing (unchanged).
+- **A round always includes the newspaper**, and leaflets are optional and vary per week. `RoundContents` now only holds `leaflets`, and `newspaper` is always true. The app needs no leaflet schedule, because the choice is made at round start (RND-01).
+- **The "no newspaper" exception (ADR-09) means nothing at all**, since leaflets never go without the newspaper. This follows from DEC-017; the user may still refine it.
+- `DeliveryKind.LEAFLETS_ONLY` is removed. A test checks every combination of sticker, exists, exceptions and round and asserts that leaflets are never delivered without the newspaper.
+
+---
+
+### DEC-018: Street sections are ordered by creation; "next up" is the next section
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User
+**Related:** ADR-C (ADR-05), RND-10, FND-004
+
+**Context:** RND-10 ("next up": current street plus the next 3 deliveries) assumed check-offs, which were dropped (DEC-014). ADR-05 (drag-and-drop reordering) is a Must in the plan.
+
+**Decision:**
+- Street sections have a sort value, which is their creation order by default. `segment.position` already works this way: new sections are appended and deleting closes the gap.
+- **"Next up" means the next street section in that order.** RND-10 is redefined accordingly.
+- **Changing the order by drag-and-drop is a nice-to-have** (the user's wording), so ADR-05 is downgraded from Must to Should.
+
+**Consequences:** The reorder repository method and its tests already exist (FND-004). Only the drag-and-drop UI is deferred.
+
+
+---
+
+### DEC-019: No round contents choice; the list always shows newspaper + leaflets
+**Date:** 2026-09-30
+**Status:** Accepted (refines DEC-017)
+**Deciders:** User (on Claude's recommendation)
+**Related:** RND-A (RND-01, RND-02), RND-B, DEC-014, DEC-017
+
+**Context:** DEC-017 kept a per-round "leaflets included?" choice, which would change the take-along counts and turn "newspaper + leaflets" houses into "newspaper only" for that round. The user noted that the deliverer simply ignores the leaflet information in weeks without leaflets.
+
+**Options Considered:**
+1. **Toggle at round start (plan RND-01):** the list adapts per week, at the cost of an extra choice every round and an extra screen.
+2. **No toggle; always show full information:** chosen.
+
+**Decision:**
+- **RND-01 is dropped.** There's no round-start choice. "Start round" goes straight to the walking list.
+- Round mode and the take-along counts always use the full view, newspaper + leaflets (`FullRound`), just like the editor. Counts show both numbers ("57 newspapers · 41 leaflets") and the deliverer uses what applies.
+- Nothing about a round is stored or chosen (see also DEC-014).
+
+**Consequences:**
+- RND-A shrinks to "Start round → live list with both counts at the top". The `RoundStart` placeholder screen and the `RoundMode(newspaper, leaflets)` navigation key are simplified when RND-A is built.
+- `RoundContents` remains only as the rules' parameter, always `FullRound`. It can be simplified away later if nothing else needs it.
