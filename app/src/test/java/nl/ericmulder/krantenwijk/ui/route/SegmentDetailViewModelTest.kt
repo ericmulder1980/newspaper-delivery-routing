@@ -255,6 +255,29 @@ class SegmentDetailViewModelTest {
         }
     }
 
+    @Nested
+    inner class Direction_ {
+        @Test
+        fun `walk in reverse order flips houses and buildings immediately (ADR-06)`() = runTest {
+            collect()
+            repo.createBuilding(segmentId, 12, SuffixType.LETTER, "A", "C")
+            vm.setReverse(true)
+            assertEquals(Direction.DESCENDING, ready().segment.direction)
+            val order = ready().cells.map {
+                when (it) {
+                    is SegmentCell.House -> it.address.houseNumber
+                    is SegmentCell.Apartments -> it.summary.building.houseNumber
+                }
+            }
+            assertEquals((2..24 step 2).toList().reversed(), order)
+            assertEquals(24, labels().first().toInt())
+
+            vm.setReverse(false)
+            assertEquals(Direction.ASCENDING, ready().segment.direction)
+            assertEquals("2", labels().first())
+        }
+    }
+
     @Test
     fun `deleting the section ends in Gone`() = runTest {
         collect()

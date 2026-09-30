@@ -80,7 +80,9 @@ class FakeRouteRepository : RouteRepository {
 
     override suspend fun reorderSegments(segmentIds: List<Long>) = throw NotImplementedError()
 
-    override suspend fun setDirection(segmentId: Long, direction: Direction) = throw NotImplementedError()
+    override suspend fun setDirection(segmentId: Long, direction: Direction) {
+        segments.value = segments.value.map { if (it.id == segmentId) it.copy(direction = direction) else it }
+    }
 
     override suspend fun addAddress(segmentId: Long, houseNumber: Int, addition: String?): Long {
         maybeFail()

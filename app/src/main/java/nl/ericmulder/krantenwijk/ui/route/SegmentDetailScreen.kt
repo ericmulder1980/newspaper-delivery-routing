@@ -69,6 +69,8 @@ import nl.ericmulder.krantenwijk.ui.common.label
 import nl.ericmulder.krantenwijk.ui.common.shortLabel
 import nl.ericmulder.krantenwijk.ui.common.style
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Checkbox
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -127,6 +129,12 @@ fun SegmentDetailScreen(
     ) {
         if (ready == null) return@ScreenScaffold
         Header(ready)
+        if (!ready.selecting) {
+            ReverseToggle(
+                reverse = ready.segment.direction == Direction.DESCENDING,
+                onChange = viewModel::setReverse,
+            )
+        }
         Legend()
         SelectionBar(ready, viewModel)
         NumberGrid(
@@ -637,5 +645,24 @@ private fun ToggleChoice(text: String, selected: Boolean, onClick: () -> Unit, m
         Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp)) {
             Text(text, style = MaterialTheme.typography.titleMedium)
         }
+    }
+}
+
+/** "Walk in reverse order" for an existing section (ADR-06), same wording as when adding it. */
+@Composable
+private fun ReverseToggle(reverse: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = MinTouchTarget)
+            .toggleable(value = reverse, role = Role.Checkbox, onValueChange = onChange),
+    ) {
+        Checkbox(checked = reverse, onCheckedChange = null)
+        Text(
+            text = stringResource(R.string.reverse_label),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 12.dp),
+        )
     }
 }

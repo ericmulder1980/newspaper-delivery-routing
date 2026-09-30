@@ -249,6 +249,13 @@ class SegmentDetailViewModel @AssistedInject constructor(
         viewModelScope.launch { routes.removeBuilding(buildingId) }
     }
 
+    /** "Walk in reverse order" (ADR-06): changes the walking order immediately, everywhere. */
+    fun setReverse(reverse: Boolean) {
+        viewModelScope.launch {
+            routes.setDirection(segmentId, if (reverse) Direction.DESCENDING else Direction.ASCENDING)
+        }
+    }
+
     fun deleteSection() {
         viewModelScope.launch { routes.deleteSegment(segmentId) }
     }
