@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon background: near-black with the prototype's diagonal carbon texture. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#0E0F11" android:pathData="M0 0 H108 V108 H0 Z" />
+    <path android:strokeColor="#16181C" android:strokeWidth="2.2" android:pathData="M-110 0 L-2 108 M-103 0 L5 108 M-96 0 L12 108 M-89 0 L19 108 M-82 0 L26 108 M-75 0 L33 108 M-68 0 L40 108 M-61 0 L47 108 M-54 0 L54 108 M-47 0 L61 108 M-40 0 L68 108 M-33 0 L75 108 M-26 0 L82 108 M-19 0 L89 108 M-12 0 L96 108 M-5 0 L103 108 M2 0 L110 108 M9 0 L117 108 M16 0 L124 108 M23 0 L131 108 M30 0 L138 108 M37 0 L145 108 M44 0 L152 108 M51 0 L159 108 M58 0 L166 108 M65 0 L173 108 M72 0 L180 108 M79 0 L187 108 M86 0 L194 108 M93 0 L201 108 M100 0 L208 108 M107 0 L215 108" />
+</vector>

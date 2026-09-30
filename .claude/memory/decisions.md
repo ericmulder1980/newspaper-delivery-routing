@@ -495,3 +495,19 @@ Track significant decisions. Each decision is immutable once accepted — supers
 - **DEC-003 / NFR-01 relaxed:** the app may contact **only** `api.github.com` / `github.com` release downloads, **only** when the user taps "Check for updates". It sends no personal or route data (NFR-06 stays), and there's still no analytics or SDKs. Everything else keeps working offline.
 - The build check `verify*NoInternetPermission` becomes a check that INTERNET is only used by the updater: allowlisted in the manifest, and no other networking code.
 - **Releases are created only on the user's explicit command** ("release this version"), not automatically per feature (user, 2026-09-30). Claude then tags `vX.Y.Z` and CI publishes the Release.
+
+---
+
+### DEC-025: App icon, "mailbox" (option A)
+**Date:** 2026-09-30
+**Status:** Accepted
+**Deciders:** User (chose A over B "K tag", which Claude recommended, and C "K tag with newspaper corner" after viewing previews)
+
+**Decision:** An adaptive launcher icon in the prototype's style:
+- **Background:** near-black `#0E0F11` with the diagonal carbon texture.
+- **Foreground:** a neon-yellow newspaper sliding into a dark mailbox slot, with two skewed yellow bars (the prototype's −24° kicker bars).
+- **Monochrome layer:** for Android themed icons.
+
+The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Skew is baked into coordinates, since VectorDrawable has no skew.
+
+**Consequences:** At home-screen size the details are small. If it looks too busy on the phone, the options are thicker lines on the paper or dropping the speed bars.

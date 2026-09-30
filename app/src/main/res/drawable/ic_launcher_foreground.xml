@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder launcher icon: a folded newspaper. -->
+<!-- Launcher icon foreground: a newspaper sliding into a mailbox slot, with the prototype's skewed yellow bars (user-chosen option A). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M34,36h40a4,4 0,0 1,4 4v28a4,4 0,0 1,-4 4H34a4,4 0,0 1,-4 -4V40a4,4 0,0 1,4 -4z" />
-    <path
-        android:fillColor="#1B3A5C"
-        android:pathData="M36,42h16v12h-16zM56,42h16v3h-16zM56,48h16v3h-16zM56,54h16v3h-16zM36,60h36v3h-36zM36,65h36v3h-36z" />
+    <path android:fillColor="#E8FF00" android:pathData="M33.19 40.00 L42.19 40.00 L40.19 44.50 L31.19 44.50 Z" />
+    <path android:fillColor="#E8FF00" android:fillAlpha="0.5" android:pathData="M27.63 48.00 L38.63 48.00 L36.63 52.50 L25.63 52.50 Z" />
+    <path android:fillColor="#1E2126" android:strokeColor="#4A4D53" android:strokeWidth="2" android:pathData="M40 54 H70 A7 7 0 0 1 77 61 V73 A7 7 0 0 1 70 80 H40 A7 7 0 0 1 33 73 V61 A7 7 0 0 1 40 54 Z" />
+    <group android:rotation="-16" android:pivotX="56" android:pivotY="60">
+        <path android:fillColor="#E8FF00" android:pathData="M47.5 31 H64.5 A1.5 1.5 0 0 1 66 32.5 V60.5 A1.5 1.5 0 0 1 64.5 62 H47.5 A1.5 1.5 0 0 1 46 60.5 V32.5 A1.5 1.5 0 0 1 47.5 31 Z" />
+        <path android:fillColor="#0E0F11" android:fillAlpha="0.35" android:pathData="M60 31 H66 V37 Z" />
+        <path android:fillColor="#0E0F11" android:pathData="M49 35 H57 V41 H49 Z" />
+        <path android:fillColor="#0E0F11" android:pathData="M49 44 H63 V46.4 H49 Z" />
+        <path android:fillColor="#0E0F11" android:pathData="M49 49 H63 V51.4 H49 Z" />
+        <path android:fillColor="#0E0F11" android:pathData="M49 54 H58 V56.4 H49 Z" />
+    </group>
+    <path android:fillColor="#050506" android:pathData="M43.5 60.5 H66.5 A3.5 3.5 0 0 1 70 64.0 V64.0 A3.5 3.5 0 0 1 66.5 67.5 H43.5 A3.5 3.5 0 0 1 40 64.0 V64.0 A3.5 3.5 0 0 1 43.5 60.5 Z" />
+    <group android:rotation="-16" android:pivotX="56" android:pivotY="60">
+        <path android:fillColor="#E8FF00" android:pathData="M46 56 H66 V60.5 H46 Z" />
+    </group>
+    <path android:fillColor="#050506" android:pathData="M42 63.5 H68 A2 2 0 0 1 70 65.5 V65.5 A2 2 0 0 1 68 67.5 H42 A2 2 0 0 1 40 65.5 V65.5 A2 2 0 0 1 42 63.5 Z" />
 </vector>
