@@ -30,8 +30,8 @@ android {
         // Newest Android minus 5 (DEC-027): Android 12 = API 31.
         minSdk = 31
         targetSdk = 37
-        versionCode = 13
-        versionName = "0.12.0"
+        versionCode = 14
+        versionName = "1.0.0"
     }
 
     signingConfigs {

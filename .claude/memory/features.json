@@ -34,6 +34,12 @@
         "versionCode": 12,
         "date": "2026-09-30",
         "url": "https://github.com/ericmulder1980/newspaper-delivery-routing/releases/tag/v0.11.0"
+      },
+      {
+        "tag": "v1.0.0",
+        "versionCode": 14,
+        "date": "2026-10-01",
+        "note": "Official first release on the user's command (before the plan's field test M3 and REL-A; those follow on 1.x)"
       }
     ]
   },
@@ -93,7 +99,7 @@
       "id": "M4",
       "title": "v1.0 release (Phase 7)",
       "status": "pending",
-      "notes": "Dutch translation review, final signed APK, limited-distribution developer verification registered before the 2027 global rollout."
+      "notes": "Dutch translation review, final signed APK, limited-distribution developer verification registered before the 2027 global rollout. | 2026-10-01: user released v1.0.0 as the official first version; field test (M3), REL-A and Dutch review continue on 1.x."
     }
   ],
   "features": [
