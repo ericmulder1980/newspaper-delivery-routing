@@ -57,6 +57,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    /** Step 4: the walking order (ADR-05). */
+    fun reorder(segmentIds: List<Long>) {
+        viewModelScope.launch { routes.reorderSegments(segmentIds) }
+    }
+
     /** Step 4 "Done": setup is complete; the app opens on the home screen from now on. */
     fun finish(onFinished: () -> Unit) {
         viewModelScope.launch {

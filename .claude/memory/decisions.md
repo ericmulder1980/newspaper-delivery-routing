@@ -542,3 +542,43 @@ The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Ske
 - `fullBackupContent` is removed from the manifest; `data_extraction_rules` (API 31+) keeps backups off (DEC-011).
 - Code may use API 31 features without version checks. Lint's `NewApi` check still guards anything newer (for example it caught `InputStream.readNBytes`, API 33, in DATA-A).
 - Test phones and emulators must run Android 12 or newer.
+
+---
+
+### DEC-028: Distribution to a very small group; REL-A becomes a nice-to-have
+**Date:** 2026-10-01
+**Status:** Accepted
+**Deciders:** User
+**Related:** REL-A, REL-B, REL-C, DEC-008, DEC-024, plan §11
+
+**Context:** The app won't be published in an app store. It's shared only within a very small group through GitHub Releases and the built-in updater. The plan assumed one user.
+
+**Decision:**
+- **REL-A is a nice-to-have (Could).** Its parts are already covered:
+  - Settings screen, version info (SET-02) and signed release APKs are done.
+  - Install/update instructions are in every release note.
+  - Only the local crash log (plan §11.1) remains, as a Could.
+- **Each person in the group** installs from the Releases page once, then updates in the app. The app stays single-user per phone, with each phone holding its own route (no sharing of routes, plan §1.4).
+
+**Consequences:**
+- All v1 Must features are done.
+- Google developer verification: a limited-distribution account covers up to 20 devices (plan §11.2), which suits a small group. Register before the 2027 rollout in NL.
+- If someone in the group reports a crash, they describe it to the user. A crash log can be added later if needed.
+
+---
+
+### DEC-029: Drag-and-drop with the Reorderable library
+**Date:** 2026-10-01
+**Status:** Accepted
+**Deciders:** Claude (researched), user (asked for ADR-05)
+**Related:** ADR-05, ONB-A, DEC-018, DEC-023
+
+**Context:** Compose has no built-in drag-to-reorder for lists.
+
+**Decision:** Use `sh.calvin.reorderable:reorderable` 3.1.0 (Calvin-LL/Reorderable, Apache-2.0, about 1.3k stars, last release 2026-04-20). Its `ReorderableColumn` drives the route editor and wizard step 4 through a shared `ReorderableSections` composable:
+- a 64 dp drag handle on each row;
+- the order is saved once, on drop (`reorderSegments`);
+- haptic feedback while dragging;
+- TalkBack custom actions "Move up" / "Move down", which also help with gloves.
+
+**Consequences:** One extra third-party dependency. It runs offline and has no permissions, so the allowlist and NetworkUsageTest are unaffected. Robolectric tests cover dragging and the accessibility actions.

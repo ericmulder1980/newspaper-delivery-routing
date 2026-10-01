@@ -258,3 +258,7 @@ anonymous download, sha256, signature 80:CA:CA:3D…
 M2 (MVP) complete. Remaining Must: REL-A. User chose REL-C (updater) next to ease testing.
 TESTS: 218/218.
 ================================================================================
+
+[2026-10-01] RELEASE: v1.0.0 (code 14) on the user's command, official first release.
+REL-C (built-in updater, 98cbbc0) included. Release run 36892315468; download, sha256 and
+signature (80:CA:CA:3D…) verified. Plan's M3 field test and REL-A continue on 1.x.

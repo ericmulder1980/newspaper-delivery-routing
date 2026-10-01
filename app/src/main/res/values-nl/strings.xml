@@ -233,4 +233,8 @@ Dit vervangt je huidige wijk.</string>
     <string name="update_error_no_release">Geen downloadbare versie gevonden.</string>
     <string name="update_error_checksum">De download was beschadigd (controlegetal klopt niet) en is niet geïnstalleerd. Probeer het opnieuw.</string>
     <string name="update_error_install">Installeren mislukt: %1$s</string>
+    <string name="reorder_hint">Sleep aan het handvat rechts om de looprichting te wijzigen.</string>
+    <string name="reorder_move_up">Omhoog</string>
+    <string name="reorder_move_down">Omlaag</string>
+    <string name="reorder_handle">Sleep om %1$s te verplaatsen</string>
 </resources>

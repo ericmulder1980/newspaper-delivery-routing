@@ -19,6 +19,7 @@ kotlinx-coroutines = "1.11.0"
 junit = "6.1.3"
 turbine = "1.2.1"
 robolectric = "4.17"
+reorderable = "3.1.0"
 junit4 = "4.13.2"
 androidx-test-core = "1.7.0"
 espresso = "3.7.0"
@@ -37,6 +38,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

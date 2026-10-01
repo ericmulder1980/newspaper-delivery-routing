@@ -24,7 +24,7 @@ import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import nl.ericmulder.krantenwijk.ui.common.WizardProgress
-import nl.ericmulder.krantenwijk.ui.round.SectionRowSummary
+import nl.ericmulder.krantenwijk.ui.route.ReorderableSections
 
 /** Step 1: "What should we call you?" */
 @Composable
@@ -121,18 +121,18 @@ fun OnboardingSectionsScreen(
         WizardProgress(step = 4)
         Text(stringResource(R.string.onboarding_sections_intro), style = MaterialTheme.typography.bodyLarge)
         val ready = state ?: return@ScreenScaffold
-        ready.segments.forEachIndexed { index, segment ->
-            SectionRowSummary(
-                position = index + 1,
-                segment = segment,
-                detail = pluralStringResource(
-                    R.plurals.address_count,
-                    ready.addressCounts[segment.id] ?: 0,
-                    ready.addressCounts[segment.id] ?: 0,
-                ),
-                onClick = { onOpenSection(segment.id) },
-            )
+        if (ready.segments.size > 1) {
+            Text(stringResource(R.string.reorder_hint), style = MaterialTheme.typography.bodyMedium)
         }
+        ReorderableSections(
+            segments = ready.segments,
+            detail = { segment ->
+                val count = ready.addressCounts[segment.id] ?: 0
+                pluralStringResource(R.plurals.address_count, count, count)
+            },
+            onOpen = { onOpenSection(it.id) },
+            onReorder = viewModel::reorder,
+        )
         SecondaryButton(stringResource(R.string.route_add_section), onAddSection)
         AccentButton(
             text = stringResource(R.string.onboarding_done),

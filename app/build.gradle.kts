@@ -30,8 +30,8 @@ android {
         // Newest Android minus 5 (DEC-027): Android 12 = API 31.
         minSdk = 31
         targetSdk = 37
-        versionCode = 14
-        versionName = "1.0.0"
+        versionCode = 15
+        versionName = "1.1.0"
     }
 
     signingConfigs {
@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.reorderable) // drag-and-drop ordering of street sections (ADR-05, DEC-029)
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.hilt.android)

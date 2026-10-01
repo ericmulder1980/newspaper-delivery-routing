@@ -83,11 +83,12 @@
     {
       "id": "M2b",
       "title": "Backup & release pipeline (Phase 4)",
-      "status": "pending",
+      "status": "complete",
       "features": [
         "DATA-A",
         "REL-A"
-      ]
+      ],
+      "notes": "DATA-A + REL-B/REL-C done; REL-A moved to Could (DEC-028)."
     },
     {
       "id": "M3",
@@ -670,9 +671,9 @@
     },
     {
       "id": "REL-A",
-      "title": "Settings screen and release pipeline",
-      "description": "Settings screen (theme, show/hide non-existing and skipped, keep screen on, backup/restore entry, version + build number), local crash log with export, signed release APK and install/update instructions.",
-      "priority": "high",
+      "title": "Local crash log with export (nice-to-have)",
+      "description": "Record crashes to a local log file the user can export and share (plan §11.1). Settings, version info and signed release APK/instructions are already covered by FND-002, REL-B and REL-C (DEC-028).",
+      "priority": "low",
       "plan_refs": [
         "SET-02",
         "§6 Settings",
@@ -686,6 +687,9 @@
       "status": "pending",
       "acceptance_criteria": [
         "Release APK installs and updates over itself on the user's phone without data loss"
+      ],
+      "notes": [
+        "DEC-028: moved to Could; small-group distribution via GitHub Releases + in-app updater"
       ]
     },
     {
@@ -698,11 +702,23 @@
       "dependencies": [
         "ADR-C"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "notes": [
         "Nice-to-have per user (DEC-018); default order = creation order; repository.reorderSegments exists"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "ReorderableSections (Reorderable 3.1.0, DEC-029): drag handle 64dp, save once on drop, haptics, TalkBack Move up/down",
+          "Route editor and wizard step 4 use it",
+          "Tests: RouteEditorViewModel reorder; Robolectric drag-to-bottom + Move up/down",
+          "Version 1.1.0 (15)"
+        ],
+        "remaining": [
+          "User phone test",
+          "Commit + push; release 1.1.0 on user command (first in-app update test)"
+        ]
+      }
     },
     {
       "id": "REL-B",
@@ -727,7 +743,8 @@
           ".github/scripts/prepare_release.sh: tag format check, tag == versionName, package check, apksigner verify, krantenwijk-X.Y.Z.apk + .sha256, release notes (changes since previous v* tag, versionCode, sha256)",
           "Script tested locally in a temporary clone: good release, version mismatch, bad tag, unsigned APK",
           "Procedure documented in CLAUDE.md",
-          "First release v0.11.0 on user command 2026-09-30 (run 36776579132): public download verified without login, sha256 OK, signed with release cert 80:CA:CA:3D…"
+          "First release v0.11.0 on user command 2026-09-30 (run 36776579132): public download verified without login, sha256 OK, signed with release cert 80:CA:CA:3D…",
+          "v1.0.0 released 2026-10-01 (run 36892315468): download, sha256 and signature verified"
         ],
         "remaining": [
           "User installs from the Release page on the phone"
@@ -760,9 +777,8 @@
           "229 tests; version 0.12.0 (13)"
         ],
         "remaining": [
-          "Commit + push",
-          "Release v0.12.0 on user command; user installs it once from the Release page",
-          "A later release (e.g. 0.12.1) proves the in-app update end-to-end"
+          "User installs v1.0.0 from the Release page (last manual install)",
+          "Next release proves in-app update end-to-end"
         ]
       }
     },
@@ -941,8 +957,8 @@
     }
   ],
   "current": {
-    "feature": "REL-C",
-    "next_recommended": "REL-C (built-in updater), then REL-A"
+    "feature": "ADR-05",
+    "next_recommended": "Finish ADR-05; release 1.1.0 on command to test the in-app updater"
   },
   "open_questions": [],
   "phases_legend": {

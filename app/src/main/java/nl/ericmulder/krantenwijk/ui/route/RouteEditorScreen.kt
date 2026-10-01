@@ -61,14 +61,22 @@ fun RouteEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                s.segments.forEachIndexed { index, segment ->
-                    SegmentRow(
-                        position = index + 1,
-                        segment = segment,
-                        addressCount = s.addressCounts[segment.id] ?: 0,
-                        onClick = { onOpenSection(segment.id) },
+                if (s.segments.size > 1) {
+                    Text(
+                        stringResource(R.string.reorder_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                ReorderableSections(
+                    segments = s.segments,
+                    detail = { segment ->
+                        val count = s.addressCounts[segment.id] ?: 0
+                        pluralStringResource(R.plurals.address_count, count, count)
+                    },
+                    onOpen = { onOpenSection(it.id) },
+                    onReorder = viewModel::reorder,
+                )
                 AccentButton(text = stringResource(R.string.route_add_section), onClick = onAddSection)
             }
         }
@@ -102,29 +110,4 @@ private fun CreateRouteForm(onCreate: (name: String, town: String) -> Unit) {
         onClick = { onCreate(name, town) },
         enabled = name.isNotBlank(),
     )
-}
-
-@Composable
-private fun SegmentRow(position: Int, segment: Segment, addressCount: Int, onClick: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.fillMaxWidth().heightIn(min = PrimaryActionHeight).clickable(onClick = onClick),
-    ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text("$position. ${segment.streetName}", style = MaterialTheme.typography.titleMedium)
-            val range = if (segment.direction == Direction.DESCENDING) {
-                stringResource(R.string.section_range_reverse, segment.rangeTo, segment.rangeFrom)
-            } else {
-                stringResource(R.string.section_range, segment.rangeFrom, segment.rangeTo)
-            }
-            Text(
-                text = stringResource(segment.side.label()) + " · " + range + " · " +
-                    pluralStringResource(R.plurals.address_count, addressCount, addressCount),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
 }

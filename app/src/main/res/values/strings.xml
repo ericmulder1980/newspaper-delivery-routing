@@ -240,4 +240,8 @@ This replaces your current route.</string>
     <string name="update_error_no_release">No downloadable version found.</string>
     <string name="update_error_checksum">The download was damaged (checksum mismatch) and was not installed. Try again.</string>
     <string name="update_error_install">Installing failed: %1$s</string>
+    <string name="reorder_hint">Drag the grip on the right to change the walking order.</string>
+    <string name="reorder_move_up">Move up</string>
+    <string name="reorder_move_down">Move down</string>
+    <string name="reorder_handle">Drag to move %1$s</string>
 </resources>

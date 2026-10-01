@@ -83,7 +83,11 @@ class FakeRouteRepository : RouteRepository {
         addresses.value = addresses.value.filter { it.segmentId != segmentId }
     }
 
-    override suspend fun reorderSegments(segmentIds: List<Long>) = throw NotImplementedError()
+    override suspend fun reorderSegments(segmentIds: List<Long>) {
+        require(segmentIds.sorted() == segments.value.map { it.id }.sorted()) { "Reorder must list every segment exactly once" }
+        val byId = segments.value.associateBy { it.id }
+        segments.value = segmentIds.mapIndexed { position, id -> byId.getValue(id).copy(position = position) }
+    }
 
     override suspend fun setDirection(segmentId: Long, direction: Direction) {
         segments.value = segments.value.map { if (it.id == segmentId) it.copy(direction = direction) else it }

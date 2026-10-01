@@ -31,6 +31,11 @@ class RouteEditorViewModel @Inject constructor(private val routes: RouteReposito
             if (route == null) RouteEditorUiState.NoRoute else RouteEditorUiState.Ready(route, segments, counts)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RouteEditorUiState.Loading)
 
+    /** New walking order after drag-and-drop (ADR-05); [segmentIds] lists every section once. */
+    fun reorder(segmentIds: List<Long>) {
+        viewModelScope.launch { routes.reorderSegments(segmentIds) }
+    }
+
     fun createRoute(name: String, town: String) {
         if (name.isBlank()) return
         viewModelScope.launch { routes.saveRoute(name, town) }
