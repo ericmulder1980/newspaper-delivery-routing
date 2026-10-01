@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import nl.ericmulder.krantenwijk.ui.backup.BackupSection
+import nl.ericmulder.krantenwijk.ui.update.UpdateSection
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.MaterialTheme
@@ -90,12 +91,8 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
         }
         SectionHeading(stringResource(R.string.backup_title))
         BackupSection()
-        Text(
-            text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 12.dp),
-        )
+        SectionHeading(stringResource(R.string.update_title))
+        UpdateSection()
     }
 }
 

@@ -248,3 +248,13 @@ NEXT SESSION:
 - ONB-A (setup wizard + home) completes the MVP (M2); or REL-B first (user decides).
 - Open: ISS-001 (low), MVP target date, M0 real route walk.
 ================================================================================
+
+================================================================================
+[2026-10-01] SESSION SUMMARY (catch-up)
+Completed and approved since last entry: ONB-A (ecd695d), app icon (12609cc, DEC-025),
+DATA-A backup/restore + minSdk 31 (928992f, DEC-026/027), REL-B release workflow (e01a841).
+First release: v0.11.0 (code 12) on the user's explicit command, run 36776579132; verified
+anonymous download, sha256, signature 80:CA:CA:3D…
+M2 (MVP) complete. Remaining Must: REL-A. User chose REL-C (updater) next to ease testing.
+TESTS: 218/218.
+================================================================================

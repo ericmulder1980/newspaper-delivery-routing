@@ -30,8 +30,8 @@ android {
         // Newest Android minus 5 (DEC-027): Android 12 = API 31.
         minSdk = 31
         targetSdk = 37
-        versionCode = 12
-        versionName = "0.11.0"
+        versionCode = 13
+        versionName = "0.12.0"
     }
 
     signingConfigs {
@@ -132,18 +132,33 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
-// NFR-01 / DEC-003: the app must never request network access, including via a dependency's manifest.
-abstract class VerifyNoInternetPermission : DefaultTask() {
+// DEC-003 / DEC-024: the app requests only these permissions; INTERNET exists solely for
+// "Check for updates". Any other permission, including one added by a library, fails the build.
+val allowedPermissions = setOf(
+    "android.permission.INTERNET",
+    "android.permission.REQUEST_INSTALL_PACKAGES",
+    "android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION",
+    "nl.ericmulder.krantenwijk.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION", // AndroidX internal, signature-only
+    "nl.ericmulder.krantenwijk.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+)
+
+abstract class VerifyPermissions : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val mergedManifest: RegularFileProperty
 
+    @get:Input
+    abstract val allowed: SetProperty<String>
+
     @TaskAction
     fun verify() {
-        if ("android.permission.INTERNET" in mergedManifest.get().asFile.readText()) {
+        val requested = Regex("""<uses-permission[^>]*android:name="([^"]+)"""")
+            .findAll(mergedManifest.get().asFile.readText()).map { it.groupValues[1] }.toSet()
+        val unexpected = requested - allowed.get()
+        if (unexpected.isNotEmpty()) {
             throw GradleException(
-                "Merged manifest requests android.permission.INTERNET, which violates NFR-01. " +
-                    "Find the dependency that adds it and remove it or strip it with tools:node=\"remove\".",
+                "Merged manifest requests permissions outside the allowlist (DEC-003/DEC-024): $unexpected. " +
+                    "Remove them (e.g. tools:node=\"remove\") or update the allowlist with a recorded decision.",
             )
         }
     }
@@ -152,8 +167,9 @@ abstract class VerifyNoInternetPermission : DefaultTask() {
 androidComponents {
     onVariants { variant ->
         val suffix = variant.name.replaceFirstChar { it.uppercase() }
-        val verify = tasks.register<VerifyNoInternetPermission>("verify${suffix}NoInternetPermission") {
+        val verify = tasks.register<VerifyPermissions>("verify${suffix}Permissions") {
             mergedManifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
+            allowed.set(allowedPermissions)
         }
         tasks.matching { it.name == "assemble$suffix" || it.name == "check" }.configureEach { dependsOn(verify) }
     }

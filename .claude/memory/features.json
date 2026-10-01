@@ -27,7 +27,15 @@
       "tester": "user"
     },
     "repository": null,
-    "release_signing_cert_sha256": "80:CA:CA:3D:8C:F8:87:FA:3C:5E:5E:F6:AC:0A:EA:4A:0B:B9:B1:26:B1:6F:71:01:33:FE:EE:6B:BF:36:E5:7D"
+    "release_signing_cert_sha256": "80:CA:CA:3D:8C:F8:87:FA:3C:5E:5E:F6:AC:0A:EA:4A:0B:B9:B1:26:B1:6F:71:01:33:FE:EE:6B:BF:36:E5:7D",
+    "releases": [
+      {
+        "tag": "v0.11.0",
+        "versionCode": 12,
+        "date": "2026-09-30",
+        "url": "https://github.com/ericmulder1980/newspaper-delivery-routing/releases/tag/v0.11.0"
+      }
+    ]
   },
   "milestones": [
     {
@@ -712,11 +720,11 @@
           "release.yml: on tag v*: lint + tests + summary, requires signing secrets, signed assembleRelease, prepare_release.sh, gh release create (contents: write)",
           ".github/scripts/prepare_release.sh: tag format check, tag == versionName, package check, apksigner verify, krantenwijk-X.Y.Z.apk + .sha256, release notes (changes since previous v* tag, versionCode, sha256)",
           "Script tested locally in a temporary clone: good release, version mismatch, bad tag, unsigned APK",
-          "Procedure documented in CLAUDE.md"
+          "Procedure documented in CLAUDE.md",
+          "First release v0.11.0 on user command 2026-09-30 (run 36776579132): public download verified without login, sha256 OK, signed with release cert 80:CA:CA:3D…"
         ],
         "remaining": [
-          "First real release on the user's explicit command (tests the workflow on GitHub)",
-          "User downloads the APK from the Release page and installs"
+          "User installs from the Release page on the phone"
         ]
       }
     },
@@ -728,14 +736,29 @@
       "dependencies": [
         "REL-B"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Up to date → 'You have the latest version'",
         "Newer release → shows version and 'Install update'; after confirming, the app updates and keeps all data",
         "Checksum mismatch or no network → clear message, nothing installed",
         "No network use anywhere except this button (build check)"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "data/update: parseLatestRelease (tag, versionCode from notes footer, apk + .sha256 assets), GitHubUpdateSource (HttpURLConnection, HTTPS only, 15s timeouts, 50 MB cap, SHA-256 verify), PackageInstallerAppInstaller + InstallResultReceiver (USER_ACTION_NOT_REQUIRED self-update, system confirmation fallback)",
+          "Settings 'App updates': version, privacy note, Check for updates, Available + notes, permission step ('install unknown apps'), download progress, install, error messages",
+          "Manifest: INTERNET, REQUEST_INSTALL_PACKAGES, UPDATE_PACKAGES_WITHOUT_USER_ACTION; build check is now a permission allowlist (verify<Variant>Permissions)",
+          "Tests: ReleaseInfoTest (incl. real v0.11.0 GitHub response fixture), UpdateViewModelTest, NetworkUsageTest (network APIs only in data/update); mutations caught (network code elsewhere, CAMERA permission)",
+          "Lint caught Intent.getParcelableExtra(name, Class) = API 33 → IntentCompat",
+          "229 tests; version 0.12.0 (13)"
+        ],
+        "remaining": [
+          "Commit + push",
+          "Release v0.12.0 on user command; user installs it once from the Release page",
+          "A later release (e.g. 0.12.1) proves the in-app update end-to-end"
+        ]
+      }
     },
     {
       "id": "ADR-08",
@@ -912,12 +935,10 @@
     }
   ],
   "current": {
-    "feature": "REL-B",
-    "next_recommended": "REL-B (GitHub Releases), then REL-A"
+    "feature": "REL-C",
+    "next_recommended": "REL-C (built-in updater), then REL-A"
   },
-  "open_questions": [
-    "No target date for the MVP (M2) set yet."
-  ],
+  "open_questions": [],
   "phases_legend": {
     "inception": "Feature has been identified but not yet planned",
     "planning": "Requirements and approach being defined",

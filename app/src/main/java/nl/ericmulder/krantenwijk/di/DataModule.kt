@@ -8,15 +8,21 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import nl.ericmulder.krantenwijk.BuildConfig
 import nl.ericmulder.krantenwijk.data.BackupStorage
 import nl.ericmulder.krantenwijk.data.ContentResolverBackupStorage
 import nl.ericmulder.krantenwijk.data.createDatabase
+import nl.ericmulder.krantenwijk.data.update.AppInstaller
+import nl.ericmulder.krantenwijk.data.update.GitHubUpdateSource
+import nl.ericmulder.krantenwijk.data.update.PackageInstallerAppInstaller
+import nl.ericmulder.krantenwijk.data.update.UpdateSource
 import nl.ericmulder.krantenwijk.data.createSettingsDataStore
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import nl.ericmulder.krantenwijk.data.repository.RoomRouteRepository
 import nl.ericmulder.krantenwijk.data.settings.DataStoreSettingsRepository
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
+import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -42,6 +48,21 @@ object DataModule {
     @Singleton
     fun routeRepository(db: KrantenwijkDatabase, @Named("clock") clock: @JvmSuppressWildcards () -> Long): RouteRepository =
         RoomRouteRepository(db, clock = clock)
+
+    @Provides
+    @Named("versionCode")
+    fun versionCode(): Int = BuildConfig.VERSION_CODE
+
+    /** Downloaded updates live in the cache; only the newest is kept. */
+    @Provides
+    @Named("updateDir")
+    fun updateDir(@ApplicationContext context: Context): File = File(context.cacheDir, "updates")
+
+    @Provides
+    fun updateSource(source: GitHubUpdateSource): UpdateSource = source
+
+    @Provides
+    fun appInstaller(installer: PackageInstallerAppInstaller): AppInstaller = installer
 
     @Provides
     fun backupStorage(storage: ContentResolverBackupStorage): BackupStorage = storage

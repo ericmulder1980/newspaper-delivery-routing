@@ -223,4 +223,21 @@ This replaces your current route.</string>
         <item quantity="one">%d street section</item>
         <item quantity="other">%d street sections</item>
     </plurals>
+    <string name="update_title">App updates</string>
+    <string name="update_privacy">Checks GitHub for a new version, only when you tap the button. Nothing about your route is sent.</string>
+    <string name="update_check">Check for updates</string>
+    <string name="update_checking">Checking…</string>
+    <string name="update_up_to_date">You have the latest version.</string>
+    <string name="update_available">Version %1$s is available.</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_permission_explain">To install updates, allow Krantenwijk to install apps (only needed once). Then come back and tap Download and install again.</string>
+    <string name="update_open_settings">Open setting</string>
+    <string name="update_downloading">Downloading %1$s… %2$d%%</string>
+    <string name="update_installing">Installing %1$s… The app restarts when it’s done.</string>
+    <string name="update_confirm_system">Confirm the update in the Android window.</string>
+    <string name="update_error_offline">No internet connection. Try again when you’re online.</string>
+    <string name="update_error_server">GitHub could not be reached right now. Try again later.</string>
+    <string name="update_error_no_release">No downloadable version found.</string>
+    <string name="update_error_checksum">The download was damaged (checksum mismatch) and was not installed. Try again.</string>
+    <string name="update_error_install">Installing failed: %1$s</string>
 </resources>

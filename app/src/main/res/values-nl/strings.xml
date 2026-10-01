@@ -216,4 +216,21 @@ Dit vervangt je huidige wijk.</string>
         <item quantity="one">%d straatdeel</item>
         <item quantity="other">%d straatdelen</item>
     </plurals>
+    <string name="update_title">App-updates</string>
+    <string name="update_privacy">Zoekt op GitHub naar een nieuwe versie, alleen als je op de knop tikt. Er wordt niets over je wijk verstuurd.</string>
+    <string name="update_check">Zoeken naar updates</string>
+    <string name="update_checking">Bezig met zoeken…</string>
+    <string name="update_up_to_date">Je hebt de nieuwste versie.</string>
+    <string name="update_available">Versie %1$s is beschikbaar.</string>
+    <string name="update_install">Downloaden en installeren</string>
+    <string name="update_permission_explain">Sta Krantenwijk toe om apps te installeren (eenmalig) om updates te kunnen installeren. Kom daarna terug en tik opnieuw op Downloaden en installeren.</string>
+    <string name="update_open_settings">Instelling openen</string>
+    <string name="update_downloading">%1$s downloaden… %2$d%%</string>
+    <string name="update_installing">%1$s installeren… De app start opnieuw als het klaar is.</string>
+    <string name="update_confirm_system">Bevestig de update in het Android-venster.</string>
+    <string name="update_error_offline">Geen internetverbinding. Probeer het opnieuw als je online bent.</string>
+    <string name="update_error_server">GitHub is nu niet bereikbaar. Probeer het later opnieuw.</string>
+    <string name="update_error_no_release">Geen downloadbare versie gevonden.</string>
+    <string name="update_error_checksum">De download was beschadigd (controlegetal klopt niet) en is niet geïnstalleerd. Probeer het opnieuw.</string>
+    <string name="update_error_install">Installeren mislukt: %1$s</string>
 </resources>

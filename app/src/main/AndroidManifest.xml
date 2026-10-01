@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- No permissions on purpose: fully offline (NFR-01, DEC-003). -->
+<!-- Offline except for "Check for updates" (DEC-024): INTERNET is only used by data/update (NetworkUsageTest).
+     The build fails on any permission not in the allowlist in app/build.gradle.kts. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 
     <!-- Backups are off: route data may only leave the device via the user's own export (NFR-06).
          From API 31 (our minSdk, DEC-027) data_extraction_rules applies; fullBackupContent is no longer needed. -->
@@ -16,6 +21,10 @@
         android:theme="@style/Theme.Krantenwijk">
 
         <!-- Portrait on phones (NFR-07). Android 16+ ignores this only on large screens (DEC-010). -->
+        <receiver
+            android:name=".data.update.InstallResultReceiver"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

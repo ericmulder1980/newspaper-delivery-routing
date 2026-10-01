@@ -79,7 +79,7 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 ### DEC-003: Fully offline, no third-party SDKs
 **Date:** 2026-09-25
-**Status:** Accepted
+**Status:** Accepted, relaxed by DEC-024 (INTERNET only for the user-initiated update check)
 **Deciders:** User (plan NFR-01, NFR-06, NFR-09)
 **Related:** FND-001, DATA-A, REL-A
 
