@@ -56,8 +56,16 @@ data class RoundBuilding(val buildingId: Long) : Destination
 @Serializable
 data class Finished(val roundId: Long) : Destination
 
+/** Top 5 round times after the Finished screen, highlighting [roundId] (RND-14). */
+@Serializable
+data class Top5(val roundId: Long) : Destination
+
 @Serializable
 data object Settings : Destination
+
+/** Settings › Best times: all finished rounds, select and delete (RND-14). */
+@Serializable
+data object BestTimes : Destination
 
 /**
  * Registers every [Destination] for saving the back stack (process death, configuration changes).

@@ -375,3 +375,13 @@ Fix: one continuous wave surface (FinishedMotion.waveOffset/foldShade) with fold
 checked via a temporary Robolectric NATIVE-graphics snapshot (not committed). Tests 266/266. Not yet committed.
 [2026-10-04] RELEASE: v1.2.1 (code 17) on the user's command: flag fix ab2e847, bump 108430e.
 CI 37208692824 green; release run 37209034403; sha256 and signature (80:CA:CA:3D…) verified.
+
+================================================================================
+[2026-10-04] SESSION — RND-13 COMPLETE, RND-14 IMPLEMENTED (not committed)
+- RND-13 approved by the user on the phone (v1.2.1).
+- RND-14: backup format 2 with rounds (user chose version bump over additive field), Top 5 screen,
+  Settings › Best times with long-press multi-select, delete + Undo.
+TESTS: 279/279 (core 152, app 127). Lint 0 errors, 1 known warning (sqlite pin).
+NEXT: user decides commit/release (e.g. 1.3.0) and tests via the updater.
+CONTEXT: new backups (format 2) are refused by app versions ≤ 1.2.1 ("made by a newer version").
+================================================================================

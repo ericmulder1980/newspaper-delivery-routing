@@ -34,7 +34,9 @@ class DestinationsTest {
             RoundStreet(segmentId = 5),
             RoundBuilding(buildingId = 9),
             Finished(roundId = 4),
+            Top5(roundId = 4),
             Settings,
+            BestTimes,
         )
     }
 }

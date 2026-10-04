@@ -4,10 +4,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import nl.ericmulder.krantenwijk.data.backup.BackupException
 import nl.ericmulder.krantenwijk.data.backup.BackupFormat
+import nl.ericmulder.krantenwijk.data.db.CompletedRoundEntity
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import nl.ericmulder.krantenwijk.data.repository.RoomRouteRepository
 import nl.ericmulder.krantenwijk.domain.model.Address
+import nl.ericmulder.krantenwijk.domain.model.CompletedRound
 import nl.ericmulder.krantenwijk.domain.model.Direction
+import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
@@ -15,6 +18,7 @@ import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -54,6 +58,8 @@ class BackupTest {
         repo.setSticker(apartments.take(2).map { it.id }, Sticker.NEE_NEE)
         repo.setExists(listOf(apartments.last().id), false)
         repo.createBuilding(molen, 4, SuffixType.NUMBER, "1", "12")
+        db.completedRoundDao().insert(CompletedRoundEntity(startedAtMillis = 1_000, finishedAtMillis = 4_336_000, newspapers = 57, leaflets = 41))
+        db.completedRoundDao().insert(CompletedRoundEntity(startedAtMillis = 9_000, finishedAtMillis = 3_909_000, newspapers = 56, leaflets = 40))
     }
 
     /** Strips database ids so two snapshots of the same route compare equal. */
@@ -90,6 +96,17 @@ class BackupTest {
         val after = checkNotNull(repo.snapshot())
         assertEquals(before.withoutIds(), after.withoutIds())
         assertEquals(before.addressCount, after.addressCount)
+        assertEquals(2, after.rounds.size) // best times come along (DEC-030)
+    }
+
+    @Test
+    fun `a format 1 backup restores with an empty history`() = runTest {
+        buildRichRoute()
+        val v1 = """{"app":"nl.ericmulder.krantenwijk","formatVersion":1,"exportedAtMillis":0,"appVersion":"1.1.0",
+            "route":{"name":"Oud","createdAtMillis":0,"sections":[]}}"""
+        repo.replaceAll(BackupFormat.decode(v1).snapshot)
+        assertEquals("Oud", checkNotNull(repo.snapshot()).route.name)
+        assertEquals(emptyList<Any>(), checkNotNull(repo.snapshot()).rounds)
     }
 
     @Test
@@ -125,6 +142,27 @@ class BackupTest {
             assertEquals(BackupException.Reason.NOT_A_BACKUP, assertThrows<BackupException> { BackupFormat.decode("hello") }.reason)
             val otherApp = """{"app":"com.example","formatVersion":1,"exportedAtMillis":0,"appVersion":"1","route":{"name":"x","createdAtMillis":0,"sections":[]}}"""
             assertEquals(BackupException.Reason.NOT_A_BACKUP, assertThrows<BackupException> { BackupFormat.decode(otherApp) }.reason)
+        }
+
+        @Test
+        fun `new backups are format 2 with rounds`() {
+            val snapshot = RouteSnapshot(
+                route = Route(name = "Wijk", town = null, createdAtMillis = 0),
+                sections = emptyList(),
+                rounds = listOf(CompletedRound(id = 7, startedAtMillis = 1, finishedAtMillis = 2, newspapers = 3, leaflets = 4)),
+            )
+            val text = BackupFormat.encode(snapshot, 0, "1.3.0")
+            assertTrue("\"formatVersion\": 2" in text)
+            assertEquals(listOf(CompletedRound(0, 1, 2, 3, 4)), BackupFormat.decode(text).snapshot.rounds)
+        }
+
+        @Test
+        fun `rounds with the same start time are damaged`() {
+            val twice = """{"app":"nl.ericmulder.krantenwijk","formatVersion":2,"exportedAtMillis":0,"appVersion":"1",
+                "route":{"name":"Wijk","createdAtMillis":0,"sections":[]},
+                "rounds":[{"startedAtMillis":5,"finishedAtMillis":9,"newspapers":1,"leaflets":1},
+                          {"startedAtMillis":5,"finishedAtMillis":8,"newspapers":1,"leaflets":1}]}"""
+            assertEquals(BackupException.Reason.DAMAGED, assertThrows<BackupException> { BackupFormat.decode(twice) }.reason)
         }
 
         @Test

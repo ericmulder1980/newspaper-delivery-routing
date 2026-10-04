@@ -49,7 +49,7 @@ private fun ThemeMode.label(): Int = when (this) {
 
 /** Settings (plan §6). This feature adds the theme (SET-01) and version info (SET-02); more options follow. */
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(onBack: () -> Unit, onBestTimes: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
     ScreenScaffold(title = stringResource(R.string.settings_title), onBack = onBack) {
         val prefs by viewModel.round.collectAsStateWithLifecycle()
@@ -88,6 +88,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
             SwitchRow(stringResource(R.string.settings_show_skipped), prefs.showSkipped, viewModel::setShowSkipped)
             SwitchRow(stringResource(R.string.settings_show_non_existing), prefs.showNonExisting, viewModel::setShowNonExisting)
             SwitchRow(stringResource(R.string.settings_keep_screen_on), prefs.keepScreenOn, viewModel::setKeepScreenOn)
+            SecondaryButton(stringResource(R.string.best_times_title), onBestTimes)
         }
         SectionHeading(stringResource(R.string.backup_title))
         BackupSection()

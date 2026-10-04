@@ -33,4 +33,9 @@ class FakeRoundRepository(var now: Long = 1_000) : RoundRepository {
     override fun observeRound(id: Long): Flow<CompletedRound?> = rounds.map { list -> list.firstOrNull { it.id == id } }
 
     override fun observeCompletedRounds(): Flow<List<CompletedRound>> = rounds
+
+    override suspend fun deleteRounds(ids: Collection<Long>) = rounds.update { list -> list.filterNot { it.id in ids } }
+
+    override suspend fun restoreRounds(rounds: List<CompletedRound>) =
+        this.rounds.update { list -> list + rounds.filter { r -> list.none { it.id == r.id } } }
 }

@@ -219,4 +219,10 @@ interface CompletedRoundDao {
     /** Returns -1 when a round with the same start time already exists. */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(round: CompletedRoundEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(rounds: List<CompletedRoundEntity>)
+
+    @Query("DELETE FROM completed_round WHERE id IN (:ids)")
+    suspend fun delete(ids: Collection<Long>)
 }

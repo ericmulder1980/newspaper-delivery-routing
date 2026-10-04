@@ -195,6 +195,30 @@
     <string name="finished_newspapers">Papers</string>
     <string name="finished_leaflets">Leaflets</string>
     <string name="finished_next">Next</string>
+
+    <!-- Top 5 and best times (RND-14, DEC-030) -->
+    <string name="top5_title">Top 5</string>
+    <string name="top5_kicker">Best times</string>
+    <string name="top5_new">New</string>
+    <string name="top5_your_time">Your time today</string>
+    <string name="top5_place">Place %1$d</string>
+    <string name="top5_done">Done</string>
+    <string name="best_times_title">Best times</string>
+    <string name="best_times_today">Today</string>
+    <string name="best_times_rank">#%1$d</string>
+    <string name="best_times_hint">Hold a time to select it.</string>
+    <string name="best_times_empty">No rounds yet. Finish a round to see your times here.</string>
+    <string name="best_times_select">Select</string>
+    <string name="best_times_clear_selection">Clear selection</string>
+    <string name="best_times_undo">Undo</string>
+    <plurals name="best_times_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="best_times_deleted">
+        <item quantity="one">%d time deleted</item>
+        <item quantity="other">%d times deleted</item>
+    </plurals>
     <string name="settings_round">Round</string>
     <string name="settings_show_skipped">Show houses that get nothing</string>
     <string name="settings_show_non_existing">Show numbers that don’t exist</string>

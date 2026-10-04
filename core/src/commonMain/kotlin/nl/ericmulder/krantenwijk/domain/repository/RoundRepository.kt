@@ -28,4 +28,10 @@ interface RoundRepository {
     fun observeRound(id: Long): Flow<CompletedRound?>
 
     fun observeCompletedRounds(): Flow<List<CompletedRound>>
+
+    /** Removes finished rounds from the history (RND-14). */
+    suspend fun deleteRounds(ids: Collection<Long>)
+
+    /** Puts deleted rounds back with their original ids, for Undo. */
+    suspend fun restoreRounds(rounds: List<CompletedRound>)
 }

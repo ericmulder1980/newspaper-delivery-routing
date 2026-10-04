@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.BuildingSnapshot
+import nl.ericmulder.krantenwijk.domain.model.CompletedRound
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
@@ -22,8 +23,11 @@ import nl.ericmulder.krantenwijk.domain.model.SuffixType
  * (unknown fields are ignored when reading).
  */
 object BackupFormat {
-    /** Bump when the format changes incompatibly; [decode] keeps reading older versions. */
-    const val VERSION = 1
+    /**
+     * Bump when the format changes; [decode] keeps reading older versions.
+     * 1: route only (DATA-A). 2: adds finished rounds (DEC-030); a version-1 file has none.
+     */
+    const val VERSION = 2
 
     /** File type used by the file picker. */
     const val MIME_TYPE = "application/json"
@@ -82,6 +86,16 @@ private data class BackupFileV1(
     val exportedAtMillis: Long,
     val appVersion: String,
     val route: RouteV1,
+    /** Since format 2. */
+    val rounds: List<RoundV2> = emptyList(),
+)
+
+@Serializable
+private data class RoundV2(
+    val startedAtMillis: Long,
+    val finishedAtMillis: Long,
+    val newspapers: Int,
+    val leaflets: Int,
 )
 
 @Serializable
@@ -147,6 +161,7 @@ private fun RouteSnapshot.toFile(exportedAtMillis: Long, appVersion: String) = B
             )
         },
     ),
+    rounds = rounds.map { RoundV2(it.startedAtMillis, it.finishedAtMillis, it.newspapers, it.leaflets) },
 )
 
 private fun Address.toV1() = AddressV1(houseNumber, addition, exists, sticker, exceptionNoNewspaper, exceptionNoLeaflets, note)
@@ -164,6 +179,8 @@ private fun AddressV1.toDomain() = Address(
 /** Validates while converting; domain constructors reject e.g. non-positive house numbers. */
 private fun BackupFileV1.toSnapshot(): RouteSnapshot {
     require(route.name.isNotBlank()) { "Route name is blank" }
+    require(rounds.all { it.newspapers >= 0 && it.leaflets >= 0 }) { "A round has a negative count" }
+    require(rounds.distinctBy { it.startedAtMillis }.size == rounds.size) { "Two rounds have the same start time" }
     return RouteSnapshot(
         route = Route(name = route.name, town = route.town, createdAtMillis = route.createdAtMillis),
         sections = route.sections.mapIndexed { index, s ->
@@ -179,5 +196,6 @@ private fun BackupFileV1.toSnapshot(): RouteSnapshot {
                 },
             )
         },
+        rounds = rounds.map { CompletedRound(id = 0, it.startedAtMillis, it.finishedAtMillis, it.newspapers, it.leaflets) },
     )
 }

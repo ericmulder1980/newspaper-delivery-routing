@@ -188,6 +188,30 @@
     <string name="finished_newspapers">Kranten</string>
     <string name="finished_leaflets">Folders</string>
     <string name="finished_next">Volgende</string>
+
+    <!-- Top 5 en beste tijden (RND-14, DEC-030) -->
+    <string name="top5_title">Top 5</string>
+    <string name="top5_kicker">Beste tijden</string>
+    <string name="top5_new">Nieuw</string>
+    <string name="top5_your_time">Jouw tijd vandaag</string>
+    <string name="top5_place">Plaats %1$d</string>
+    <string name="top5_done">Klaar</string>
+    <string name="best_times_title">Beste tijden</string>
+    <string name="best_times_today">Vandaag</string>
+    <string name="best_times_rank">#%1$d</string>
+    <string name="best_times_hint">Houd een tijd ingedrukt om te selecteren.</string>
+    <string name="best_times_empty">Nog geen rondes. Rond een ronde af om hier je tijden te zien.</string>
+    <string name="best_times_select">Selecteren</string>
+    <string name="best_times_clear_selection">Selectie opheffen</string>
+    <string name="best_times_undo">Ongedaan maken</string>
+    <plurals name="best_times_selected">
+        <item quantity="one">%d geselecteerd</item>
+        <item quantity="other">%d geselecteerd</item>
+    </plurals>
+    <plurals name="best_times_deleted">
+        <item quantity="one">%d tijd verwijderd</item>
+        <item quantity="other">%d tijden verwijderd</item>
+    </plurals>
     <string name="settings_round">Ronde</string>
     <string name="settings_show_skipped">Huizen die niets krijgen tonen</string>
     <string name="settings_show_non_existing">Nummers die niet bestaan tonen</string>

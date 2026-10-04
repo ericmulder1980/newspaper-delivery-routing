@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import nl.ericmulder.krantenwijk.data.db.CompletedRoundEntity
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import nl.ericmulder.krantenwijk.data.db.toDomain
+import nl.ericmulder.krantenwijk.data.db.toEntity
 import nl.ericmulder.krantenwijk.domain.model.ActiveRound
 import nl.ericmulder.krantenwijk.domain.model.CompletedRound
 import nl.ericmulder.krantenwijk.domain.repository.RoundRepository
@@ -66,6 +67,10 @@ class RoomRoundRepository(
     override fun observeRound(id: Long): Flow<CompletedRound?> = dao.observe(id).map { it?.toDomain() }
 
     override fun observeCompletedRounds(): Flow<List<CompletedRound>> = dao.observeAll().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun deleteRounds(ids: Collection<Long>) = dao.delete(ids)
+
+    override suspend fun restoreRounds(rounds: List<CompletedRound>) = dao.insertAll(rounds.map { it.toEntity() })
 
     private fun MutablePreferences.clearActive() {
         remove(STARTED_AT)

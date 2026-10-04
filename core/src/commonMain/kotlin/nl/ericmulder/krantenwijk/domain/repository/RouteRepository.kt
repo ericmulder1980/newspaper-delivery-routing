@@ -88,12 +88,12 @@ interface RouteRepository {
      */
     suspend fun addApartment(buildingId: Long, suffix: String): Long
 
-    /** The whole route as it is now, for a backup (DATA-02); null when there is no route. */
+    /** The whole route as it is now, with the finished rounds, for a backup (DATA-02, DEC-030); null when there is no route. */
     suspend fun snapshot(): RouteSnapshot?
 
     /**
-     * Replaces the whole route with [snapshot] in one transaction (restore, DATA-02): either
-     * everything is restored or nothing changes.
+     * Replaces the whole route and the finished rounds with [snapshot] in one transaction
+     * (restore, DATA-02, DEC-030): either everything is restored or nothing changes.
      */
     suspend fun replaceAll(snapshot: RouteSnapshot)
 

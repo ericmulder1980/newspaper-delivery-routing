@@ -990,8 +990,8 @@
       "dependencies": [
         "RND-B"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Timer survives force-close and phone restart; not visible during the round",
         "Back from a street screen asks Abandon this round? with Resume / Abandon",
@@ -1015,13 +1015,12 @@
           "Home: Round in progress card, Resume round / Abandon round (confirm), sections continue the round",
           "Round street: back asks Abandon this round? (Resume / Abandon); Finish round saves totals and opens Finished",
           "Finished screen in Compose per finished-screen.md with DEC-030 changes; FinishedMotion pure functions",
-          "EN + NL strings; tests 265/265 (core 148, app 117); lint clean except the sqlite pin"
+          "EN + NL strings; tests 265/265 (core 148, app 117); lint clean except the sqlite pin",
+          "User confirmed on phone with v1.2.1 (flag fix) 2026-10-04"
         ],
-        "remaining": [
-          "User tests the debug APK on the phone and approves",
-          "Next goes Home until RND-14 adds the Top 5"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-10-04"
     },
     {
       "id": "RND-14",
@@ -1038,8 +1037,8 @@
         "RND-13",
         "DATA-A"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Ranking: shortest duration first, ties to the earlier round",
         "A new round in the top 5 is marked New with an icon, not colour alone; otherwise a line shows its time and rank",
@@ -1050,13 +1049,25 @@
       ],
       "notes": [
         "Wireframes needed for Top 5 and Best times"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: backup format 2 with rounds (format 1 restores with empty history; user chose to raise the version 2026-10-04), restore replaces rounds; deleteRounds/restoreRounds",
+          "Top 5 after Finished (Next replaces Finished; Done/back → Home); new round: accent border + star 'New' badge; outside top 5: 'Your time today · Place n'",
+          "Settings › Best times: ranked list, long-press select, tap adds, delete with Undo snackbar, empty state",
+          "ScreenScaffold: actions, snackbarHost, backIcon params",
+          "EN + NL strings; tests 279/279 (core 152, app 127); lint 0 errors"
+        ],
+        "remaining": [
+          "User tests on the phone and approves"
+        ]
+      }
     }
   ],
   "current": {
-    "feature": "RND-13",
-    "status": "Released in v1.2.1 on 2026-10-04 (flag fix); waiting for the user's device test",
-    "next_recommended": "After approval: commit RND-13, then RND-14 (Top 5, Best times, backup)"
+    "feature": "RND-14",
+    "status": "Implemented 2026-10-04, waiting for the user's device test",
+    "next_recommended": "Commit + release on the user's command; then re-prioritise the Should list"
   },
   "open_questions": [],
   "phases_legend": {

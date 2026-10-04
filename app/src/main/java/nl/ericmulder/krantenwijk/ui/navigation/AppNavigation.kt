@@ -8,6 +8,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import nl.ericmulder.krantenwijk.ui.besttimes.BestTimesScreen
+import nl.ericmulder.krantenwijk.ui.besttimes.Top5Screen
 import nl.ericmulder.krantenwijk.ui.finished.FinishedScreen
 import nl.ericmulder.krantenwijk.ui.home.HomeScreen
 import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingNameScreen
@@ -70,7 +72,8 @@ fun AppNavigation(startWithSetup: Boolean) {
                     onSettings = { go(Settings) },
                 )
             }
-            entry<Settings> { SettingsScreen(onBack = ::back) }
+            entry<Settings> { SettingsScreen(onBack = ::back, onBestTimes = { go(BestTimes) }) }
+            entry<BestTimes> { BestTimesScreen(onBack = ::back) }
 
             // Setup wizard (ONB-A): name → route → street + numbers (repeat) → walking route.
             entry<OnboardingName> { OnboardingNameScreen(onNext = { go(OnboardingRoute) }, onRestored = { resetTo(Home) }) }
@@ -127,8 +130,9 @@ fun AppNavigation(startWithSetup: Boolean) {
                     onOpenBuilding = { go(RoundBuilding(it)) },
                 )
             }
-            // Next leads home for now; RND-14 puts the Top 5 in between.
-            entry<Finished> { key -> FinishedScreen(roundId = key.roundId, onNext = { resetTo(Home) }) }
+            // Next replaces the Finished screen, so back from the Top 5 returns home.
+            entry<Finished> { key -> FinishedScreen(roundId = key.roundId, onNext = { replaceTop(Top5(key.roundId)) }) }
+            entry<Top5> { key -> Top5Screen(roundId = key.roundId, onDone = { resetTo(Home) }) }
             entry<RoundBuilding> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back, roundMode = true) }
         },
     )

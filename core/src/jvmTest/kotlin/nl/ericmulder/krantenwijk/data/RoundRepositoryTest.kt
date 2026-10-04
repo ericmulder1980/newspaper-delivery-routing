@@ -91,6 +91,21 @@ class RoundRepositoryTest {
     }
 
     @Test
+    fun `delete removes rounds and undo puts them back with their ids (RND-14)`() = runTest {
+        val ids = (1..3).map { n ->
+            repo.startRound(1)
+            now += 60_000L * n
+            repo.finishRound(n, n)!!.also { now += 1_000 }
+        }
+        val removed = repo.observeCompletedRounds().first().filter { it.id in ids.take(2) }
+        repo.deleteRounds(ids.take(2))
+        assertEquals(listOf(ids[2]), repo.observeCompletedRounds().first().map { it.id })
+        repo.restoreRounds(removed)
+        assertEquals(ids.toSet(), repo.observeCompletedRounds().first().map { it.id }.toSet())
+        assertEquals(removed.toSet(), repo.observeCompletedRounds().first().filter { it.id in ids.take(2) }.toSet())
+    }
+
+    @Test
     fun `the active round survives a restart`() = runTest {
         val path = dir.resolve("restart.preferences_pb").absolutePath
         val firstProcess = CoroutineScope(Dispatchers.IO + Job())

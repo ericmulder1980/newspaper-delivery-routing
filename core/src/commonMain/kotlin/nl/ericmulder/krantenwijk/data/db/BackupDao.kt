@@ -23,9 +23,18 @@ abstract class BackupDao {
     @Query("SELECT * FROM address")
     protected abstract suspend fun addresses(): List<AddressEntity>
 
+    @Query("SELECT * FROM completed_round ORDER BY startedAtMillis")
+    protected abstract suspend fun rounds(): List<CompletedRoundEntity>
+
     /** Deletes everything: segments, buildings and addresses cascade from the route. */
     @Query("DELETE FROM route")
     protected abstract suspend fun deleteRoutes()
+
+    @Query("DELETE FROM completed_round")
+    protected abstract suspend fun deleteRounds()
+
+    @Insert
+    protected abstract suspend fun insertRounds(rounds: List<CompletedRoundEntity>)
 
     @Insert
     protected abstract suspend fun insertRoute(route: RouteEntity): Long
@@ -58,13 +67,23 @@ abstract class BackupDao {
                     },
                 )
             },
+            rounds = rounds().map { it.toDomain().copy(id = 0) },
         )
     }
 
-    /** Replaces the route with [snapshot]; if anything fails, the transaction rolls back and nothing changes. */
+    /**
+     * Replaces the route and the finished rounds with [snapshot]; if anything fails, the transaction
+     * rolls back and nothing changes. A backup without rounds (format 1) leaves an empty history.
+     */
     @Transaction
     open suspend fun replaceAll(snapshot: RouteSnapshot) {
         deleteRoutes()
+        deleteRounds()
+        insertRounds(
+            snapshot.rounds.map {
+                CompletedRoundEntity(startedAtMillis = it.startedAtMillis, finishedAtMillis = it.finishedAtMillis, newspapers = it.newspapers, leaflets = it.leaflets)
+            },
+        )
         val routeId = insertRoute(
             RouteEntity(name = snapshot.route.name, town = snapshot.route.town, createdAtMillis = snapshot.route.createdAtMillis),
         )

@@ -1,9 +1,11 @@
 package nl.ericmulder.krantenwijk.ui.common
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -33,9 +35,15 @@ fun ScreenScaffold(
     modifier: Modifier = Modifier,
     /** Fixed at the bottom, e.g. the round's Previous/Next buttons. */
     bottomBar: @Composable () -> Unit = {},
+    /** Buttons at the end of the title bar, e.g. Delete while selecting. */
+    actions: @Composable RowScope.() -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    /** The back button's icon and label; a selection mode shows "close" instead. */
+    @DrawableRes backIcon: Int = R.drawable.ic_arrow_back,
+    backDescription: String = stringResource(R.string.nav_back),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(modifier = modifier, bottomBar = bottomBar) { padding ->
+    Scaffold(modifier = modifier, bottomBar = bottomBar, snackbarHost = snackbarHost) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(
                 modifier = Modifier.padding(horizontal = 8.dp).heightIn(min = MinTouchTarget),
@@ -43,16 +51,18 @@ fun ScreenScaffold(
             ) {
                 if (onBack != null) {
                     IconButton(onClick = onBack, modifier = Modifier.size(MinTouchTarget)) {
-                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.nav_back))
+                        Icon(painterResource(backIcon), contentDescription = backDescription)
                     }
                 }
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
+                        .weight(1f)
                         .padding(start = if (onBack == null) 12.dp else 4.dp)
                         .semantics { heading() },
                 )
+                actions()
             }
             Column(
                 modifier = Modifier

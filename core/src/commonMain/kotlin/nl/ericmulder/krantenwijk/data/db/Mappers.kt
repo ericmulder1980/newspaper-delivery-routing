@@ -53,6 +53,14 @@ internal fun Address.toEntity() = AddressEntity(
     note = note,
 )
 
+internal fun CompletedRound.toEntity() = CompletedRoundEntity(
+    id = id,
+    startedAtMillis = startedAtMillis,
+    finishedAtMillis = finishedAtMillis,
+    newspapers = newspapers,
+    leaflets = leaflets,
+)
+
 internal fun CompletedRoundEntity.toDomain() = CompletedRound(
     id = id,
     startedAtMillis = startedAtMillis,
