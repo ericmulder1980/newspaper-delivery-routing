@@ -2,6 +2,7 @@ package nl.ericmulder.krantenwijk.data.db
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -203,3 +204,19 @@ interface AddressDao {
 
 /** Result row for [AddressDao.observeExistingCounts]. */
 data class SegmentCount(val segmentId: Long, val count: Int)
+
+@Dao
+interface CompletedRoundDao {
+    @Query("SELECT * FROM completed_round")
+    fun observeAll(): Flow<List<CompletedRoundEntity>>
+
+    @Query("SELECT * FROM completed_round WHERE id = :id")
+    fun observe(id: Long): Flow<CompletedRoundEntity?>
+
+    @Query("SELECT id FROM completed_round WHERE startedAtMillis = :startedAtMillis")
+    suspend fun idStartedAt(startedAtMillis: Long): Long?
+
+    /** Returns -1 when a round with the same start time already exists. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(round: CompletedRoundEntity): Long
+}

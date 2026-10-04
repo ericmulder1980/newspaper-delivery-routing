@@ -170,6 +170,24 @@
     <string name="round_start_of_route">Begin route</string>
     <string name="round_end_of_route">Einde route</string>
     <string name="round_building_back">Terug naar %1$s</string>
+
+    <!-- Rondetimer en eindscherm (RND-13, DEC-030) -->
+    <string name="round_abandon_title">Ronde afbreken?</string>
+    <string name="round_abandon_message">Bij afbreken wordt de tijd van deze ronde niet bewaard. Bij hervatten loopt de tijd gewoon door.</string>
+    <string name="round_resume">Hervatten</string>
+    <string name="round_abandon">Afbreken</string>
+    <string name="home_round_in_progress">Ronde bezig</string>
+    <string name="home_round_in_progress_detail">Gestart om %1$s · bij straatdeel %2$d / %3$d, %4$s</string>
+    <string name="home_resume_round">Ronde hervatten</string>
+    <string name="home_abandon_round">Ronde afbreken</string>
+    <string name="home_abandon_message">De tijd van deze ronde wordt niet bewaard.</string>
+    <string name="finished_eyebrow">Finish · %1$s</string>
+    <string name="finished_eyebrow_no_name">Finish</string>
+    <string name="finished_headline">Ronde\nklaar</string>
+    <string name="finished_round_time">Rondetijd</string>
+    <string name="finished_newspapers">Kranten</string>
+    <string name="finished_leaflets">Folders</string>
+    <string name="finished_next">Volgende</string>
     <string name="settings_round">Ronde</string>
     <string name="settings_show_skipped">Huizen die niets krijgen tonen</string>
     <string name="settings_show_non_existing">Nummers die niet bestaan tonen</string>

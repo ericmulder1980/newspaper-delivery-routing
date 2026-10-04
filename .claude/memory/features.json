@@ -976,8 +976,8 @@
       "dependencies": [
         "RND-B"
       ],
-      "phase": "inception",
-      "status": "pending",
+      "phase": "testing",
+      "status": "in_progress",
       "acceptance_criteria": [
         "Timer survives force-close and phone restart; not visible during the round",
         "Back from a street screen asks Abandon this round? with Resume / Abandon",
@@ -993,7 +993,21 @@
       "notes": [
         "Option C (Compose code) chosen over MP4/Media3 and Lottie (DEC-030); no new dependency",
         "Wireframe needed for the abandon dialog and Home resume state"
-      ]
+      ],
+      "progress": {
+        "done": [
+          "core: ActiveRound/CompletedRound, rankedByDuration/rankOf/roundSeconds/formatRoundTime, RoundRepository + RoomRoundRepository (DataStore active round, Room rounds, idempotent finish)",
+          "Room v2: completed_round + MIGRATION_1_2 (explicit SQL from 2.json), migration and schema tests",
+          "Home: Round in progress card, Resume round / Abandon round (confirm), sections continue the round",
+          "Round street: back asks Abandon this round? (Resume / Abandon); Finish round saves totals and opens Finished",
+          "Finished screen in Compose per finished-screen.md with DEC-030 changes; FinishedMotion pure functions",
+          "EN + NL strings; tests 265/265 (core 148, app 117); lint clean except the sqlite pin"
+        ],
+        "remaining": [
+          "User tests the debug APK on the phone and approves",
+          "Next goes Home until RND-14 adds the Top 5"
+        ]
+      }
     },
     {
       "id": "RND-14",
@@ -1027,8 +1041,8 @@
   ],
   "current": {
     "feature": "RND-13",
-    "status": "Planning 2026-10-04: DEC-030 recorded; next is wireframes for the abandon dialog, Home resume state, Top 5 and Best times",
-    "next_recommended": "Draft wireframes for user approval, then implement RND-13, then RND-14"
+    "status": "Implemented 2026-10-04, waiting for the user's device test",
+    "next_recommended": "After approval: commit RND-13, then RND-14 (Top 5, Best times, backup)"
   },
   "open_questions": [],
   "phases_legend": {

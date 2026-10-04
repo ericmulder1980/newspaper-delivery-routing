@@ -14,8 +14,9 @@ import kotlinx.coroutines.IO
         SegmentEntity::class,
         BuildingEntity::class,
         AddressEntity::class,
+        CompletedRoundEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @ConstructedBy(KrantenwijkDatabaseConstructor::class)
@@ -29,6 +30,8 @@ abstract class KrantenwijkDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
 
     abstract fun backupDao(): BackupDao
+
+    abstract fun completedRoundDao(): CompletedRoundDao
 
     companion object {
         const val FILE_NAME = "krantenwijk.db"
@@ -47,5 +50,6 @@ expect object KrantenwijkDatabaseConstructor : RoomDatabaseConstructor<Krantenwi
  */
 fun RoomDatabase.Builder<KrantenwijkDatabase>.buildKrantenwijk(): KrantenwijkDatabase =
     setDriver(BundledSQLiteDriver())
+        .addMigrations(*KrantenwijkMigrations)
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

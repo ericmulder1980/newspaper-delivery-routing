@@ -1,5 +1,6 @@
 package nl.ericmulder.krantenwijk.ui.round
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -38,10 +40,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.ericmulder.krantenwijk.R
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Segment
+import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.PrimaryActionHeight
 import nl.ericmulder.krantenwijk.ui.common.TargetSpacing
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
+import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import nl.ericmulder.krantenwijk.ui.common.label
 import nl.ericmulder.krantenwijk.ui.route.CountWithIcon
 import nl.ericmulder.krantenwijk.ui.route.Legend
@@ -58,7 +62,8 @@ fun RoundStreetScreen(
     segmentId: Long,
     onBack: () -> Unit,
     onGoTo: (segmentId: Long) -> Unit,
-    onFinish: () -> Unit,
+    /** Called after the round is saved, with its id (null if no round was active). */
+    onFinish: (roundId: Long?) -> Unit,
     onOpenBuilding: (buildingId: Long) -> Unit,
     viewModel: RoundStreetViewModel = hiltViewModel<RoundStreetViewModel, RoundStreetViewModel.Factory>(
         key = "round-$segmentId",
@@ -66,15 +71,30 @@ fun RoundStreetScreen(
     ),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val roundActive by viewModel.roundActive.collectAsStateWithLifecycle()
     var sheetAddressId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var askAbandon by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state) { if (state == RoundStreetUiState.Gone) onBack() }
+
+    // Leaving mid-round asks first (RND-13); Previous/Next and Finish don't.
+    val leave = { if (roundActive) askAbandon = true else onBack() }
+    BackHandler(enabled = roundActive) { askAbandon = true }
+    if (askAbandon) {
+        AbandonRoundDialog(
+            onResume = { askAbandon = false },
+            onAbandon = {
+                askAbandon = false
+                viewModel.abandonRound(then = onBack)
+            },
+        )
+    }
 
     val ready = state as? RoundStreetUiState.Ready
     KeepScreenOn(ready?.keepScreenOn == true)
     ScreenScaffold(
         title = ready?.segment?.streetName ?: "",
-        onBack = onBack,
-        bottomBar = { if (ready != null) PreviousNextBar(ready, onGoTo, onFinish) },
+        onBack = leave,
+        bottomBar = { if (ready != null) PreviousNextBar(ready, onGoTo, onFinish = { viewModel.finishRound(then = onFinish) }) },
     ) {
         if (ready == null) return@ScreenScaffold
         val segment = ready.segment
@@ -137,6 +157,22 @@ fun RoundStreetScreen(
             )
         }
     }
+}
+
+/** "Abandon this round?" with Resume as the big, safe choice (RND-13, wireframe H). */
+@Composable
+private fun AbandonRoundDialog(onResume: () -> Unit, onAbandon: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onResume,
+        title = { Text(stringResource(R.string.round_abandon_title)) },
+        text = { Text(stringResource(R.string.round_abandon_message), style = MaterialTheme.typography.bodyLarge) },
+        confirmButton = {
+            Column(verticalArrangement = Arrangement.spacedBy(TargetSpacing)) {
+                AccentButton(stringResource(R.string.round_resume), onResume)
+                SecondaryButton(stringResource(R.string.round_abandon), onAbandon)
+            }
+        },
+    )
 }
 
 /** Keeps the display on while this screen is shown (RND-08). */

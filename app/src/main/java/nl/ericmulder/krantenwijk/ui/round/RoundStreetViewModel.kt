@@ -9,10 +9,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import nl.ericmulder.krantenwijk.domain.model.DeliveryKind
 import nl.ericmulder.krantenwijk.domain.model.Segment
+import nl.ericmulder.krantenwijk.domain.repository.RoundRepository
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.repository.SettingsRepository
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
@@ -54,6 +57,7 @@ class RoundStreetViewModel @AssistedInject constructor(
     @Assisted private val segmentId: Long,
     private val routes: RouteRepository,
     private val settings: SettingsRepository,
+    private val rounds: RoundRepository,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -91,6 +95,37 @@ class RoundStreetViewModel @AssistedInject constructor(
             keepScreenOn = prefs.keepScreenOn,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RoundStreetUiState.Loading)
+
+    /** Whether leaving asks "Abandon this round?" (RND-13). */
+    val roundActive: StateFlow<Boolean> = rounds.activeRound.map { it != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    private var finishing = false
+
+    init {
+        // Remembered for Resume after the app was closed (DEC-030).
+        viewModelScope.launch { rounds.setCurrentSection(segmentId) }
+    }
+
+    fun abandonRound(then: () -> Unit) {
+        viewModelScope.launch {
+            rounds.abandonRound()
+            then()
+        }
+    }
+
+    /**
+     * Saves the round with the route's totals at this moment (DEC-030), then calls [then] with its id
+     * (null if no round was active, e.g. a round opened before this feature existed).
+     */
+    fun finishRound(then: (roundId: Long?) -> Unit) {
+        if (finishing) return // a double tap must not finish twice
+        finishing = true
+        viewModelScope.launch {
+            val totals = deliverySummary(routes.observeAllAddresses().first(), FullRound)
+            then(rounds.finishRound(totals.newspapers, totals.leaflets))
+        }
+    }
 
     /** Quick correction at the mailbox (DEC-022): sticker or "does not exist", nothing else. */
     fun apply(option: StickerOption, addressIds: Collection<Long>) {

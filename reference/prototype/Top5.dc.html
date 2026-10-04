@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Top 5 rondetijden</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0C0D0E; color: #F4F1EA; font-family: 'Barlow', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="padding: 32px 20px 12px">
+    <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-size: 19px; letter-spacing: 0.14em; text-transform: uppercase; color: #A7A9AE"><span aria-hidden="true" style="display: inline-block; width: 18px; height: 11px; margin-right: 8px; background: #E8FF00; transform: skewX(-24deg); vertical-align: 1px"></span>Beste tijden</div>
+    <h1 style="margin: 2px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 72px; line-height: 1; text-transform: uppercase">Top 5</h1>
+  </div>
+
+  <div style="flex-grow: 1; padding: 8px 20px; display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+      <div style="display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 0 16px; border-radius: 16px; background: #1E2126; border: {{r.border}}; box-sizing: border-box">
+        <div style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 3px solid {{r.ring}}; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 28px; box-sizing: border-box">{{r.rank}}</div>
+        <div style="flex-grow: 1; min-width: 0">
+          <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 40px; line-height: 1; color: {{r.timeColor}}; font-variant-numeric: tabular-nums">{{r.time}}</div>
+          <div style="font-size: 16px; color: #A7A9AE; margin-top: 2px">{{r.date}}</div>
+        </div>
+        <sc-if value="{{r.isNew}}" hint-placeholder-val="{{ false }}">
+          <span style="flex-shrink: 0; height: 34px; padding: 0 10px; border-radius: 8px; background: #E8FF00; color: #0E0F11; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"></path></svg>
+            Nieuw
+          </span>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <sc-if value="{{notPlaced}}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top: 6px; padding: 14px 16px; border-radius: 16px; border: 1px dashed #4A4D53; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+        <div>
+          <div style="font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #A7A9AE">Jouw tijd vandaag</div>
+          <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 36px; line-height: 1; font-variant-numeric: tabular-nums">1:24:03</div>
+        </div>
+        <div style="font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 30px; color: #C9CBCF">Plaats 8</div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="padding: 12px 20px 24px">
+    <a href="Main.dc.html" style="height: 76px; border-radius: 18px; background: #E8FF00; color: #0E0F11; text-decoration: none; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 34px; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; justify-content: center">Klaar</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"variant":{"editor":"enum","options":["geplaatst","niet geplaatst"],"default":"geplaatst"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const placed = (this.props.variant ?? 'geplaatst') === 'geplaatst';
+    const base = placed
+      ? [['1:05:12', 'za 26 sep'], ['1:08:40', 'za 19 sep'], ['1:12:15', 'vandaag', true], ['1:14:02', 'za 12 sep'], ['1:19:30', 'za 5 sep']]
+      : [['1:05:12', 'za 26 sep'], ['1:08:40', 'za 19 sep'], ['1:14:02', 'za 12 sep'], ['1:19:30', 'za 5 sep'], ['1:21:47', 'za 29 aug']];
+    const rows = base.map((r, i) => ({
+      rank: i + 1,
+      time: r[0],
+      date: r[1],
+      isNew: !!r[2],
+      border: r[2] ? '2px solid #E8FF00' : '1px solid #2E3137',
+      ring: r[2] ? '#E8FF00' : '#4A4D53',
+      timeColor: r[2] ? '#E8FF00' : '#F4F1EA'
+    }));
+    return { rows: rows, notPlaced: !placed };
+  }
+}
+</script>
+</body>
+</html>

@@ -20,6 +20,60 @@
       "x": 0,
       "y": 0
     },
+    "Setup.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "A · Welkom (klikbaar)",
+      "w": 390,
+      "x": 0,
+      "y": 1250
+    },
+    "SetupFlat.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "E · Flat maken",
+      "w": 390,
+      "x": 1880,
+      "y": 1250
+    },
+    "SetupList.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "F · Looproute ordenen",
+      "w": 390,
+      "x": 2350,
+      "y": 1250
+    },
+    "SetupNumbers.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "D · Nummers controleren",
+      "w": 390,
+      "x": 1410,
+      "y": 1250
+    },
+    "SetupRoute.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "B · Wijk aanmaken",
+      "w": 390,
+      "x": 470,
+      "y": 1250
+    },
+    "SetupStreet.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "radius": 36,
+      "title": "C · Straat toevoegen",
+      "w": 390,
+      "x": 940,
+      "y": 1250
+    },
     "Street.dc.html": {
       "h": 844,
       "is_interactive": true,
@@ -29,57 +83,48 @@
       "x": 470,
       "y": 0
     },
-    "Setup.dc.html": {
+    "HomeResume.dc.html": {
       "x": 0,
-      "y": 1250,
+      "y": 2600,
       "w": 390,
       "h": 844,
-      "title": "A · Welkom (klikbaar)",
+      "title": "G · Home: ronde bezig (klikbaar)",
       "is_interactive": true,
       "radius": 36
     },
-    "SetupRoute.dc.html": {
+    "RoundAbandon.dc.html": {
       "x": 470,
-      "y": 1250,
+      "y": 2600,
       "w": 390,
       "h": 844,
-      "title": "B · Wijk aanmaken",
+      "title": "H · Ronde afbreken? (klikbaar)",
       "is_interactive": true,
       "radius": 36
     },
-    "SetupStreet.dc.html": {
+    "Finished.dc.html": {
       "x": 940,
-      "y": 1250,
+      "y": 2600,
       "w": 390,
       "h": 844,
-      "title": "C · Straat toevoegen",
+      "title": "I · Ronde klaar: eindbeeld",
       "is_interactive": true,
       "radius": 36
     },
-    "SetupNumbers.dc.html": {
+    "Top5.dc.html": {
       "x": 1410,
-      "y": 1250,
+      "y": 2600,
       "w": 390,
       "h": 844,
-      "title": "D · Nummers controleren",
+      "title": "J · Top 5",
       "is_interactive": true,
       "radius": 36
     },
-    "SetupFlat.dc.html": {
+    "BestTimes.dc.html": {
       "x": 1880,
-      "y": 1250,
+      "y": 2600,
       "w": 390,
       "h": 844,
-      "title": "E · Flat maken",
-      "is_interactive": true,
-      "radius": 36
-    },
-    "SetupList.dc.html": {
-      "x": 2350,
-      "y": 1250,
-      "w": 390,
-      "h": 844,
-      "title": "F · Looproute ordenen",
+      "title": "K · Instellingen › Beste tijden (klikbaar)",
       "is_interactive": true,
       "radius": 36
     }
@@ -93,6 +138,14 @@
     "view": "canvas"
   },
   "notes": {
+    "setupTitle": {
+      "kind": "title1",
+      "maxW": 2740,
+      "text": "Instellen — eerste start",
+      "w": 240,
+      "x": 0,
+      "y": 990
+    },
     "title": {
       "kind": "title1",
       "maxW": 1330,
@@ -101,12 +154,12 @@
       "x": 0,
       "y": -260
     },
-    "setupTitle": {
+    "roundEndTitle": {
       "x": 0,
-      "y": 990,
-      "text": "Instellen — eerste start",
+      "y": 2340,
+      "text": "Ronde afronden — timer, top 5, beste tijden",
       "kind": "title1",
-      "maxW": 2740
+      "maxW": 2270
     }
   },
   "order": [
@@ -118,7 +171,12 @@
     "SetupStreet.dc.html",
     "SetupNumbers.dc.html",
     "SetupFlat.dc.html",
-    "SetupList.dc.html"
+    "SetupList.dc.html",
+    "HomeResume.dc.html",
+    "RoundAbandon.dc.html",
+    "Finished.dc.html",
+    "Top5.dc.html",
+    "BestTimes.dc.html"
   ],
   "pages": [],
   "title": "Krantenwijk – Route mock-up"

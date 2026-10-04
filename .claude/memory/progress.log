@@ -334,3 +334,34 @@ CONTEXT FOR NEXT SESSION:
 - Spec canvas 390×844: treat px as dp, scale to width, derive the flag lift from screen height.
 - Bebas Neue has no italic: Compose synthesises the slant.
 ================================================================================
+
+================================================================================
+[2026-10-04] SESSION — RND-13 IMPLEMENTED (awaiting device test)
+Feature: RND-13 — Round timer, abandon/resume and Finished screen
+
+COMPLETED:
+- Wireframes G–K approved and copied to reference/prototype/ (canvas updated)
+- core: round models, ranking/format rules, RoundRepository (DataStore + Room), Room v2 migration
+- app: Home resume/abandon, abandon dialog on the street screen, Finished screen (Compose animation)
+- DataStoreSettingsRepository.createDataStore takes an optional scope (restart test)
+
+TESTS: 265/265 (core 148, app 117). Lint: 0 errors, 1 known warning (sqlite pin, DEC-013).
+
+FILES CHANGED:
++ core: domain/model/Round.kt, domain/rules/Rounds.kt, domain/repository/RoundRepository.kt,
+  data/db/Migrations.kt, data/repository/RoomRoundRepository.kt, schemas/…/2.json, tests
++ app: ui/finished/{FinishedMotion,FinishedViewModel,FinishedScreen}.kt, drawable/ic_chevron_right.xml,
+  FakeRoundRepository, FinishedMotionTest, FinishedScreenTest
+M Entities, Daos, Mappers, KrantenwijkDatabase, DataStoreSettingsRepository, DataModule,
+  RoundOverviewViewModel, RoundStreetViewModel/Screen, HomeScreen, Destinations, AppNavigation, strings EN/NL,
+  docs/ARCHITECTURE.md, existing round tests
+
+NEXT SESSION:
+- User tests app-debug.apk; then commit RND-13 and start RND-14 (Next → Top 5, Settings › Best times,
+  multi-select delete with undo, rounds in backup + format version bump)
+
+CONTEXT FOR NEXT SESSION:
+- Finished layout is a flowing Column (spec's absolute y positions approximated); compact mode below 760 dp height.
+- "Remove animations" relies on Compose honouring the system animator scale (clock completes at once).
+- Not committed yet.
+================================================================================

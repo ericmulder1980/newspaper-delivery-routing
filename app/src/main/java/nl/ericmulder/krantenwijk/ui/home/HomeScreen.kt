@@ -1,9 +1,11 @@
 package nl.ericmulder.krantenwijk.ui.home
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,8 +16,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -28,9 +35,13 @@ import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.ScreenScaffold
 import nl.ericmulder.krantenwijk.ui.common.SecondaryButton
 import nl.ericmulder.krantenwijk.ui.round.DeliveryCountsRow
+import nl.ericmulder.krantenwijk.ui.round.RoundInProgress
 import nl.ericmulder.krantenwijk.ui.round.RoundOverviewUiState
 import nl.ericmulder.krantenwijk.ui.round.RoundOverviewViewModel
 import nl.ericmulder.krantenwijk.ui.round.SectionRowSummary
+import nl.ericmulder.krantenwijk.ui.route.ConfirmDialog
+import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
+import java.util.Date
 
 /**
  * Home = the prototype's main screen ("1 · Looproute"): route, what to take along, all sections in
@@ -45,6 +56,19 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val ready = state as? RoundOverviewUiState.Ready
+    var askAbandon by rememberSaveable { mutableStateOf(false) }
+    if (askAbandon) {
+        ConfirmDialog(
+            title = stringResource(R.string.round_abandon_title),
+            text = stringResource(R.string.home_abandon_message),
+            confirmLabel = stringResource(R.string.round_abandon),
+            onConfirm = {
+                askAbandon = false
+                viewModel.abandonRound()
+            },
+            onDismiss = { askAbandon = false },
+        )
+    }
     ScreenScaffold(title = stringResource(R.string.app_name), onBack = null) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -66,19 +90,52 @@ fun HomeScreen(
             return@ScreenScaffold
         }
         TotalsRow(ready)
-        AccentButton(
-            text = stringResource(R.string.home_start_round),
-            onClick = { onStartAt(ready.sections.first().segment.id) },
-        )
+        // Opening a section starts the timer, or continues the round in progress (DEC-030).
+        val open = { segmentId: Long ->
+            viewModel.startRound(segmentId)
+            onStartAt(segmentId)
+        }
+        val inProgress = ready.roundInProgress
+        if (inProgress == null) {
+            AccentButton(
+                text = stringResource(R.string.home_start_round),
+                onClick = { open(ready.sections.first().segment.id) },
+            )
+        } else {
+            RoundInProgressCard(inProgress, sectionCount = ready.sections.size)
+            AccentButton(stringResource(R.string.home_resume_round), onClick = { open(inProgress.resumeSegmentId) })
+            SecondaryButton(stringResource(R.string.home_abandon_round), onClick = { askAbandon = true })
+        }
         ready.sections.forEachIndexed { index, section ->
             SectionRowSummary(
                 position = index + 1,
                 segment = section.segment,
-                onClick = { onStartAt(section.segment.id) },
+                onClick = { open(section.segment.id) },
                 extra = { DeliveryCountsRow(section.counts) },
             )
         }
         SecondaryButton(stringResource(R.string.home_edit_route), onEditRoute)
+    }
+}
+
+/** "Round in progress": when it started and where Resume goes, no running clock (RND-13, wireframe G). */
+@Composable
+private fun RoundInProgressCard(round: RoundInProgress, sectionCount: Int) {
+    val context = LocalContext.current
+    val startedAt = remember(round.startedAtMillis) { DateFormat.getTimeFormat(context).format(Date(round.startedAtMillis)) }
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        border = BorderStroke(2.dp, KrantenwijkTheme.colors.accentFillBorder),
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(stringResource(R.string.home_round_in_progress), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                stringResource(R.string.home_round_in_progress_detail, startedAt, round.position, sectionCount, round.streetName),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
     }
 }
 

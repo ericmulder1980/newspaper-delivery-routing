@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Beste tijden in Instellingen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Barlow:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #0C0D0E; color: #F4F1EA; font-family: 'Barlow', system-ui, sans-serif; display: flex; flex-direction: column; user-select: none">
+
+  <sc-if value="{{browsing}}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 20px 20px 12px; border-bottom: 1px solid #22252A">
+      <button style="height: 54px; padding: 0 18px 0 10px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; gap: 4px; font-family: inherit; font-weight: 600; font-size: 19px; cursor: pointer">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+        Instellingen
+      </button>
+      <h1 style="margin: 14px 0 0; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-weight: 400; font-size: 52px; line-height: 1; text-transform: uppercase">Beste tijden</h1>
+      <div style="font-size: 16px; color: #A7A9AE; margin-top: 4px">Houd een tijd ingedrukt om te selecteren</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{selecting}}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 20px 20px 12px; border-bottom: 1px solid #22252A; display: flex; align-items: center; gap: 12px; min-height: 128px; box-sizing: border-box">
+      <button onClick="{{clearSel}}" aria-label="Selectie opheffen" style="width: 56px; height: 56px; border-radius: 14px; background: #1E2126; border: 1px solid #2E3137; color: #F4F1EA; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+      <div style="flex-grow: 1; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 36px; text-transform: uppercase">{{selCount}} geselecteerd</div>
+      <button onClick="{{deleteSel}}" aria-label="Verwijderen" style="width: 56px; height: 56px; border-radius: 14px; background: #E8FF00; border: 0; color: #0E0F11; display: flex; align-items: center; justify-content: center; cursor: pointer">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>
+      </button>
+    </div>
+  </sc-if>
+
+  <div style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 12px 20px 100px; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+      <button onPointerDown="{{r.down}}" onPointerUp="{{r.up}}" onPointerLeave="{{r.up}}" onClick="{{r.click}}" onContextMenu="{{r.context}}" aria-pressed="{{r.selected}}" style="display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 0 16px; border-radius: 16px; background: {{r.bg}}; border: {{r.border}}; color: #F4F1EA; text-align: left; font-family: inherit; cursor: pointer; box-sizing: border-box">
+        <sc-if value="{{r.selecting}}" hint-placeholder-val="{{ false }}">
+          <span style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: 2px solid {{r.boxBorder}}; background: {{r.boxBg}}; display: flex; align-items: center; justify-content: center; box-sizing: border-box">
+            <sc-if value="{{r.selected}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0F11" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></sc-if>
+          </span>
+        </sc-if>
+        <span style="flex-shrink: 0; width: 34px; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 28px; color: #A7A9AE">#{{r.rank}}</span>
+        <span style="flex-grow: 1; font-family: 'Bebas Neue', 'Barlow', sans-serif; font-style: italic; font-size: 36px; line-height: 1; font-variant-numeric: tabular-nums">{{r.time}}</span>
+        <span style="font-size: 16px; color: #A7A9AE">{{r.date}}</span>
+      </button>
+    </sc-for>
+    <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+      <div style="padding: 40px 12px; text-align: center; font-size: 18px; color: #A7A9AE">Nog geen rondes. Rond een ronde af om hier je tijden te zien.</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{snackOpen}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position: absolute; left: 16px; right: 16px; bottom: 24px; min-height: 64px; padding: 0 8px 0 18px; border-radius: 14px; background: #F4F1EA; color: #0E0F11; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-sizing: border-box">
+      <span style="font-weight: 600; font-size: 17px">{{snackText}}</span>
+      <button onClick="{{undo}}" style="height: 52px; padding: 0 14px; border-radius: 10px; background: transparent; border: 0; color: #0E0F11; font-family: inherit; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: underline; cursor: pointer">Ongedaan maken</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      items: [
+        { id: 1, time: '1:05:12', date: 'za 26 sep' },
+        { id: 2, time: '1:08:40', date: 'za 19 sep' },
+        { id: 3, time: '1:12:15', date: 'zo 4 okt' },
+        { id: 4, time: '1:14:02', date: 'za 12 sep' },
+        { id: 5, time: '1:19:30', date: 'za 5 sep' },
+        { id: 6, time: '1:21:47', date: 'za 29 aug' },
+        { id: 7, time: '1:23:10', date: 'za 22 aug' },
+        { id: 8, time: '1:24:03', date: 'za 15 aug' },
+        { id: 9, time: '1:31:55', date: 'za 8 aug' }
+      ],
+      selected: [],
+      removed: null
+    };
+  }
+  toggle(id) {
+    const sel = this.state.selected;
+    this.setState({ selected: sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat([id]), removed: null });
+  }
+  renderVals() {
+    const s = this.state;
+    const selecting = s.selected.length > 0;
+    const rows = s.items.map((it, i) => {
+      const on = s.selected.includes(it.id);
+      return {
+        ...it,
+        rank: i + 1,
+        selected: on,
+        selecting: selecting,
+        bg: on ? '#2A2D20' : '#1E2126',
+        border: on ? '2px solid #E8FF00' : '1px solid #2E3137',
+        boxBorder: on ? '#E8FF00' : '#6B6E74',
+        boxBg: on ? '#E8FF00' : 'transparent',
+        down: () => {
+          clearTimeout(this.timer);
+          this.timer = setTimeout(() => { this.longPressed = true; this.toggle(it.id); }, 450);
+        },
+        up: () => clearTimeout(this.timer),
+        context: (e) => { e.preventDefault(); },
+        click: () => {
+          if (this.longPressed) { this.longPressed = false; return; }
+          if (this.state.selected.length > 0) this.toggle(it.id);
+        }
+      };
+    });
+    const n = s.removed ? s.removed.length : 0;
+    return {
+      rows: rows,
+      selecting: selecting,
+      browsing: !selecting,
+      selCount: s.selected.length,
+      empty: s.items.length === 0,
+      snackOpen: !!s.removed,
+      snackText: n === 1 ? '1 tijd verwijderd' : n + ' tijden verwijderd',
+      clearSel: () => this.setState({ selected: [] }),
+      deleteSel: () => {
+        const gone = s.items.filter((x) => s.selected.includes(x.id));
+        this.setState({ items: s.items.filter((x) => !s.selected.includes(x.id)), selected: [], removed: gone });
+      },
+      undo: () => {
+        const all = s.items.concat(s.removed || []);
+        all.sort((a, b) => a.time.localeCompare(b.time));
+        this.setState({ items: all, removed: null });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

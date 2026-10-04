@@ -10,6 +10,7 @@ import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
 import nl.ericmulder.krantenwijk.ui.route.SegmentCell
 import nl.ericmulder.krantenwijk.ui.route.StickerOption
+import nl.ericmulder.krantenwijk.ui.testing.FakeRoundRepository
 import nl.ericmulder.krantenwijk.ui.testing.FakeRouteRepository
 import nl.ericmulder.krantenwijk.ui.testing.FakeSettingsRepository
 import nl.ericmulder.krantenwijk.ui.testing.MainDispatcherExtension
@@ -29,6 +30,7 @@ class RoundViewModelsTest {
 
     private lateinit var repo: FakeRouteRepository
     private lateinit var settings: FakeSettingsRepository
+    private lateinit var rounds: FakeRoundRepository
     private var kerkEven = 0L
     private var kerkOdd = 0L
     private var molenweg = 0L
@@ -37,6 +39,7 @@ class RoundViewModelsTest {
     fun setUp() = runTest {
         repo = FakeRouteRepository()
         settings = FakeSettingsRepository()
+        rounds = FakeRoundRepository()
         repo.saveRoute("Wijk 07", null)
         kerkEven = repo.addSegment("Kerkstraat", Side.EVEN, 2, 24, Direction.ASCENDING)
         kerkOdd = repo.addSegment("Kerkstraat", Side.ODD, 1, 23, Direction.DESCENDING)
@@ -51,7 +54,7 @@ class RoundViewModelsTest {
     inner class Overview {
         @Test
         fun `totals and sections for the whole route (RND-02)`() = runTest {
-            val vm = RoundOverviewViewModel(repo)
+            val vm = RoundOverviewViewModel(repo, rounds)
             backgroundScope.launch(main.dispatcher) { vm.uiState.collect {} }
             val ready = vm.uiState.value as RoundOverviewUiState.Ready
             assertEquals("Wijk 07", ready.routeName)
@@ -59,6 +62,39 @@ class RoundViewModelsTest {
             // Kerkstraat even: 12 − 1 does not exist − 1 NEE/NEE = 10 newspapers; 1 NEE/JA → 9 leaflets.
             assertEquals(DeliveryCounts(10, 9, 10), ready.sections.first().counts)
             assertEquals(DeliveryCounts(10 + 12 + 10, 9 + 12 + 10, 32), ready.totals)
+            assertNull(ready.roundInProgress)
+        }
+
+        @Test
+        fun `opening a section starts the round, later sections continue it (RND-13)`() = runTest {
+            val vm = RoundOverviewViewModel(repo, rounds)
+            backgroundScope.launch(main.dispatcher) { vm.uiState.collect {} }
+            vm.startRound(kerkEven)
+            rounds.now = 9_000
+            vm.startRound(molenweg)
+            val inProgress = (vm.uiState.value as RoundOverviewUiState.Ready).roundInProgress
+            assertEquals(RoundInProgress(startedAtMillis = 1_000, resumeSegmentId = molenweg, position = 3, streetName = "Molenweg"), inProgress)
+        }
+
+        @Test
+        fun `resume falls back to the first section if the last one was deleted`() = runTest {
+            val vm = RoundOverviewViewModel(repo, rounds)
+            backgroundScope.launch(main.dispatcher) { vm.uiState.collect {} }
+            vm.startRound(molenweg)
+            repo.deleteSegment(molenweg)
+            val inProgress = (vm.uiState.value as RoundOverviewUiState.Ready).roundInProgress
+            assertEquals(kerkEven, inProgress?.resumeSegmentId)
+            assertEquals(1, inProgress?.position)
+        }
+
+        @Test
+        fun `abandon clears the round`() = runTest {
+            val vm = RoundOverviewViewModel(repo, rounds)
+            backgroundScope.launch(main.dispatcher) { vm.uiState.collect {} }
+            vm.startRound(kerkEven)
+            vm.abandonRound()
+            assertNull((vm.uiState.value as RoundOverviewUiState.Ready).roundInProgress)
+            assertTrue(rounds.rounds.value.isEmpty())
         }
     }
 
@@ -67,7 +103,7 @@ class RoundViewModelsTest {
         private lateinit var vm: RoundStreetViewModel
 
         private fun TestScope.open(segmentId: Long) {
-            vm = RoundStreetViewModel(segmentId, repo, settings)
+            vm = RoundStreetViewModel(segmentId, repo, settings, rounds)
             backgroundScope.launch(main.dispatcher) { vm.uiState.collect {} }
         }
 
@@ -132,6 +168,37 @@ class RoundViewModelsTest {
             repo.createBuilding(kerkEven, 12, SuffixType.LETTER, "A", "C")
             open(kerkEven)
             assertEquals(1, ready().cells.count { it is SegmentCell.Apartments })
+        }
+
+        @Test
+        fun `opening a section remembers it for Resume (DEC-030)`() = runTest {
+            rounds.startRound(kerkEven)
+            open(molenweg)
+            backgroundScope.launch(main.dispatcher) { vm.roundActive.collect {} }
+            assertEquals(molenweg, rounds.activeRound.value?.currentSegmentId)
+            assertTrue(vm.roundActive.value)
+        }
+
+        @Test
+        fun `finish saves the route totals once, even on a double tap`() = runTest {
+            rounds.startRound(kerkEven)
+            open(molenweg)
+            val ids = mutableListOf<Long?>()
+            vm.finishRound { ids += it }
+            vm.finishRound { ids += it }
+            val saved = rounds.rounds.value.single()
+            assertEquals(listOf<Long?>(saved.id), ids)
+            assertEquals(32, saved.newspapers)
+            assertEquals(31, saved.leaflets)
+        }
+
+        @Test
+        fun `finish without an active round saves nothing`() = runTest {
+            open(molenweg)
+            var result: Long? = -1
+            vm.finishRound { result = it }
+            assertNull(result)
+            assertTrue(rounds.rounds.value.isEmpty())
         }
 
         @Test

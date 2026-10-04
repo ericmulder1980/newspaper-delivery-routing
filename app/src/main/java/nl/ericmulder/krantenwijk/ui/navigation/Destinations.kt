@@ -52,6 +52,10 @@ data class RoundStreet(val segmentId: Long) : Destination
 @Serializable
 data class RoundBuilding(val buildingId: Long) : Destination
 
+/** End-of-round animation and stats for a saved round (RND-13, DEC-030). */
+@Serializable
+data class Finished(val roundId: Long) : Destination
+
 @Serializable
 data object Settings : Destination
 

@@ -6,6 +6,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import nl.ericmulder.krantenwijk.domain.model.AppSettings
@@ -56,8 +60,13 @@ class DataStoreSettingsRepository(private val dataStore: DataStore<Preferences>)
         private val SHOW_SKIPPED = booleanPreferencesKey("show_skipped")
         private val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
 
-        /** Creates the settings DataStore at [path]; call once per file per process. */
-        fun createDataStore(path: String): DataStore<Preferences> =
-            PreferenceDataStoreFactory.createWithPath(produceFile = { path.toPath() })
+        /**
+         * Creates the settings DataStore at [path]; call once per file per process. Tests pass their
+         * own [scope] so they can close it and reopen the file, as after a restart.
+         */
+        fun createDataStore(
+            path: String,
+            scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+        ): DataStore<Preferences> = PreferenceDataStoreFactory.createWithPath(scope = scope, produceFile = { path.toPath() })
     }
 }

@@ -19,6 +19,7 @@ import nl.ericmulder.krantenwijk.ui.round.RoundStreetScreen
 import nl.ericmulder.krantenwijk.ui.round.RoundStreetViewModel
 import nl.ericmulder.krantenwijk.ui.route.BuildingDetailScreen
 import nl.ericmulder.krantenwijk.ui.route.BuildingDetailViewModel
+import nl.ericmulder.krantenwijk.ui.testing.FakeRoundRepository
 import nl.ericmulder.krantenwijk.ui.testing.FakeRouteRepository
 import nl.ericmulder.krantenwijk.ui.testing.FakeSettingsRepository
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
@@ -75,7 +76,7 @@ class TouchTargetTest {
 
     @Test
     fun `round tiles and previous-next buttons are big enough`() {
-        val vm = RoundStreetViewModel(segmentId, repo, FakeSettingsRepository())
+        val vm = RoundStreetViewModel(segmentId, repo, FakeSettingsRepository(), FakeRoundRepository())
         compose.setContent {
             KrantenwijkTheme(dark = true) {
                 RoundStreetScreen(segmentId, onBack = {}, onGoTo = {}, onFinish = {}, onOpenBuilding = {}, viewModel = vm)

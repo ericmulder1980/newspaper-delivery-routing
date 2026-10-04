@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import nl.ericmulder.krantenwijk.domain.model.Segment
+import nl.ericmulder.krantenwijk.domain.repository.RoundRepository
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
 import nl.ericmulder.krantenwijk.domain.rules.FullRound
@@ -17,6 +19,16 @@ import javax.inject.Inject
 /** One section in the walking route with what it needs. */
 data class SectionTotals(val segment: Segment, val counts: DeliveryCounts)
 
+/** A round in progress, as Home shows it (DEC-030). No running clock: only when it started and where. */
+data class RoundInProgress(
+    val startedAtMillis: Long,
+    /** Where Resume goes: the last opened section, or the first one if that section was deleted. */
+    val resumeSegmentId: Long,
+    /** 1-based position of [resumeSegmentId] in the walking order. */
+    val position: Int,
+    val streetName: String,
+)
+
 sealed interface RoundOverviewUiState {
     data object Loading : RoundOverviewUiState
 
@@ -25,23 +37,43 @@ sealed interface RoundOverviewUiState {
         val sections: List<SectionTotals>,
         /** Newspapers and leaflets to take along for the whole route (RND-02, DEC-019). */
         val totals: DeliveryCounts,
+        /** Non-null while a round is active: Home offers Resume / Abandon instead of Start (RND-13). */
+        val roundInProgress: RoundInProgress?,
     ) : RoundOverviewUiState
 }
 
-/** Walking route overview: totals and all sections in walking order (RND-A, DEC-022). */
+/** Walking route overview: totals and all sections in walking order (RND-A, DEC-022); round start/resume (RND-13). */
 @HiltViewModel
-class RoundOverviewViewModel @Inject constructor(routes: RouteRepository) : ViewModel() {
+class RoundOverviewViewModel @Inject constructor(
+    routes: RouteRepository,
+    private val rounds: RoundRepository,
+) : ViewModel() {
 
     val uiState: StateFlow<RoundOverviewUiState> = combine(
         routes.observeRoute(),
         routes.observeSegments(),
         routes.observeAllAddresses(),
-    ) { route, segments, addresses ->
+        rounds.activeRound,
+    ) { route, segments, addresses, active ->
         val bySegment = addresses.groupBy { it.segmentId }
+        val inProgress = active?.let { round ->
+            val index = segments.indexOfFirst { it.id == round.currentSegmentId }.coerceAtLeast(0)
+            segments.getOrNull(index)?.let { RoundInProgress(round.startedAtMillis, it.id, index + 1, it.streetName) }
+        }
         RoundOverviewUiState.Ready(
             routeName = route?.name,
             sections = segments.map { SectionTotals(it, deliverySummary(bySegment[it.id].orEmpty(), FullRound)) },
             totals = deliverySummary(addresses, FullRound),
+            roundInProgress = inProgress,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RoundOverviewUiState.Loading)
+
+    /** Starts the timer, or continues the active round at another section (DEC-030). */
+    fun startRound(segmentId: Long) {
+        viewModelScope.launch { rounds.startRound(segmentId) }
+    }
+
+    fun abandonRound() {
+        viewModelScope.launch { rounds.abandonRound() }
+    }
 }

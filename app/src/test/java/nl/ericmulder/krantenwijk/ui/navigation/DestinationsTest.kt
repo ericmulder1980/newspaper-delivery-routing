@@ -33,6 +33,7 @@ class DestinationsTest {
             BuildingDetail(buildingId = 3),
             RoundStreet(segmentId = 5),
             RoundBuilding(buildingId = 9),
+            Finished(roundId = 4),
             Settings,
         )
     }

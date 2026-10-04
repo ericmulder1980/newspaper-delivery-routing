@@ -177,6 +177,24 @@
     <string name="round_start_of_route">Start of route</string>
     <string name="round_end_of_route">End of route</string>
     <string name="round_building_back">Back to %1$s</string>
+
+    <!-- Round timer and Finished screen (RND-13, DEC-030) -->
+    <string name="round_abandon_title">Abandon this round?</string>
+    <string name="round_abandon_message">The time of this round won\'t be saved. If you resume, the time keeps running.</string>
+    <string name="round_resume">Resume</string>
+    <string name="round_abandon">Abandon</string>
+    <string name="home_round_in_progress">Round in progress</string>
+    <string name="home_round_in_progress_detail">Started at %1$s · at street section %2$d / %3$d, %4$s</string>
+    <string name="home_resume_round">Resume round</string>
+    <string name="home_abandon_round">Abandon round</string>
+    <string name="home_abandon_message">The time of this round won\'t be saved.</string>
+    <string name="finished_eyebrow">Finish · %1$s</string>
+    <string name="finished_eyebrow_no_name">Finish</string>
+    <string name="finished_headline">Round\ndone</string>
+    <string name="finished_round_time">Round time</string>
+    <string name="finished_newspapers">Papers</string>
+    <string name="finished_leaflets">Leaflets</string>
+    <string name="finished_next">Next</string>
     <string name="settings_round">Round</string>
     <string name="settings_show_skipped">Show houses that get nothing</string>
     <string name="settings_show_non_existing">Show numbers that don’t exist</string>

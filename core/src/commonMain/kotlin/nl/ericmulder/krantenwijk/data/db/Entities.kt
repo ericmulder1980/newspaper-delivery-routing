@@ -9,7 +9,8 @@ import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 
-// Schema v1 (plan §5, without Round/RoundItem: DEC-014). Changes need a new version, an explicit migration and a migration test (DEC-002).
+// Schema v1 (plan §5, without Round/RoundItem: DEC-014); v2 adds completed_round (DEC-030).
+// Changes need a new version, an explicit migration and a migration test (DEC-002).
 
 @Entity(tableName = "route")
 data class RouteEntity(
@@ -72,4 +73,17 @@ data class AddressEntity(
     val exceptionNoNewspaper: Boolean,
     val exceptionNoLeaflets: Boolean,
     val note: String?,
+)
+
+/**
+ * A finished round (DEC-030). The unique start time makes finishing idempotent: a round finished
+ * twice (crash between saving it and clearing the active round) is stored once.
+ */
+@Entity(tableName = "completed_round", indices = [Index(value = ["startedAtMillis"], unique = true)])
+data class CompletedRoundEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val startedAtMillis: Long,
+    val finishedAtMillis: Long,
+    val newspapers: Int,
+    val leaflets: Int,
 )

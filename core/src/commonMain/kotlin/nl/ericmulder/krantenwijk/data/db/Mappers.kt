@@ -2,6 +2,7 @@ package nl.ericmulder.krantenwijk.data.db
 
 import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Building
+import nl.ericmulder.krantenwijk.domain.model.CompletedRound
 import nl.ericmulder.krantenwijk.domain.model.Route
 import nl.ericmulder.krantenwijk.domain.model.Segment
 
@@ -50,4 +51,12 @@ internal fun Address.toEntity() = AddressEntity(
     exceptionNoNewspaper = exceptionNoNewspaper,
     exceptionNoLeaflets = exceptionNoLeaflets,
     note = note,
+)
+
+internal fun CompletedRoundEntity.toDomain() = CompletedRound(
+    id = id,
+    startedAtMillis = startedAtMillis,
+    finishedAtMillis = finishedAtMillis,
+    newspapers = newspapers,
+    leaflets = leaflets,
 )

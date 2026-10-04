@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import nl.ericmulder.krantenwijk.ui.finished.FinishedScreen
 import nl.ericmulder.krantenwijk.ui.home.HomeScreen
 import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingNameScreen
 import nl.ericmulder.krantenwijk.ui.onboarding.OnboardingRouteScreen
@@ -119,10 +120,15 @@ fun AppNavigation(startWithSetup: Boolean) {
                     onBack = ::back,
                     // Previous/Next replace the street, so back always returns home.
                     onGoTo = { replaceTop(RoundStreet(it)) },
-                    onFinish = { resetTo(Home) },
+                    onFinish = { roundId ->
+                        resetTo(Home)
+                        if (roundId != null) go(Finished(roundId))
+                    },
                     onOpenBuilding = { go(RoundBuilding(it)) },
                 )
             }
+            // Next leads home for now; RND-14 puts the Top 5 in between.
+            entry<Finished> { key -> FinishedScreen(roundId = key.roundId, onNext = { resetTo(Home) }) }
             entry<RoundBuilding> { key -> BuildingDetailScreen(buildingId = key.buildingId, onBack = ::back, roundMode = true) }
         },
     )

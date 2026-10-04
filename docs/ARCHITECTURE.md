@@ -58,9 +58,11 @@ Exact library versions are pinned in `gradle/libs.versions.toml` (created in FND
 | Segment | Part of a street, one side or both, one direction; `position` = walking order |
 | Building | Apartment building at a house number within a segment |
 | Address | House number + addition, sticker, exists flag, exceptions, note; optional `buildingId` |
+| CompletedRound | A finished round: start, end, newspaper and leaflet counts (schema v2, DEC-030) |
 
-Delivery results are **computed**, never stored. A round is not stored either: it's only today's
-contents (newspaper/leaflets), and round mode shows a live list calculated from the addresses (DEC-014).
+Delivery results are **computed**, never stored. Round mode shows a live list calculated from the
+addresses, without check-offs (DEC-014). Only the round's timer is kept: the active round (start time
+and current section) in DataStore, and each finished round in Room, for best times (DEC-030).
 
 ## Key constraints
 
