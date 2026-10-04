@@ -369,3 +369,7 @@ CONTEXT FOR NEXT SESSION:
 CI run 37207593473 green; release run 37207988979; download, sha256 and signature (80:CA:CA:3D…)
 verified. User tests via the in-app updater (data loss acceptable at this stage). RND-13 stays in
 testing until the user approves; then RND-14.
+[2026-10-04] RND-13 device feedback on 1.2.0: abandon/resume OK; flag looked like diagonal shapes.
+Cause: Canvas.skew() takes tangents on Android (9 "degrees" → ~84°) plus rigid per-column motion.
+Fix: one continuous wave surface (FinishedMotion.waveOffset/foldShade) with fold shading; frames
+checked via a temporary Robolectric NATIVE-graphics snapshot (not committed). Tests 266/266. Not yet committed.

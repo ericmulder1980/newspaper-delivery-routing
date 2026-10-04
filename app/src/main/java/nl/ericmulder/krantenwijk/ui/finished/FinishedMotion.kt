@@ -3,6 +3,7 @@ package nl.ericmulder.krantenwijk.ui.finished
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 
 /**
  * The Finished screen's motion (docs/specs/finished-screen.md): everything is a pure function of the
@@ -38,6 +39,16 @@ internal object FinishedMotion {
         time < 2.3f -> lerp(10f, 6f, (time - 1.5f) / 0.8f)
         else -> 6f
     }
+
+    /**
+     * The flag's wave as one continuous curve: vertical offset (in spec px, before scaling) at
+     * [column], measured in squares from the flag's left edge, fractions included. Same phase as the
+     * spec's per-column wave (T·9 − c·0.7), but smooth between columns so the cloth stays joined.
+     */
+    fun waveOffset(time: Float, column: Float): Float = sin(time * 9f - column * 0.7f) * waveAmplitude(time)
+
+    /** Fold shading at [column], −1 (darkest) to 1 (lightest): the wave's slope, weaker as the wave calms. */
+    fun foldShade(time: Float, column: Float): Float = cos(time * 9f - column * 0.7f) * waveAmplitude(time) / 26f
 
     private fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
 }

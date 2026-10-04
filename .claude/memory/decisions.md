@@ -614,4 +614,4 @@ The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Ske
 - New features RND-13 (timer, abandon/resume, Finished screen) and RND-14 (Top 5, Best times in Settings). RND-11/RND-12 stay skipped; these replace them.
 - No new dependency; the MP4 is not needed.
 - Wireframes needed for the abandon dialog, Top 5 and Best times (the Finished screen is specified in its own spec).
-- The plan (v0.4) should mention stored rounds at its next revision.
+- The plan (v0.4) should mention stored rounds at its next revision.- **2026-10-04, after the user's device test of 1.2.0:** the flag is drawn as one continuous waving surface with fold shading, not the spec's per-column translate + skew. Per-column motion read as loose diagonal strips. On top of that, Compose's `Canvas.skew()` passes its values to Android as slopes (tangents), not degrees, so a 9° skew was drawn at about 84°. The timing, wave speed and amplitude keyframes still follow the spec.

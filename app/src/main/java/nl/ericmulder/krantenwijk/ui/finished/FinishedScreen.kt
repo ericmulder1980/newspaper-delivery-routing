@@ -36,13 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -72,10 +70,8 @@ import nl.ericmulder.krantenwijk.ui.finished.FinishedMotion.tween
 import nl.ericmulder.krantenwijk.ui.theme.Barlow
 import nl.ericmulder.krantenwijk.ui.theme.BebasNeue
 import kotlin.math.ceil
-import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import kotlin.math.sin
 import kotlin.math.tan
 
 // Fixed colours from the spec: this celebration screen looks the same in light and dark theme.
@@ -155,38 +151,56 @@ internal fun FinishedContent(state: FinishedUiState, time: Float, onNext: () -> 
     }
 }
 
-/** Checkered flag: slides in, waves per column, then lifts into a band at the top. */
+/**
+ * Checkered flag: slides in, waves, then lifts into a band at the top. The spec moves each column
+ * separately (translate + skew); that reads as loose diagonal strips, so the flag is drawn as one
+ * surface instead: every point follows the same continuous wave, with light fold shading.
+ */
 private fun DrawScope.drawFlag(time: Float, scale: Float, band: Float) {
     val square = 39f * scale
     val rows = ceil(size.height / square).toInt() + 2
-    val gridTop = -square // one extra row above the screen
-    val gridBottom = gridTop + rows * square
-    val slideX = tween(time, 0f, 0.7f, -470f, 0f, enter) * scale
-    val lift = tween(time, 0.9f, 1.5f, 0f, -(gridBottom - band), draw)
-    val amplitude = FinishedMotion.waveAmplitude(time)
+    val top = -square + tween(time, 0.9f, 1.5f, 0f, -(rows * square - square - band), draw)
+    val left = tween(time, 0f, 0.7f, -470f, 0f, enter) * scale
+    val bottom = top + rows * square
     val fadeHeight = 78f * scale
 
-    for (column in 0 until 10) {
-        val phase = time * 9f - column * 0.7f
-        val waveY = sin(phase) * amplitude * scale
-        val skewDegrees = cos(phase) * amplitude * 0.35f
-        withTransform({
-            translate(left = slideX + column * square, top = gridTop + lift + waveY)
-        }) {
-            // Skew around the column's top-left corner (the spec's transform origin).
-            drawContext.canvas.skew(0f, skewDegrees)
-            drawRect(OffWhite, topLeft = Offset.Zero, size = Size(square + 1f, rows * square))
-            for (row in 0 until rows) {
-                if ((row + column) % 2 == 0) drawRect(Ink, topLeft = Offset(0f, row * square), size = Size(square + 1f, square + 1f))
-            }
-            drawRect(
-                Brush.verticalGradient(listOf(Ink, Ground), startY = rows * square, endY = rows * square + fadeHeight),
-                topLeft = Offset(0f, rows * square),
-                size = Size(square + 1f, fadeHeight),
-            )
+    // Sample the wave across the 10 columns; finer than a square so the curve looks smooth.
+    val samples = FLAG_COLUMNS * SLICES_PER_SQUARE
+    val xs = FloatArray(samples + 1) { left + it * square / SLICES_PER_SQUARE }
+    val dys = FloatArray(samples + 1) { FinishedMotion.waveOffset(time, it.toFloat() / SLICES_PER_SQUARE) * scale }
+
+    fun Path.band(from: Int, to: Int, y0: Float, y1: Float) {
+        moveTo(xs[from], y0 + dys[from])
+        for (k in from + 1..to) lineTo(xs[k], y0 + dys[k])
+        for (k in to downTo from) lineTo(xs[k], y1 + dys[k])
+        close()
+    }
+
+    val body = Path().apply { band(0, samples, top, bottom) }
+    drawPath(body, OffWhite)
+    val ink = Path()
+    for (column in 0 until FLAG_COLUMNS) {
+        for (row in 0 until rows) {
+            if ((row + column) % 2 != 0) continue
+            val y = top + row * square
+            ink.band(column * SLICES_PER_SQUARE, (column + 1) * SLICES_PER_SQUARE, y, y + square)
         }
     }
+    drawPath(ink, Ink)
+
+    // Folds: slopes facing up catch light, slopes facing down fall into shadow.
+    val shading = Array(samples + 1) { k ->
+        val shade = FinishedMotion.foldShade(time, k.toFloat() / SLICES_PER_SQUARE)
+        k.toFloat() / samples to if (shade >= 0) Color.White.copy(alpha = 0.10f * shade) else Color.Black.copy(alpha = -0.28f * shade)
+    }
+    drawPath(body, Brush.horizontalGradient(*shading, startX = xs.first(), endX = xs.last()))
+
+    val fade = Path().apply { band(0, samples, bottom, bottom + fadeHeight) }
+    drawPath(fade, Brush.verticalGradient(listOf(Ink, Ground), startY = bottom, endY = bottom + fadeHeight))
 }
+
+private const val FLAG_COLUMNS = 10
+private const val SLICES_PER_SQUARE = 6
 
 /** Three yellow speed slashes that streak across and fade (spec §2). */
 private fun DrawScope.drawSpeedSlashes(time: Float, scale: Float) {

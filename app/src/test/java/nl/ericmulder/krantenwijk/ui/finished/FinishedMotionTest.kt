@@ -12,6 +12,7 @@ import nl.ericmulder.krantenwijk.ui.testing.FakeSettingsRepository
 import nl.ericmulder.krantenwijk.ui.testing.MainDispatcherExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -56,6 +57,24 @@ class FinishedMotionTest {
         assertEquals(10f, FinishedMotion.waveAmplitude(1.5f), e)
         assertEquals(6f, FinishedMotion.waveAmplitude(2.3f), e)
         assertEquals(6f, FinishedMotion.waveAmplitude(9f), e)
+    }
+
+    @Test
+    fun `flag wave is one smooth curve within the amplitude`() {
+        for (time in listOf(0f, 0.4f, 1.2f, 3.3f)) {
+            val amplitude = FinishedMotion.waveAmplitude(time)
+            var previous = FinishedMotion.waveOffset(time, 0f)
+            var column = 0f
+            while (column <= 10f) {
+                val offset = FinishedMotion.waveOffset(time, column)
+                assertTrue(kotlin.math.abs(offset) <= amplitude + e)
+                // Neighbouring samples a sixth of a square apart never jump: the cloth stays joined.
+                assertTrue(kotlin.math.abs(offset - previous) <= amplitude * 0.7f / 6f + e)
+                assertTrue(FinishedMotion.foldShade(time, column) in -1f..1f)
+                previous = offset
+                column += 1f / 6f
+            }
+        }
     }
 
     @Test
