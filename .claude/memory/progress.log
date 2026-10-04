@@ -388,3 +388,18 @@ CONTEXT: new backups (format 2) are refused by app versions ≤ 1.2.1 ("made by 
 [2026-10-04] RELEASE: v1.3.0 (code 18) on the user's command: RND-14 5dc654a, bump f4a6d98.
 CI 37210113773 green (checked via run page/badge: unauthenticated GitHub API hit its 60/h limit, so the
 tag was pushed late). Asset sha256 and signature (80:CA:CA:3D…) verified. Awaiting device test.
+
+================================================================================
+[2026-10-04] SESSION END
+Features: RND-13 (round timer, abandon/resume, Finished screen) and RND-14 (Top 5, Best times,
+backup format 2) both complete and approved on the phone. Releases today: v1.2.0, v1.2.1, v1.3.0.
+DECISIONS: DEC-030 (stored rounds; Compose animation; flag as one continuous surface; backup format 2).
+TESTS: 279/279 (core 152, app 127). Lint 0 errors, 1 known warning (sqlite pin).
+BLOCKERS: none. Open: ISS-001 (low).
+NEXT SESSION:
+- Re-prioritise the Should list with the user: ADR-09, ADR-10, BLD-08, DATA-03, STK-04, ADR-08, BLD-09;
+  Could: REL-A, BLD-10, DATA-04, ISS-001.
+CONTEXT FOR NEXT SESSION:
+- gh is not logged in; watch CI/releases via the badge or download URL (API limit 60/h).
+- Plan (v0.4) still describes no stored rounds; mention DEC-030 at its next revision.
+================================================================================

@@ -1044,8 +1044,8 @@
         "RND-13",
         "DATA-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Ranking: shortest duration first, ties to the earlier round",
         "A new round in the top 5 is marked New with an icon, not colour alone; otherwise a line shows its time and rank",
@@ -1063,18 +1063,18 @@
           "Top 5 after Finished (Next replaces Finished; Done/back → Home); new round: accent border + star 'New' badge; outside top 5: 'Your time today · Place n'",
           "Settings › Best times: ranked list, long-press select, tap adds, delete with Undo snackbar, empty state",
           "ScreenScaffold: actions, snackbarHost, backIcon params",
-          "EN + NL strings; tests 279/279 (core 152, app 127); lint 0 errors"
+          "EN + NL strings; tests 279/279 (core 152, app 127); lint 0 errors",
+          "User approved on phone with v1.3.0 2026-10-04"
         ],
-        "remaining": [
-          "User tests on the phone and approves"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-10-04"
     }
   ],
   "current": {
-    "feature": "RND-14",
-    "status": "Released in v1.3.0 on 2026-10-04; waiting for the user's device test of RND-14",
-    "next_recommended": "Commit + release on the user's command; then re-prioritise the Should list"
+    "feature": null,
+    "status": "RND-13 and RND-14 complete (v1.3.0). No feature in progress.",
+    "next_recommended": "Re-prioritise the Should list (ADR-09 exceptions, ADR-10 notes, BLD-08 building name, DATA-03 backup reminder, STK-04 sticker overview, ADR-08 duplicate warning, BLD-09 group/dissolve) with the user"
   },
   "open_questions": [],
   "phases_legend": {
