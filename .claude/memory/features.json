@@ -1,7 +1,7 @@
 {
   "project": "Krantenwijk",
   "version": "0.1.0",
-  "last_updated": "2026-09-30",
+  "last_updated": "2026-10-04",
   "metadata": {
     "created": "2026-09-25",
     "initialized_by": "user",
@@ -40,6 +40,12 @@
         "versionCode": 14,
         "date": "2026-10-01",
         "note": "Official first release on the user's command (before the plan's field test M3 and REL-A; those follow on 1.x)"
+      },
+      {
+        "tag": "v1.1.0",
+        "versionCode": 15,
+        "date": "2026-10-01",
+        "note": "ADR-05; first release installable via the in-app updater"
       }
     ]
   },
@@ -93,8 +99,8 @@
     {
       "id": "M3",
       "title": "Validated in the field (Phase 5)",
-      "status": "pending",
-      "notes": "Two consecutive weeks without a wrong delivery caused by the app."
+      "status": "in_progress",
+      "notes": "Users testing 1.1.0 in practice (paused development, 2026-10-01). Exit: two weeks without a wrong delivery caused by the app."
     },
     {
       "id": "M4",
@@ -702,8 +708,8 @@
       "dependencies": [
         "ADR-C"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "notes": [
         "Nice-to-have per user (DEC-018); default order = creation order; repository.reorderSegments exists"
       ],
@@ -712,13 +718,13 @@
           "ReorderableSections (Reorderable 3.1.0, DEC-029): drag handle 64dp, save once on drop, haptics, TalkBack Move up/down",
           "Route editor and wizard step 4 use it",
           "Tests: RouteEditorViewModel reorder; Robolectric drag-to-bottom + Move up/down",
-          "Version 1.1.0 (15)"
+          "Version 1.1.0 (15)",
+          "Released as v1.1.0 (run 36896730588), verified",
+          "User approved via 1.1.0 update 2026-10-01"
         ],
-        "remaining": [
-          "User phone test",
-          "Commit + push; release 1.1.0 on user command (first in-app update test)"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-10-01"
     },
     {
       "id": "REL-B",
@@ -728,8 +734,8 @@
       "dependencies": [
         "REL-A"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Pushing tag v0.9.0 creates a Release with krantenwijk-0.9.0.apk and a .sha256",
         "The APK downloads without GitHub login and installs over the existing app"
@@ -744,12 +750,12 @@
           "Script tested locally in a temporary clone: good release, version mismatch, bad tag, unsigned APK",
           "Procedure documented in CLAUDE.md",
           "First release v0.11.0 on user command 2026-09-30 (run 36776579132): public download verified without login, sha256 OK, signed with release cert 80:CA:CA:3D…",
-          "v1.0.0 released 2026-10-01 (run 36892315468): download, sha256 and signature verified"
+          "v1.0.0 released 2026-10-01 (run 36892315468): download, sha256 and signature verified",
+          "User installed from Release page; v0.11.0, v1.0.0, v1.1.0 published"
         ],
-        "remaining": [
-          "User installs from the Release page on the phone"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-10-01"
     },
     {
       "id": "REL-C",
@@ -759,8 +765,8 @@
       "dependencies": [
         "REL-B"
       ],
-      "phase": "testing",
-      "status": "in_progress",
+      "phase": "merged",
+      "status": "complete",
       "acceptance_criteria": [
         "Up to date → 'You have the latest version'",
         "Newer release → shows version and 'Install update'; after confirming, the app updates and keeps all data",
@@ -774,13 +780,12 @@
           "Manifest: INTERNET, REQUEST_INSTALL_PACKAGES, UPDATE_PACKAGES_WITHOUT_USER_ACTION; build check is now a permission allowlist (verify<Variant>Permissions)",
           "Tests: ReleaseInfoTest (incl. real v0.11.0 GitHub response fixture), UpdateViewModelTest, NetworkUsageTest (network APIs only in data/update); mutations caught (network code elsewhere, CAMERA permission)",
           "Lint caught Intent.getParcelableExtra(name, Class) = API 33 → IntentCompat",
-          "229 tests; version 0.12.0 (13)"
+          "229 tests; version 0.12.0 (13)",
+          "End-to-end in-app update 1.0.0 → 1.1.0 confirmed by user 2026-10-01"
         ],
-        "remaining": [
-          "User installs v1.0.0 from the Release page (last manual install)",
-          "Next release proves in-app update end-to-end"
-        ]
-      }
+        "remaining": []
+      },
+      "completed": "2026-10-01"
     },
     {
       "id": "ADR-08",
@@ -897,7 +902,8 @@
       "phase": "inception",
       "status": "skipped",
       "notes": [
-        "Dropped 2026-09-29 (DEC-014): no check-offs, so no end-of-round summary"
+        "Dropped 2026-09-29 (DEC-014): no check-offs, so no end-of-round summary",
+        "2026-10-04: replaced by RND-13 (DEC-030)"
       ]
     },
     {
@@ -939,7 +945,8 @@
       "phase": "inception",
       "status": "skipped",
       "notes": [
-        "Dropped 2026-09-29 (DEC-014): rounds are not stored"
+        "Dropped 2026-09-29 (DEC-014): rounds are not stored",
+        "2026-10-04: replaced by RND-14 (DEC-030)"
       ]
     },
     {
@@ -954,11 +961,74 @@
       ],
       "phase": "inception",
       "status": "pending"
+    },
+    {
+      "id": "RND-13",
+      "title": "Round timer, abandon/resume and Finished screen",
+      "description": "Opening a street section from the round overview starts a hidden timer (start time + current section in DataStore). Back mid-round asks Resume/Abandon; Home offers Resume/Abandon after the app was closed. 'Finish round' saves the round (Room v2) and shows the animated Finished screen built in Compose per docs/specs/finished-screen.md (DEC-030).",
+      "priority": "medium",
+      "plan_refs": [
+        "RND-11"
+      ],
+      "decisions": [
+        "DEC-030"
+      ],
+      "dependencies": [
+        "RND-B"
+      ],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Timer survives force-close and phone restart; not visible during the round",
+        "Back from a street screen asks Abandon this round? with Resume / Abandon",
+        "Home shows Resume round / Abandon when a round is active; Resume opens the saved section",
+        "Finish round stores start, end, newspaper and leaflet counts (route totals at finish)",
+        "Room schema v1 to v2 via explicit migration with test and exported 2.json; existing route data intact",
+        "Finished screen matches finished-screen.md with DEC-030 changes: no #07 badge, layout A (time full width, papers + leaflets side by side), no sub-lines, h:mm:ss",
+        "Labels EN ROUND TIME / PAPERS / LEAFLETS / NEXT, NL RONDETIJD / KRANTEN / FOLDERS / VOLGENDE; headline ROUND / DONE and RONDE / KLAAR; eyebrow FINISH · {name}",
+        "No sound, not skippable, back blocked until the button appears; Remove animations shows the final frame",
+        "Fits 5 inch and 6.1 inch screens in EN and NL (Robolectric at fixed T)",
+        "Next opens the Top 5 screen (RND-14)"
+      ],
+      "notes": [
+        "Option C (Compose code) chosen over MP4/Media3 and Lottie (DEC-030); no new dependency",
+        "Wireframe needed for the abandon dialog and Home resume state"
+      ]
+    },
+    {
+      "id": "RND-14",
+      "title": "Top 5 after a round and Best times in Settings",
+      "description": "Top 5 screen after the Finished screen, highlighting a new round that placed; Best times overview in Settings with multi-select delete; finished rounds included in backup (DEC-030).",
+      "priority": "medium",
+      "plan_refs": [
+        "RND-12"
+      ],
+      "decisions": [
+        "DEC-030"
+      ],
+      "dependencies": [
+        "RND-13",
+        "DATA-A"
+      ],
+      "phase": "inception",
+      "status": "pending",
+      "acceptance_criteria": [
+        "Ranking: shortest duration first, ties to the earlier round",
+        "A new round in the top 5 is marked New with an icon, not colour alone; otherwise a line shows its time and rank",
+        "Done returns to Home",
+        "Settings > Best times lists all finished rounds ranked; long-press starts selection, tap adds; delete with Undo",
+        "Backup includes finished rounds; format version bumped; older backups restore with empty history",
+        "EN + NL strings"
+      ],
+      "notes": [
+        "Wireframes needed for Top 5 and Best times"
+      ]
     }
   ],
   "current": {
-    "feature": "ADR-05",
-    "next_recommended": "Finish ADR-05; release 1.1.0 on command to test the in-app updater"
+    "feature": "RND-13",
+    "status": "Planning 2026-10-04: DEC-030 recorded; next is wireframes for the abandon dialog, Home resume state, Top 5 and Best times",
+    "next_recommended": "Draft wireframes for user approval, then implement RND-13, then RND-14"
   },
   "open_questions": [],
   "phases_legend": {

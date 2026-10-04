@@ -262,3 +262,75 @@ TESTS: 218/218.
 [2026-10-01] RELEASE: v1.0.0 (code 14) on the user's command, official first release.
 REL-C (built-in updater, 98cbbc0) included. Release run 36892315468; download, sha256 and
 signature (80:CA:CA:3D…) verified. Plan's M3 field test and REL-A continue on 1.x.
+[2026-10-01] RELEASE: v1.1.0 (code 15), ADR-05; run 36896730588 verified. First in-app update test pending.
+
+================================================================================
+[2026-10-01] SESSION END — DEVELOPMENT PAUSED
+Released: v1.1.0 (code 15) is current. Release history: v0.11.0, v1.0.0, v1.1.0.
+
+COMPLETED this stretch (all user-approved):
+- REL-B GitHub Releases (release.yml on v* tags, prepare_release.sh checks)
+- REL-C built-in updater (Settings → App updates); end-to-end update 1.0.0 → 1.1.0 confirmed
+- ADR-05 drag-and-drop walking order (Reorderable 3.1.0, DEC-029)
+- DEC-028: small-group distribution; REL-A moved to Could
+
+STATE: all v1 Must features done; M1, M2, M2b complete; M3 (field use) in progress.
+TESTS: 233/233 (92 domain, 42 data, 99 app incl. Robolectric screen tests). Lint clean
+except the deliberate sqlite 2.6.2 pin (DEC-013).
+
+BLOCKERS: none. Open: ISS-001 (low, From/To placeholder).
+
+NEXT SESSION (when feedback arrives):
+- Read feedback, log issues in issues.md, re-prioritise the Should list:
+  ADR-09 exceptions, ADR-10 notes, BLD-08 building name, DATA-03 backup reminder,
+  STK-04 sticker overview, ADR-08 duplicate warning, BLD-09 group/dissolve; Could: REL-A crash
+  log, BLD-10, DATA-04, ISS-001.
+- Releases only on the user's explicit command (CLAUDE.md procedure).
+
+CONTEXT FOR NEXT SESSION:
+- Build env: JDK 21 + Android SDK in ~/Library (no Android Studio); prefix Gradle with
+  JAVA_HOME (see CLAUDE.md). Full `lint test assembleRelease` takes 5–10 min on this Mac;
+  run it in the background.
+- Yearly (plan §11.3): raise targetSdk and minSdk per DEC-027 (newest − 5).
+- Before 2027: register the limited-distribution developer verification account (plan §11.2,
+  DEC-028), max 20 devices.
+- Release cert SHA-256 is in features.json metadata; keystore backups are the user's
+  responsibility (DEC-008).
+================================================================================
+
+================================================================================
+[2026-10-04] SESSION — PLANNING (development resumed)
+Feature: RND-13 — Round timer, abandon/resume and Finished screen; RND-14 — Top 5 and Best times
+
+COMPLETED:
+- Planned a round timer, an animated Finished screen and best times with the user
+- DEC-030 recorded: finished rounds are stored (partly supersedes DEC-014/DEC-019; no check-offs still)
+- Animation: options MP4/Media3, Lottie, Compose code compared against docs/specs/finished-screen.md;
+  Compose code chosen (no asset, no dependency, count-up stats, EN/NL strings)
+- RND-13 and RND-14 added to features.json (pending); RND-11/RND-12 noted as replaced
+
+DECISIONS: DEC-030 — store active round (DataStore) and finished rounds (Room v2); Finished screen in Compose
+
+SPEC CHANGES AGREED (vs finished-screen.md): no #07 badge; layout A (time full width, papers +
+leaflets side by side); no tile sub-lines; h:mm:ss; labels RONDETIJD/KRANTEN/FOLDERS and
+ROUND TIME/PAPERS/LEAFLETS; inputs name, time, newspaper count, leaflet count.
+
+FILES CHANGED:
+M .claude/memory/decisions.md (DEC-030; DEC-014/DEC-019 status notes)
+M .claude/memory/features.json (RND-13, RND-14, current)
+M .claude/memory/progress.log
+
+BLOCKERS: none
+
+NEXT SESSION:
+- Wireframes for user approval: abandon dialog, Home resume state, Top 5, Settings > Best times
+- Then RND-13: core (model, ranking rule, DataStore active round, Room v2 migration), then UI
+- Open: docs/specs/finished-screen.md is untracked; commit it with the memory files
+
+CONTEXT FOR NEXT SESSION:
+- Timer starts when a street section is opened from the overview (Home's RoundOverview → RoundStreet);
+  back from RoundStreet currently resets to Home (AppNavigation.kt) — the abandon dialog goes there.
+- Finish round = last section's Next (RoundStreetScreen PreviousNextBar), currently resetTo(Home).
+- Spec canvas 390×844: treat px as dp, scale to width, derive the flag lift from screen height.
+- Bebas Neue has no italic: Compose synthesises the slant.
+================================================================================

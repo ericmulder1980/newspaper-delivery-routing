@@ -276,7 +276,7 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 ### DEC-014: No round persistence and no check-offs: round mode is a live list
 **Date:** 2026-09-29
-**Status:** Accepted (supersedes DEC-005)
+**Status:** Accepted (supersedes DEC-005); partly superseded by DEC-030 (finished rounds are stored)
 **Deciders:** User
 **Related:** RND-A, RND-B, BLD-06, FND-004; plan §4.4, §5
 
@@ -371,7 +371,7 @@ Track significant decisions. Each decision is immutable once accepted — supers
 
 ### DEC-019: No round contents choice; the list always shows newspaper + leaflets
 **Date:** 2026-09-30
-**Status:** Accepted (refines DEC-017)
+**Status:** Accepted (refines DEC-017); "nothing about a round is stored" partly superseded by DEC-030
 **Deciders:** User (on Claude's recommendation)
 **Related:** RND-A (RND-01, RND-02), RND-B, DEC-014, DEC-017
 
@@ -582,3 +582,36 @@ The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Ske
 - TalkBack custom actions "Move up" / "Move down", which also help with gloves.
 
 **Consequences:** One extra third-party dependency. It runs offline and has no permissions, so the allowlist and NetworkUsageTest are unaffected. Robolectric tests cover dragging and the accessibility actions.
+
+---
+
+### DEC-030: Store finished rounds for a round timer and best times
+**Date:** 2026-10-04
+**Status:** Accepted (partly supersedes DEC-014 and DEC-019)
+**Deciders:** User (Claude proposed the data model and the animation approach)
+**Related:** RND-13, RND-14, RND-B, DATA-A, DEC-014, DEC-019, DEC-026; `docs/specs/finished-screen.md`
+
+**Context:** The user wants a round timer from "Start round" to "Finish round", a Finished screen with an animation and stats, and a top 5 of round times. DEC-014 and DEC-019 said nothing about a round is stored, and RND-11/RND-12 were dropped for that reason. A best-times list needs stored rounds.
+
+**Options Considered (animation):**
+1. **MP4 video (Media3):** rejected. The stats can't count up inside a video, the text can't be translated, and an overlay drifts on other screen shapes.
+2. **Lottie:** rejected. It adds a dependency and the animation would have to be rebuilt as vectors, with per-frame text swapping for the count-up.
+3. **Compose code:** chosen. The spec is a pure function of time T with three easings, so it translates directly. No assets and no dependency, Bebas Neue and Barlow are already in `res/font/`, and the strings are normal EN/NL resources.
+
+**Decision:**
+- **No check-offs still** (DEC-014 stays for that). Round mode stays a live list.
+- **Active round** in DataStore: start time (wall clock, so it survives a phone restart) and the current street section. The timer starts when a street section is opened from the round overview and is not shown during the round.
+- **Leaving mid-round:** back from a street screen asks "Abandon this round?" with Resume / Abandon. If the app was closed mid-round, Home shows Resume round / Abandon; Resume returns to the saved section and the time keeps counting from the original start.
+- **Finished rounds** in a new Room table (start, end, newspaper count, leaflet count); schema v1 to v2, the first explicit migration, with a migration test and exported `2.json`.
+- **Counts** are the route's totals at the moment of finishing (no check-offs).
+- **Ranking:** shortest duration first, ties go to the earlier round. No accidental-round detection; wrong rounds are deleted instead.
+- **Backup** includes finished rounds; the backup format version goes up and older backups restore with an empty history.
+- **Finished screen** follows `docs/specs/finished-screen.md`, built in Compose, with these changes: no #07 badge; layout A (round time full width, papers and leaflets side by side); no tile sub-lines; time as h:mm:ss; labels RONDETIJD/KRANTEN/FOLDERS and ROUND TIME/PAPERS/LEAFLETS. No sound, not skippable, back blocked until the button appears. With system "Remove animations" on, it shows the final frame. Inputs: name, round time, newspaper count, leaflet count.
+- **Top 5 screen** after Next: a round that placed is marked "New" with an icon (not colour alone); otherwise a line shows its time and rank. Done goes home.
+- **Best times** in Settings: all finished rounds ranked, multi-select (long-press, then tap) and delete with Undo.
+
+**Consequences:**
+- New features RND-13 (timer, abandon/resume, Finished screen) and RND-14 (Top 5, Best times in Settings). RND-11/RND-12 stay skipped; these replace them.
+- No new dependency; the MP4 is not needed.
+- Wireframes needed for the abandon dialog, Top 5 and Best times (the Finished screen is specified in its own spec).
+- The plan (v0.4) should mention stored rounds at its next revision.
