@@ -365,3 +365,7 @@ CONTEXT FOR NEXT SESSION:
 - "Remove animations" relies on Compose honouring the system animator scale (clock completes at once).
 - Not committed yet.
 ================================================================================
+[2026-10-04] RELEASE: v1.2.0 (code 16) on the user's command: RND-13 (51e28ac), bump 0945ff6.
+CI run 37207593473 green; release run 37207988979; download, sha256 and signature (80:CA:CA:3D…)
+verified. User tests via the in-app updater (data loss acceptable at this stage). RND-13 stays in
+testing until the user approves; then RND-14.
