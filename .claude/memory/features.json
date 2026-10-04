@@ -53,6 +53,13 @@
         "date": "2026-10-04",
         "note": "RND-13 round timer + Finished screen; Room v2 migration",
         "url": "https://github.com/ericmulder1980/newspaper-delivery-routing/releases/tag/v1.2.0"
+      },
+      {
+        "tag": "v1.2.1",
+        "versionCode": 17,
+        "date": "2026-10-04",
+        "note": "RND-13 flag fix (continuous wave)",
+        "url": "https://github.com/ericmulder1980/newspaper-delivery-routing/releases/tag/v1.2.1"
       }
     ]
   },
@@ -1048,7 +1055,7 @@
   ],
   "current": {
     "feature": "RND-13",
-    "status": "Released in v1.2.0 on 2026-10-04; waiting for the user's test via the in-app updater",
+    "status": "Released in v1.2.1 on 2026-10-04 (flag fix); waiting for the user's device test",
     "next_recommended": "After approval: commit RND-13, then RND-14 (Top 5, Best times, backup)"
   },
   "open_questions": [],
