@@ -61,7 +61,7 @@ class TouchTargetTest {
 
     @Test
     fun `mailboxes are big enough and far enough apart`() {
-        val buildingId = runBlocking { repo.createBuilding(segmentId, 12, SuffixType.LETTER, "A", "Z") }
+        val buildingId = runBlocking { repo.createBuilding(segmentId, 12, null, SuffixType.LETTER, "A", "Z") }
         val vm = BuildingDetailViewModel(buildingId, repo)
         compose.setContent { KrantenwijkTheme(dark = true) { BuildingDetailScreen(buildingId, onBack = {}, viewModel = vm) } }
         compose.waitForIdle()

@@ -20,6 +20,10 @@ class DuplicateAddressException(val houseNumber: Int, val addition: String?) :
 class BuildingConflictException(val labels: List<String>) :
     IllegalArgumentException("Standalone addresses already use these numbers: ${labels.joinToString()}")
 
+/** Thrown when the segment already has a building with this label, e.g. a second building 8A (DEC-031). */
+class BuildingExistsException(val label: String) :
+    IllegalArgumentException("Building $label already exists in this segment")
+
 /** The route, its segments and addresses. Reads are reactive; every write is committed immediately (NFR-05). */
 interface RouteRepository {
     fun observeRoute(): Flow<Route?>
@@ -70,13 +74,22 @@ interface RouteRepository {
     suspend fun updateAddress(address: Address)
 
     /**
-     * Turns [houseNumber] in the segment into an apartment building with units [fromSuffix]..[toSuffix]
-     * (BLD-01). The plain standalone address with that number, if any, is replaced. Returns the
-     * building id.
+     * Turns [houseNumber] with [addition] (12, or 8A: DEC-031) in the segment into an apartment
+     * building with units [fromSuffix]..[toSuffix] (BLD-01). The standalone address with that number
+     * and addition, if any, is replaced. Returns the building id.
+     * @throws BuildingExistsException if that building already exists.
      * @throws BuildingConflictException if a standalone address already has one of the unit labels.
-     * @throws IllegalArgumentException if the unit range is invalid.
+     * @throws IllegalArgumentException if the unit range is invalid, or letter units are asked for
+     *   a building with an addition (8AA would be unreadable).
      */
-    suspend fun createBuilding(segmentId: Long, houseNumber: Int, suffixType: SuffixType, fromSuffix: String, toSuffix: String): Long
+    suspend fun createBuilding(
+        segmentId: Long,
+        houseNumber: Int,
+        addition: String?,
+        suffixType: SuffixType,
+        fromSuffix: String,
+        toSuffix: String,
+    ): Long
 
     /** A building with its street name and apartments; null once the building is removed. */
     fun observeBuildingContents(buildingId: Long): Flow<BuildingContents?>

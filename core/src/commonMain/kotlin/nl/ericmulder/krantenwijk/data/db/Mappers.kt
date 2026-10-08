@@ -25,6 +25,17 @@ internal fun BuildingEntity.toDomain() = Building(
     separator = separator,
     name = name,
     id = id,
+    addition = addition.ifEmpty { null },
+)
+
+internal fun Building.toEntity() = BuildingEntity(
+    id = id,
+    segmentId = segmentId,
+    houseNumber = houseNumber,
+    name = name,
+    suffixType = suffixType,
+    separator = separator,
+    addition = addition.orEmpty(),
 )
 
 internal fun AddressEntity.toDomain() = Address(

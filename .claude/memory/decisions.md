@@ -615,3 +615,30 @@ The files are `drawable/ic_launcher_{background,foreground,monochrome}.xml`. Ske
 - No new dependency; the MP4 is not needed.
 - Wireframes needed for the abandon dialog, Top 5 and Best times (the Finished screen is specified in its own spec).
 - The plan (v0.4) should mention stored rounds at its next revision.- **2026-10-04, after the user's device test of 1.2.0:** the flag is drawn as one continuous waving surface with fold shading, not the spec's per-column translate + skew. Per-column motion read as loose diagonal strips. On top of that, Compose's `Canvas.skew()` passes its values to Android as slopes (tangents), not degrees, so a 9° skew was drawn at about 84°. The timing, wave speed and amplitude keyframes still follow the spec.
+
+---
+
+### DEC-031: A building can have its own addition (8A, 8B)
+**Date:** 2026-10-07
+**Status:** Accepted
+**Deciders:** User (Claude proposed the model)
+**Related:** ISS-002, BLD-01, BLD-05, DEC-002, DEC-026, DEC-030
+
+**Context:** The field test found two apartment buildings with one house number: 8A and 8B, with mailboxes 8A-1, 8A-2 … and no plain 8. A building was keyed by its house number only (unique segmentId + houseNumber), so converting 8A made a building "8" and converting 8B crashed on the unique index (ISS-002).
+
+**Options Considered:**
+1. **Quick guard:** hide "Make building" for numbers with an addition. Rejected: the real route can't be entered.
+2. **Unique index on apartments including buildingId:** rejected. buildingId is NULL for standalone addresses and SQLite treats NULLs as distinct, so duplicate standalone numbers would no longer be prevented.
+3. **Building addition + prefixed apartment additions:** chosen.
+
+**Decision:**
+- `building.addition` ("" for a plain number, like `address.addition`); unique index on segmentId + houseNumber + addition. Schema v3, migration 2→3 adds the column with default "" (existing data unchanged).
+- Apartments of a lettered building store `addition + separator + suffix` ("A-1"), so 8A-1 and 8B-1 stay distinct under the existing address index. Plain buildings keep storing the bare suffix (prefix ""). Domain helpers: `Building.label`, `unitPrefix`, `unitLabel`, `apartmentAddition`, `suffixOf`.
+- A lettered building only gets numbered mailboxes (8A-1 …); letters would read "8AA". The user confirmed this.
+- Converting 8A replaces only the standalone 8A; "No longer a building" restores 8A. A second building with the same label is refused (BuildingExistsException), and any other failure while creating shows a message instead of crashing.
+- Backup format 3 adds the building's addition; versions ≤ 1.3.0 refuse it as "made by a newer version" and do not silently merge 8A and 8B.
+
+**Consequences:**
+- New backups can't be restored by app versions ≤ 1.3.0.
+- The wrongly created building "8" from the field test must be removed by hand on the phone ("No longer a building", then delete 8), then 8A and 8B converted again.
+

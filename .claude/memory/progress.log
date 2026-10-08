@@ -403,3 +403,18 @@ CONTEXT FOR NEXT SESSION:
 - gh is not logged in; watch CI/releases via the badge or download URL (API limit 60/h).
 - Plan (v0.4) still describes no stored rounds; mention DEC-030 at its next revision.
 ================================================================================
+
+================================================================================
+[2026-10-07] SESSION — ISS-002 FIXED (not committed)
+Field test v1.3.0: "Make building" on 8A created building 8 (8A stayed); on 8B the app crashed
+(unique index building(segmentId, houseNumber); only BuildingConflictException was caught).
+Fix (DEC-031, user approved; numbered mailboxes only for lettered buildings):
+- building.addition + unique index on number + addition; schema v3, MIGRATION_2_3, 3.json exported
+- apartments of 8A store "A-1"; helpers Building.label/unitPrefix/unitLabel/apartmentAddition/suffixOf
+- BuildingExistsException; ViewModel shows building_exists / building_failed instead of crashing
+- backup format 3 (building addition); UI shows "8A" everywhere; strings EN+NL (%d → %s)
+TESTS: 293/293 (core 161, app 132). Lint 0 errors, 1 known warning (sqlite pin). Debug APK built.
+NEXT: user tests app-debug.apk: on the phone first "No longer a building" on 8, delete the plain 8,
+then convert 8A and 8B. Then commit; release only on the user's command (suggest 1.4.0).
+CONTEXT: backups made by this version are refused by ≤ 1.3.0. ISS-001 still open (low).
+================================================================================

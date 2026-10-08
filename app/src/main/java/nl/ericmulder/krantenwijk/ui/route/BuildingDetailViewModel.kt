@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Building
+import nl.ericmulder.krantenwijk.domain.model.unitLabel
+import nl.ericmulder.krantenwijk.domain.model.unitPrefix
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
@@ -139,7 +141,7 @@ class BuildingDetailViewModel @AssistedInject constructor(
                 _addError.value = null
                 _added.value += 1
             } catch (e: DuplicateAddressException) {
-                _addError.value = AddApartmentError.Duplicate(ready.building.houseNumber.toString() + ready.building.separator + e.addition.orEmpty())
+                _addError.value = AddApartmentError.Duplicate(ready.building.unitLabel(e.addition.orEmpty().removePrefix(ready.building.unitPrefix)))
             }
         }
     }

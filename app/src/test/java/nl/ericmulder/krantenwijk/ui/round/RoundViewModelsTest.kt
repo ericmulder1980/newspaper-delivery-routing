@@ -165,7 +165,7 @@ class RoundViewModelsTest {
 
         @Test
         fun `buildings stay visible as one cell`() = runTest {
-            repo.createBuilding(kerkEven, 12, SuffixType.LETTER, "A", "C")
+            repo.createBuilding(kerkEven, 12, null, SuffixType.LETTER, "A", "C")
             open(kerkEven)
             assertEquals(1, ready().cells.count { it is SegmentCell.Apartments })
         }

@@ -15,6 +15,7 @@ import nl.ericmulder.krantenwijk.domain.model.RouteSnapshot
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.label
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -53,11 +54,16 @@ class BackupTest {
         repo.updateAddress(kerk.first { it.houseNumber == 2 }.copy(note = "hond · achterom", exceptionNoLeaflets = true))
         repo.deleteAddresses(listOf(kerk.first { it.houseNumber == 10 }.id))
         repo.addAddress(even, 14, "A")
-        val building = repo.createBuilding(even, 12, SuffixType.LETTER, "A", "F")
+        val building = repo.createBuilding(even, 12, null, SuffixType.LETTER, "A", "F")
         val apartments = repo.observeBuildingContents(building).first()!!.apartments
         repo.setSticker(apartments.take(2).map { it.id }, Sticker.NEE_NEE)
         repo.setExists(listOf(apartments.last().id), false)
-        repo.createBuilding(molen, 4, SuffixType.NUMBER, "1", "12")
+        repo.createBuilding(molen, 4, null, SuffixType.NUMBER, "1", "12")
+        // Two buildings with one number (DEC-031).
+        repo.addAddress(molen, 7, "A")
+        repo.addAddress(molen, 7, "B")
+        repo.createBuilding(molen, 7, "A", SuffixType.NUMBER, "1", "3")
+        repo.createBuilding(molen, 7, "B", SuffixType.NUMBER, "1", "2")
         db.completedRoundDao().insert(CompletedRoundEntity(startedAtMillis = 1_000, finishedAtMillis = 4_336_000, newspapers = 57, leaflets = 41))
         db.completedRoundDao().insert(CompletedRoundEntity(startedAtMillis = 9_000, finishedAtMillis = 3_909_000, newspapers = 56, leaflets = 40))
     }
@@ -97,6 +103,17 @@ class BackupTest {
         assertEquals(before.withoutIds(), after.withoutIds())
         assertEquals(before.addressCount, after.addressCount)
         assertEquals(2, after.rounds.size) // best times come along (DEC-030)
+    }
+
+    @Test
+    fun `buildings 7A and 7B survive a backup round trip (format 3)`() = runTest {
+        buildRichRoute()
+        val file = BackupFormat.encode(checkNotNull(repo.snapshot()), exportedAtMillis = 0, appVersion = "1.3.1")
+        assertTrue(file.contains("\"formatVersion\": 3"))
+        repo.replaceAll(BackupFormat.decode(file).snapshot)
+        val molen = checkNotNull(repo.snapshot()).sections.last()
+        assertEquals(listOf("4", "7A", "7B"), molen.buildings.map { it.building.label })
+        assertEquals(listOf("A-1", "A-2", "A-3"), molen.buildings[1].apartments.map { it.addition })
     }
 
     @Test
@@ -145,14 +162,14 @@ class BackupTest {
         }
 
         @Test
-        fun `new backups are format 2 with rounds`() {
+        fun `new backups are format 3 with rounds`() {
             val snapshot = RouteSnapshot(
                 route = Route(name = "Wijk", town = null, createdAtMillis = 0),
                 sections = emptyList(),
                 rounds = listOf(CompletedRound(id = 7, startedAtMillis = 1, finishedAtMillis = 2, newspapers = 3, leaflets = 4)),
             )
             val text = BackupFormat.encode(snapshot, 0, "1.3.0")
-            assertTrue("\"formatVersion\": 2" in text)
+            assertTrue("\"formatVersion\": 3" in text)
             assertEquals(listOf(CompletedRound(0, 1, 2, 3, 4)), BackupFormat.decode(text).snapshot.rounds)
         }
 

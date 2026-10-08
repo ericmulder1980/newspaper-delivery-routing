@@ -31,7 +31,7 @@ class BuildingDetailViewModelTest {
         repo = FakeRouteRepository()
         repo.saveRoute("Wijk 07", null)
         val segmentId = repo.addSegment("Kerkstraat", Side.EVEN, 2, 24, Direction.ASCENDING)
-        buildingId = repo.createBuilding(segmentId, 12, SuffixType.LETTER, "A", "L")
+        buildingId = repo.createBuilding(segmentId, 12, null, SuffixType.LETTER, "A", "L")
         vm = BuildingDetailViewModel(buildingId, repo)
     }
 
@@ -91,6 +91,19 @@ class BuildingDetailViewModelTest {
         vm.delete(listOf(id("B")))
         assertFalse("B" in suffixes())
         assertEquals(12, ready().apartments.size)
+    }
+
+    @Test
+    fun `building 8A adds and reports mailboxes as 8A-n (DEC-031)`() = runTest {
+        val segmentId = repo.segments.value.single().id
+        repo.addAddress(segmentId, 8, "A")
+        val eightA = repo.createBuilding(segmentId, 8, "A", SuffixType.NUMBER, "1", "2")
+        vm = BuildingDetailViewModel(eightA, repo)
+        collect()
+        vm.addApartment("3")
+        assertEquals(listOf("A-1", "A-2", "A-3"), suffixes())
+        vm.addApartment("2")
+        assertEquals(AddApartmentError.Duplicate("8A-2"), vm.addError.value)
     }
 
     @Test

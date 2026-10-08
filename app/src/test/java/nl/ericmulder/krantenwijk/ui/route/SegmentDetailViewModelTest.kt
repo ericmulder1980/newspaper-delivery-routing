@@ -7,6 +7,7 @@ import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.label
 import nl.ericmulder.krantenwijk.domain.rules.DeliveryCounts
 import nl.ericmulder.krantenwijk.ui.testing.FakeRouteRepository
 import nl.ericmulder.krantenwijk.ui.testing.MainDispatcherExtension
@@ -180,7 +181,7 @@ class SegmentDetailViewModelTest {
         private fun cellLabels() = ready().cells.map {
             when (it) {
                 is SegmentCell.House -> "${it.address.houseNumber}${it.address.addition.orEmpty()}"
-                is SegmentCell.Apartments -> "B${it.summary.building.houseNumber}"
+                is SegmentCell.Apartments -> "B${it.summary.building.label}"
             }
         }
 
@@ -225,6 +226,55 @@ class SegmentDetailViewModelTest {
             assertEquals(listOf("14", "B12", "10"), cellLabels().subList(5, 8))
         }
 
+        /** The field test: 8A and 8B are two buildings, there is no plain 8 (ISS-002). */
+        private suspend fun TestScope.eightAAndB() {
+            collect()
+            vm.delete(listOf(id(8)))
+            vm.addNumber("8", "A")
+            vm.addNumber("8", "B")
+        }
+
+        private fun address(label: String) = ready().addresses.single { "${it.houseNumber}${it.addition.orEmpty()}" == label }
+
+        @Test
+        fun `8A and then 8B become buildings without a crash (ISS-002)`() = runTest {
+            eightAAndB()
+            vm.createBuilding(address("8A"), SuffixType.NUMBER, "1", "3")
+            vm.createBuilding(address("8B"), SuffixType.NUMBER, "1", "2")
+
+            assertNull(vm.buildingError.value)
+            assertEquals(2, vm.buildingCreated.value)
+            assertEquals(listOf("6", "B8A", "B8B", "10"), cellLabels().subList(2, 6))
+        }
+
+        @Test
+        fun `8A gets numbered mailboxes only`() = runTest {
+            eightAAndB()
+            vm.createBuilding(address("8A"), SuffixType.LETTER, "A", "C")
+            assertEquals(BuildingError.InvalidRange, vm.buildingError.value)
+            assertEquals(0, vm.buildingCreated.value)
+        }
+
+        @Test
+        fun `an existing building 8A is reported, not a crash`() = runTest {
+            eightAAndB()
+            repo.createBuilding(segmentId, 8, "A", SuffixType.NUMBER, "1", "3")
+            vm.addNumber("8", "A") // a standalone 8A again, next to building 8A
+            vm.createBuilding(address("8A"), SuffixType.NUMBER, "1", "3")
+            assertEquals(BuildingError.Exists("8A"), vm.buildingError.value)
+            assertEquals(0, vm.buildingCreated.value)
+        }
+
+        @Test
+        fun `an unexpected failure is reported, not a crash`() = runTest {
+            collect()
+            repo.failNextWrite = true
+            vm.createBuilding(ready().addresses.single { it.houseNumber == 12 }, SuffixType.LETTER, "A", "C")
+            assertEquals(BuildingError.Failed, vm.buildingError.value)
+            assertEquals(0, vm.buildingCreated.value)
+            assertTrue(ready().cells.none { it is SegmentCell.Apartments })
+        }
+
         @Test
         fun `conflict and invalid range are reported`() = runTest {
             collect()
@@ -260,7 +310,7 @@ class SegmentDetailViewModelTest {
         @Test
         fun `walk in reverse order flips houses and buildings immediately (ADR-06)`() = runTest {
             collect()
-            repo.createBuilding(segmentId, 12, SuffixType.LETTER, "A", "C")
+            repo.createBuilding(segmentId, 12, null, SuffixType.LETTER, "A", "C")
             vm.setReverse(true)
             assertEquals(Direction.DESCENDING, ready().segment.direction)
             val order = ready().cells.map {

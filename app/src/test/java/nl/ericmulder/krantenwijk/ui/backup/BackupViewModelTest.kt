@@ -42,7 +42,7 @@ class BackupViewModelTest {
         val id = repo.addSegment("Kerkstraat", Side.EVEN, 2, 24, Direction.ASCENDING)
         repo.addSegment("Molenweg", Side.ALL, 1, 10, Direction.DESCENDING)
         repo.setSticker(listOf(repo.addresses.value.first { it.segmentId == id }.id), Sticker.NEE_JA)
-        repo.createBuilding(id, 12, SuffixType.LETTER, "A", "D")
+        repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "D")
     }
 
     @Test

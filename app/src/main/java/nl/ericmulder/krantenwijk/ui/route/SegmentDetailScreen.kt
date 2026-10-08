@@ -76,6 +76,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.label
 import nl.ericmulder.krantenwijk.domain.model.unitLabel
 import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.unitsOrNull
@@ -223,7 +224,8 @@ fun SegmentDetailScreen(
         }
         ready.addresses.firstOrNull { it.id == buildingForAddressId }?.let { address ->
             CreateBuildingSheet(
-                houseNumber = address.houseNumber,
+                label = address.houseLabel(),
+                numbersOnly = address.addition != null,
                 error = buildingError,
                 onCreate = { type, from, to -> viewModel.createBuilding(address, type, from, to) },
                 onDismiss = { buildingForAddressId = null },
@@ -248,7 +250,7 @@ fun SegmentDetailScreen(
             val summary = ready.cells.firstNotNullOfOrNull { (it as? SegmentCell.Apartments)?.summary?.takeIf { s -> s.building.id == id } }
             if (summary != null) {
                 ConfirmDialog(
-                    title = stringResource(R.string.building_remove_title, summary.building.houseNumber),
+                    title = stringResource(R.string.building_remove_title, summary.building.label),
                     text = pluralStringResource(R.plurals.building_remove_text, summary.apartments.size, summary.apartments.size),
                     onConfirm = {
                         confirmRemoveBuildingId = null
@@ -376,7 +378,7 @@ private fun BuildingSheet(summary: BuildingSummary, onZoomIn: () -> Unit, onRemo
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                stringResource(R.string.number_sheet_title, summary.building.houseNumber.toString()) + " · " +
+                stringResource(R.string.number_sheet_title, summary.building.label) + " · " +
                     pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
                 style = MaterialTheme.typography.headlineMedium,
             )
@@ -392,24 +394,28 @@ private fun BuildingSheet(summary: BuildingSummary, onZoomIn: () -> Unit, onRemo
     }
 }
 
-/** "Apartment building" for one number: letters or numbers, first and last, live preview (BLD-01). */
+/**
+ * "Apartment building" for one number: letters or numbers, first and last, live preview (BLD-01).
+ * A number with an addition, like 8A, only gets numbered mailboxes: 8A-1… (DEC-031).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateBuildingSheet(
-    houseNumber: Int,
+    label: String,
+    numbersOnly: Boolean,
     error: BuildingError?,
     onCreate: (SuffixType, String, String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var type by rememberSaveable { mutableStateOf(SuffixType.LETTER) }
-    var from by rememberSaveable { mutableStateOf("A") }
-    var to by rememberSaveable { mutableStateOf("L") }
+    var type by rememberSaveable { mutableStateOf(if (numbersOnly) SuffixType.NUMBER else SuffixType.LETTER) }
+    var from by rememberSaveable { mutableStateOf(if (numbersOnly) "1" else "A") }
+    var to by rememberSaveable { mutableStateOf(if (numbersOnly) "20" else "L") }
     val units = unitsOrNull(from, to, type)
     val separator = separatorFor(type)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.building_sheet_title, houseNumber), style = MaterialTheme.typography.headlineMedium)
-            Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.building_sheet_title, label), style = MaterialTheme.typography.headlineMedium)
+            if (!numbersOnly) Row(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(SuffixType.LETTER to R.string.building_type_letters, SuffixType.NUMBER to R.string.building_type_numbers)
                     .forEach { (option, label) ->
                         ToggleChoice(
@@ -458,15 +464,18 @@ private fun CreateBuildingSheet(
             Text(
                 text = if (units != null) {
                     pluralStringResource(R.plurals.apartment_count, units.size, units.size) + ": " +
-                        "$houseNumber$separator${units.first()} … $houseNumber$separator${units.last()}"
+                        "$label$separator${units.first()} … $label$separator${units.last()}"
                 } else {
                     stringResource(if (type == SuffixType.LETTER) R.string.building_invalid_letters else R.string.building_invalid_numbers)
                 },
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
-            if (error is BuildingError.Conflict) {
-                ErrorText(stringResource(R.string.building_conflict, error.labels.joinToString(", ")))
+            when (error) {
+                is BuildingError.Conflict -> ErrorText(stringResource(R.string.building_conflict, error.labels.joinToString(", ")))
+                is BuildingError.Exists -> ErrorText(stringResource(R.string.building_exists, error.label))
+                BuildingError.Failed -> ErrorText(stringResource(R.string.building_failed))
+                BuildingError.InvalidRange, null -> Unit
             }
             AccentButton(
                 text = stringResource(R.string.building_create),

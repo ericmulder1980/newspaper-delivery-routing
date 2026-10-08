@@ -16,7 +16,7 @@ import kotlinx.coroutines.IO
         AddressEntity::class,
         CompletedRoundEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @ConstructedBy(KrantenwijkDatabaseConstructor::class)

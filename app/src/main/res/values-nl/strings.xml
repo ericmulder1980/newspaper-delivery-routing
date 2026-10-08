@@ -115,7 +115,7 @@
     </plurals>
     <string name="building_make">Flat met appartementen</string>
     <string name="building_make_sub">Eén nummer met toevoegingen, bijv. 12A–12L</string>
-    <string name="building_sheet_title">Flat op nr. %1$d</string>
+    <string name="building_sheet_title">Flat op nr. %1$s</string>
     <string name="building_type_letters">Letters (A–Z)</string>
     <string name="building_type_numbers">Cijfers (1–20)</string>
     <string name="building_first">Eerste</string>
@@ -123,19 +123,21 @@
     <string name="building_invalid_letters">Vul twee letters in, bijv. A en L.</string>
     <string name="building_invalid_numbers">Vul twee nummers in, bijv. 1 en 20.</string>
     <string name="building_conflict">Deze nummers bestaan al los: %1$s. Verwijder ze eerst.</string>
+    <string name="building_exists">Flat %1$s staat al in dit straatdeel.</string>
+    <string name="building_failed">De flat kon niet worden gemaakt. Er is niets veranderd.</string>
     <string name="building_create">Flat maken</string>
     <string name="building_zoom_in">Inzoomen</string>
     <string name="building_zoom_in_sub">Alle appartementen bekijken en stickers instellen</string>
     <string name="building_remove">Geen flat meer</string>
     <string name="building_remove_sub">Terug naar één adres</string>
-    <string name="building_remove_title">Nr. %1$d geen flat meer?</string>
+    <string name="building_remove_title">Nr. %1$s geen flat meer?</string>
     <plurals name="building_remove_text">
         <item quantity="one">Het %d appartement wordt verwijderd en het nummer wordt weer één adres.</item>
         <item quantity="other">De %d appartementen worden verwijderd en het nummer wordt weer één adres.</item>
     </plurals>
     <string name="building_remove_confirm">Flat verwijderen</string>
-    <string name="building_row_description">Nummer %1$d, flat, %2$s, %3$s</string>
-    <string name="building_kicker">Flat · %1$s %2$d</string>
+    <string name="building_row_description">Nummer %1$s, flat, %2$s, %3$s</string>
+    <string name="building_kicker">Flat · %1$s %2$s</string>
     <string name="building_tap_hint">Tik op een brievenbus om de sticker in te stellen.</string>
     <string name="building_select_hint">Tik op brievenbussen om ze te selecteren en stel daarna voor allemaal tegelijk de sticker in.</string>
     <string name="building_done">Klaar · terug naar %1$s</string>
@@ -147,7 +149,7 @@
         <item quantity="one">%d appartement verwijderen?</item>
         <item quantity="other">%d appartementen verwijderen?</item>
     </plurals>
-    <string name="apartment_add_title">Appartement toevoegen aan nr. %1$d</string>
+    <string name="apartment_add_title">Appartement toevoegen aan nr. %1$s</string>
     <string name="apartment_letter">Letter</string>
     <string name="apartment_number">Nummer</string>
     <string name="apartment_add_preview">Voegt %1$s toe</string>

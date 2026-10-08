@@ -6,13 +6,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import nl.ericmulder.krantenwijk.data.db.BuildingEntity
+import nl.ericmulder.krantenwijk.data.db.BuildingDao
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import nl.ericmulder.krantenwijk.data.db.RouteEntity
 import nl.ericmulder.krantenwijk.data.db.SegmentEntity
 import nl.ericmulder.krantenwijk.data.db.toDomain
 import nl.ericmulder.krantenwijk.data.db.toEntity
 import nl.ericmulder.krantenwijk.domain.model.Address
+import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.BuildingContents
 import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Route
@@ -22,7 +23,10 @@ import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.apartmentAddition
+import nl.ericmulder.krantenwijk.domain.model.label
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
+import nl.ericmulder.krantenwijk.domain.repository.BuildingExistsException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.AddressNumberOrder
@@ -135,18 +139,26 @@ class RoomRouteRepository(
     override suspend fun createBuilding(
         segmentId: Long,
         houseNumber: Int,
+        addition: String?,
         suffixType: SuffixType,
         fromSuffix: String,
         toSuffix: String,
     ): Long {
-        val suffixes = generateUnits(fromSuffix, toSuffix, suffixType)
-        val separator = separatorFor(suffixType)
-        val (id, conflicts) = buildingDao.createWithUnits(
-            BuildingEntity(segmentId = segmentId, houseNumber = houseNumber, name = null, suffixType = suffixType, separator = separator),
-            suffixes,
+        val cleanAddition = addition?.trim()?.ifEmpty { null }
+        require(cleanAddition == null || suffixType == SuffixType.NUMBER) { "A building with an addition has numbered units" }
+        val building = Building(
+            segmentId = segmentId,
+            houseNumber = houseNumber,
+            suffixType = suffixType,
+            separator = separatorFor(suffixType),
+            addition = cleanAddition,
         )
-        if (id == null) throw BuildingConflictException(conflicts.map { "$houseNumber$it" })
-        return id
+        val additions = generateUnits(fromSuffix, toSuffix, suffixType).map(building::apartmentAddition)
+        return when (val result = buildingDao.createWithUnits(building.toEntity(), additions)) {
+            is BuildingDao.CreateResult.Created -> result.id
+            BuildingDao.CreateResult.AlreadyExists -> throw BuildingExistsException(building.label)
+            is BuildingDao.CreateResult.Conflicts -> throw BuildingConflictException(result.additions.map { "$houseNumber$it" })
+        }
     }
 
     override suspend fun removeBuilding(buildingId: Long) = buildingDao.removeAndRestore(buildingId)
@@ -178,11 +190,12 @@ class RoomRouteRepository(
         val clean = requireNotNull(normaliseSuffix(suffix, building.suffixType)) {
             "\"$suffix\" is not a valid ${building.suffixType} suffix"
         }
-        if (addressDao.count(building.segmentId, building.houseNumber, clean) > 0) {
-            throw DuplicateAddressException(building.houseNumber, clean)
+        val addition = building.toDomain().apartmentAddition(clean)
+        if (addressDao.count(building.segmentId, building.houseNumber, addition) > 0) {
+            throw DuplicateAddressException(building.houseNumber, addition)
         }
         return addressDao.insert(
-            Address(houseNumber = building.houseNumber, addition = clean, segmentId = building.segmentId, buildingId = buildingId)
+            Address(houseNumber = building.houseNumber, addition = addition, segmentId = building.segmentId, buildingId = buildingId)
                 .toEntity(),
         )
     }

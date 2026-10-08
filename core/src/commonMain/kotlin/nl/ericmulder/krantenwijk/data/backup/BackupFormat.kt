@@ -26,8 +26,10 @@ object BackupFormat {
     /**
      * Bump when the format changes; [decode] keeps reading older versions.
      * 1: route only (DATA-A). 2: adds finished rounds (DEC-030); a version-1 file has none.
+     * 3: adds a building's own addition, e.g. 8A (DEC-031). Older versions must refuse it: they
+     * would drop the addition and merge 8A and 8B into one number.
      */
-    const val VERSION = 2
+    const val VERSION = 3
 
     /** File type used by the file picker. */
     const val MIME_TYPE = "application/json"
@@ -125,6 +127,8 @@ private data class BuildingV1(
     val suffixType: SuffixType,
     val separator: String,
     val apartments: List<AddressV1>,
+    /** Since format 3; null for a plain number. */
+    val addition: String? = null,
 )
 
 @Serializable
@@ -156,7 +160,7 @@ private fun RouteSnapshot.toFile(exportedAtMillis: Long, appVersion: String) = B
                 direction = s.segment.direction,
                 addresses = s.addresses.map { it.toV1() },
                 buildings = s.buildings.map { b ->
-                    BuildingV1(b.building.houseNumber, b.building.name, b.building.suffixType, b.building.separator, b.apartments.map { it.toV1() })
+                    BuildingV1(b.building.houseNumber, b.building.name, b.building.suffixType, b.building.separator, b.apartments.map { it.toV1() }, b.building.addition)
                 },
             )
         },
@@ -190,7 +194,14 @@ private fun BackupFileV1.toSnapshot(): RouteSnapshot {
                 addresses = s.addresses.map { it.toDomain() },
                 buildings = s.buildings.map { b ->
                     BuildingSnapshot(
-                        Building(segmentId = 0, houseNumber = b.houseNumber, suffixType = b.suffixType, separator = b.separator, name = b.name),
+                        Building(
+                            segmentId = 0,
+                            houseNumber = b.houseNumber,
+                            suffixType = b.suffixType,
+                            separator = b.separator,
+                            name = b.name,
+                            addition = b.addition?.ifBlank { null },
+                        ),
                         b.apartments.map { it.toDomain() },
                     )
                 },

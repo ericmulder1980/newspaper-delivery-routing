@@ -12,7 +12,11 @@ import nl.ericmulder.krantenwijk.domain.model.Direction
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.label
+import nl.ericmulder.krantenwijk.domain.model.suffixOf
+import nl.ericmulder.krantenwijk.domain.model.unitLabel
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
+import nl.ericmulder.krantenwijk.domain.repository.BuildingExistsException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -176,7 +180,7 @@ class RouteRepositoryTest {
         fun `all addresses of the route, including apartments`() = runTest {
             val even = kerkstraatEven()
             repo.addSegment("Molenweg", Side.ALL, 1, 10, Direction.ASCENDING)
-            repo.createBuilding(even, 12, SuffixType.LETTER, "A", "C")
+            repo.createBuilding(even, 12, null, SuffixType.LETTER, "A", "C")
             val all = repo.observeAllAddresses().first()
             assertEquals(11 + 3 + 10, all.size)
             assertEquals(3, all.count { it.buildingId != null })
@@ -238,7 +242,7 @@ class RouteRepositoryTest {
         @Test
         fun `number 12 becomes a building with apartments A to L`() = runTest {
             val id = kerkstraatEven()
-            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "a", "L")
+            val buildingId = repo.createBuilding(id, 12, null, SuffixType.LETTER, "a", "L")
 
             val c = contents(id)
             val building = c.buildings.single()
@@ -254,7 +258,7 @@ class RouteRepositoryTest {
         @Test
         fun `numeric units use a hyphen`() = runTest {
             val id = kerkstraatEven()
-            repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "20")
+            repo.createBuilding(id, 14, null, SuffixType.NUMBER, "1", "20")
             val building = contents(id).buildings.single()
             assertEquals("-", building.separator)
             val suffixes = contents(id).addresses.filter { it.buildingId == building.id }.map { it.addition }
@@ -264,7 +268,7 @@ class RouteRepositoryTest {
         @Test
         fun `apartments sort naturally in walking order`() = runTest {
             val id = kerkstraatEven()
-            repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "10")
+            repo.createBuilding(id, 14, null, SuffixType.NUMBER, "1", "10")
             assertEquals(
                 listOf("12", "14-1", "14-2", "14-3"),
                 contents(id).addresses.map { a -> "${a.houseNumber}${if (a.buildingId != null) "-" else ""}${a.addition.orEmpty()}" }
@@ -276,7 +280,7 @@ class RouteRepositoryTest {
         fun `conflicting standalone addition is reported and nothing changes`() = runTest {
             val id = kerkstraatEven()
             repo.addAddress(id, 12, "C")
-            val error = assertThrows<BuildingConflictException> { repo.createBuilding(id, 12, SuffixType.LETTER, "A", "L") }
+            val error = assertThrows<BuildingConflictException> { repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "L") }
             assertEquals(listOf("12C"), error.labels)
             assertEquals(0, contents(id).buildings.size)
             assertTrue(contents(id).addresses.any { it.houseNumber == 12 && it.addition == null })
@@ -285,14 +289,14 @@ class RouteRepositoryTest {
         @Test
         fun `invalid unit range is rejected`() = runTest {
             val id = kerkstraatEven()
-            assertThrows<IllegalArgumentException> { repo.createBuilding(id, 12, SuffixType.LETTER, "L", "A") }
+            assertThrows<IllegalArgumentException> { repo.createBuilding(id, 12, null, SuffixType.LETTER, "L", "A") }
             assertEquals(0, contents(id).buildings.size)
         }
 
         @Test
         fun `no longer a building restores the plain number`() = runTest {
             val id = kerkstraatEven()
-            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
+            val buildingId = repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "C")
             repo.removeBuilding(buildingId)
 
             val c = contents(id)
@@ -302,12 +306,98 @@ class RouteRepositoryTest {
         }
     }
 
+    /** Two buildings with one number, 8A and 8B (ISS-002, DEC-031). */
+    @Nested
+    inner class LetteredBuildings {
+        private suspend fun withEightAAndB(): Long {
+            val id = kerkstraatEven()
+            repo.deleteAddresses(contents(id).addresses.filter { it.houseNumber == 8 }.map { it.id })
+            repo.addAddress(id, 8, "A")
+            repo.addAddress(id, 8, "B")
+            return id
+        }
+
+        private suspend fun unitLabels(buildingId: Long): List<String> {
+            val c = checkNotNull(repo.observeBuildingContents(buildingId).first())
+            return c.apartments.map { c.building.unitLabel(c.building.suffixOf(it)) }
+        }
+
+        @Test
+        fun `8A and 8B both become buildings with mailboxes 8A-1 and 8B-1`() = runTest {
+            val id = withEightAAndB()
+            val a = repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "3")
+            val b = repo.createBuilding(id, 8, "B", SuffixType.NUMBER, "1", "2")
+
+            val c = contents(id)
+            assertEquals(listOf("8A", "8B"), c.buildings.map { it.label })
+            assertTrue(c.addresses.none { it.houseNumber == 8 && it.buildingId == null })
+            assertTrue(c.addresses.none { it.houseNumber == 8 && it.addition == null })
+            assertEquals(listOf("8A-1", "8A-2", "8A-3"), unitLabels(a))
+            assertEquals(listOf("8B-1", "8B-2"), unitLabels(b))
+        }
+
+        @Test
+        fun `converting 8A leaves a plain 8 alone`() = runTest {
+            val id = kerkstraatEven()
+            repo.addAddress(id, 8, "A")
+            repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "3")
+            assertTrue(contents(id).addresses.any { it.houseNumber == 8 && it.addition == null && it.buildingId == null })
+        }
+
+        @Test
+        fun `a second building 8A is refused and nothing changes`() = runTest {
+            val id = withEightAAndB()
+            repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "3")
+            val before = contents(id)
+            val error = assertThrows<BuildingExistsException> { repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "5") }
+            assertEquals("8A", error.label)
+            assertEquals(before, contents(id))
+        }
+
+        @Test
+        fun `letter units are refused for a building with an addition`() = runTest {
+            val id = withEightAAndB()
+            assertThrows<IllegalArgumentException> { repo.createBuilding(id, 8, "A", SuffixType.LETTER, "A", "C") }
+            assertEquals(0, contents(id).buildings.size)
+        }
+
+        @Test
+        fun `no longer a building restores 8A, not 8`() = runTest {
+            val id = withEightAAndB()
+            val a = repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "3")
+            repo.removeBuilding(a)
+            assertEquals(listOf("6", "8A", "8B", "10"), labels(id).subList(2, 6))
+        }
+
+        @Test
+        fun `apartments are added and checked per building`() = runTest {
+            val id = withEightAAndB()
+            val a = repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "2")
+            val b = repo.createBuilding(id, 8, "B", SuffixType.NUMBER, "1", "2")
+            repo.addApartment(a, "3")
+            assertThrows<DuplicateAddressException> { repo.addApartment(b, "2") }
+            assertEquals(listOf("8A-1", "8A-2", "8A-3"), unitLabels(a))
+        }
+
+        @Test
+        fun `buildings sort in walking order between 6 and 10`() = runTest {
+            val id = withEightAAndB()
+            repo.createBuilding(id, 8, "B", SuffixType.NUMBER, "1", "2")
+            repo.createBuilding(id, 8, "A", SuffixType.NUMBER, "1", "10")
+            assertEquals(listOf("8A", "8B"), contents(id).buildings.map { it.label })
+            // Apartments themselves sort naturally: 8A-1, 8A-2 … 8A-10, then 8B-1.
+            val apartments = contents(id).addresses.filter { it.buildingId != null }.map { "${it.houseNumber}${it.addition}" }
+            assertEquals(listOf("8A-1", "8A-2"), apartments.take(2))
+            assertEquals(listOf("8A-10", "8B-1", "8B-2"), apartments.takeLast(3))
+        }
+    }
+
     @Nested
     inner class BuildingContentsAndApartments {
         @Test
         fun `building contents list apartments naturally with the street name`() = runTest {
             val id = kerkstraatEven()
-            val buildingId = repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "12")
+            val buildingId = repo.createBuilding(id, 14, null, SuffixType.NUMBER, "1", "12")
             val c = checkNotNull(repo.observeBuildingContents(buildingId).first())
             assertEquals("Kerkstraat", c.streetName)
             assertEquals((1..12).map(Int::toString), c.apartments.map { it.addition })
@@ -316,7 +406,7 @@ class RouteRepositoryTest {
         @Test
         fun `add apartment 12M after 12L (BLD-05)`() = runTest {
             val id = kerkstraatEven()
-            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "L")
+            val buildingId = repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "L")
             repo.addApartment(buildingId, " m ")
             val apartments = checkNotNull(repo.observeBuildingContents(buildingId).first()).apartments
             assertEquals("M", apartments.last().addition)
@@ -327,8 +417,8 @@ class RouteRepositoryTest {
         @Test
         fun `invalid or duplicate apartment is rejected`() = runTest {
             val id = kerkstraatEven()
-            val letters = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
-            val numbers = repo.createBuilding(id, 14, SuffixType.NUMBER, "1", "3")
+            val letters = repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "C")
+            val numbers = repo.createBuilding(id, 14, null, SuffixType.NUMBER, "1", "3")
             assertThrows<IllegalArgumentException> { repo.addApartment(letters, "AB") }
             assertThrows<IllegalArgumentException> { repo.addApartment(letters, "4") }
             assertThrows<IllegalArgumentException> { repo.addApartment(numbers, "0") }
@@ -339,7 +429,7 @@ class RouteRepositoryTest {
         @Test
         fun `contents end when the building is removed`() = runTest {
             val id = kerkstraatEven()
-            val buildingId = repo.createBuilding(id, 12, SuffixType.LETTER, "A", "C")
+            val buildingId = repo.createBuilding(id, 12, null, SuffixType.LETTER, "A", "C")
             repo.removeBuilding(buildingId)
             assertNull(repo.observeBuildingContents(buildingId).first())
         }

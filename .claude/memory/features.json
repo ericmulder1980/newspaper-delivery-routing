@@ -1,7 +1,7 @@
 {
   "project": "Krantenwijk",
   "version": "0.1.0",
-  "last_updated": "2026-10-04",
+  "last_updated": "2026-10-07",
   "metadata": {
     "created": "2026-09-25",
     "initialized_by": "user",
@@ -1073,8 +1073,8 @@
   ],
   "current": {
     "feature": null,
-    "status": "RND-13 and RND-14 complete (v1.3.0). No feature in progress.",
-    "next_recommended": "Re-prioritise the Should list (ADR-09 exceptions, ADR-10 notes, BLD-08 building name, DATA-03 backup reminder, STK-04 sticker overview, ADR-08 duplicate warning, BLD-09 group/dissolve) with the user"
+    "status": "ISS-002 fixed (DEC-031: buildings with their own addition, schema v3, backup format 3); not committed, awaiting device test of app-debug.apk.",
+    "next_recommended": "User tests 8A/8B on the phone (remove wrong building 8 first); then commit and, on the user's command, release (e.g. 1.4.0: schema + backup format change). Afterwards re-prioritise the Should list."
   },
   "open_questions": [],
   "phases_legend": {

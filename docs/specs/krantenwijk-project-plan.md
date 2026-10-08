@@ -95,6 +95,8 @@ Units are created with a suffix range. Letter ranges (A–Z) are the main case; 
 
 Two houses sharing a number (e.g. a split house 14A and 14B) can remain standalone addresses; a number is only a building when the user creates or groups it as one. Suffixes are sorted naturally: A, B, … Z and 1, 2, … 10 (not 1, 10, 2).
 
+A building can also carry an addition of its own, for example two buildings 8A and 8B with mailboxes 8A-1, 8A-2 … and 8B-1 … (field test, DEC-031). Such a building appears as "8A" at the position of 8A and only has numbered mailboxes.
+
 ---
 
 ## 4. Functional requirements

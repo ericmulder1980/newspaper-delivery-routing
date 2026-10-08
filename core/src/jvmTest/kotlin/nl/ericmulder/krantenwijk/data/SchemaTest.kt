@@ -4,6 +4,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.runBlocking
 import nl.ericmulder.krantenwijk.data.db.MIGRATION_1_2
+import nl.ericmulder.krantenwijk.data.db.MIGRATION_2_3
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import nl.ericmulder.krantenwijk.data.db.KrantenwijkDatabase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -15,7 +16,7 @@ import kotlin.io.path.Path
 
 /**
  * The exported schema files must match the entities. Every future version adds a
- * `runMigrationsAndValidate` test here for its migration (DEC-002). v1 → v2: DEC-030.
+ * `runMigrationsAndValidate` test here for its migration (DEC-002). v1 → v2: DEC-030. v2 → v3: DEC-031.
  */
 class SchemaTest {
 
@@ -30,10 +31,37 @@ class SchemaTest {
     )
 
     @Test
-    fun `version 2 schema matches the entities`() {
+    fun `version 3 schema matches the entities`() {
         val helper = helper()
-        helper.createDatabase(2).close()
-        helper.runMigrationsAndValidate(2).close()
+        helper.createDatabase(3).close()
+        helper.runMigrationsAndValidate(3).close()
+    }
+
+    @Test
+    fun `migration 2 to 3 keeps buildings and allows 8A next to 8B (DEC-031)`() {
+        val helper = helper()
+        helper.createDatabase(2).use { db ->
+            db.execSQL("INSERT INTO route (id, name, town, createdAtMillis) VALUES (1, 'Wijk 07', NULL, 0)")
+            db.execSQL(
+                "INSERT INTO segment (id, routeId, streetName, side, rangeFrom, rangeTo, direction, position) " +
+                    "VALUES (1, 1, 'Kerkstraat', 'EVEN', 2, 24, 'ASCENDING', 0)",
+            )
+            db.execSQL("INSERT INTO building (id, segmentId, houseNumber, name, suffixType, separator) VALUES (1, 1, 12, NULL, 'LETTER', '')")
+        }
+        helper.runMigrationsAndValidate(3, listOf(MIGRATION_2_3)).use { db ->
+            db.prepare("SELECT houseNumber, addition FROM building").use {
+                assertTrue(it.step())
+                assertEquals(12L, it.getLong(0))
+                assertEquals("", it.getText(1))
+            }
+            db.execSQL("INSERT INTO building (segmentId, houseNumber, name, suffixType, separator, addition) VALUES (1, 8, NULL, 'NUMBER', '-', 'A')")
+            db.execSQL("INSERT INTO building (segmentId, houseNumber, name, suffixType, separator, addition) VALUES (1, 8, NULL, 'NUMBER', '-', 'B')")
+            db.prepare("SELECT COUNT(*) FROM building").use { assertTrue(it.step()); assertEquals(3L, it.getLong(0)) }
+            val duplicate = runCatching {
+                db.execSQL("INSERT INTO building (segmentId, houseNumber, name, suffixType, separator, addition) VALUES (1, 8, NULL, 'NUMBER', '-', 'A')")
+            }
+            assertTrue(duplicate.isFailure, "a second 8A must violate the unique index")
+        }
     }
 
     @Test

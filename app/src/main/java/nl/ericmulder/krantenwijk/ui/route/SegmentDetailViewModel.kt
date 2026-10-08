@@ -6,6 +6,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ import nl.ericmulder.krantenwijk.domain.model.Segment
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
+import nl.ericmulder.krantenwijk.domain.repository.BuildingExistsException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.AddressNumberOrder
@@ -96,6 +98,12 @@ sealed interface BuildingError {
 
     /** Standalone numbers that already use unit labels, e.g. ["12C"]. */
     data class Conflict(val labels: List<String>) : BuildingError
+
+    /** This street section already has a building with this label, e.g. "8A" (DEC-031). */
+    data class Exists(val label: String) : BuildingError
+
+    /** Anything unexpected while saving; nothing was changed (the write is one transaction). */
+    data object Failed : BuildingError
 }
 
 /** Result of trying to add a number, shown in the add sheet. */
@@ -221,19 +229,29 @@ class SegmentDetailViewModel @AssistedInject constructor(
         _buildingError.value = null
     }
 
-    /** Turns [address]'s number into a building with units [from]..[to] (BLD-01). */
+    /**
+     * Turns [address] into a building with units [from]..[to] (BLD-01): 12 becomes building 12,
+     * 8A becomes building 8A with numbered mailboxes 8A-1… (DEC-031).
+     */
     fun createBuilding(address: Address, type: SuffixType, from: String, to: String) {
-        if (unitsOrNull(from, to, type) == null) {
+        if (unitsOrNull(from, to, type) == null || (address.addition != null && type != SuffixType.NUMBER)) {
             _buildingError.value = BuildingError.InvalidRange
             return
         }
         viewModelScope.launch {
             try {
-                routes.createBuilding(segmentId, address.houseNumber, type, from, to)
+                routes.createBuilding(segmentId, address.houseNumber, address.addition, type, from, to)
                 _buildingError.value = null
                 _buildingCreated.value += 1
             } catch (e: BuildingConflictException) {
                 _buildingError.value = BuildingError.Conflict(e.labels)
+            } catch (e: BuildingExistsException) {
+                _buildingError.value = BuildingError.Exists(e.label)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Never crash the editor over a failed save (ISS-002); the transaction left nothing behind.
+                _buildingError.value = BuildingError.Failed
             }
         }
     }
@@ -276,8 +294,8 @@ internal fun cellsInWalkingOrder(
                     stickers = stickerSummary(apartments),
                     counts = deliverySummary(apartments, FullRound),
                 )
-                // Sorts as the plain number (no addition); ties with standalone 12A etc. put the building first.
-                Address(houseNumber = building.houseNumber) to SegmentCell.Apartments(summary)
+                // Sorts as its label: 12, or 8A between 8 and 8B (DEC-031).
+                Address(houseNumber = building.houseNumber, addition = building.addition) to SegmentCell.Apartments(summary)
             }
     val ascending = keyed.sortedWith(compareBy(AddressNumberOrder) { it.first })
     return (if (segment.direction == Direction.DESCENDING) ascending.reversed() else ascending).map { it.second }

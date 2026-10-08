@@ -1,5 +1,6 @@
 package nl.ericmulder.krantenwijk.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -9,7 +10,8 @@ import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 
-// Schema v1 (plan §5, without Round/RoundItem: DEC-014); v2 adds completed_round (DEC-030).
+// Schema v1 (plan §5, without Round/RoundItem: DEC-014); v2 adds completed_round (DEC-030);
+// v3 adds building.addition (DEC-031).
 // Changes need a new version, an explicit migration and a migration test (DEC-002).
 
 @Entity(tableName = "route")
@@ -39,7 +41,7 @@ data class SegmentEntity(
 @Entity(
     tableName = "building",
     foreignKeys = [ForeignKey(SegmentEntity::class, ["id"], ["segmentId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["segmentId", "houseNumber"], unique = true)],
+    indices = [Index(value = ["segmentId", "houseNumber", "addition"], unique = true)],
 )
 data class BuildingEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -48,6 +50,8 @@ data class BuildingEntity(
     val name: String?,
     val suffixType: SuffixType,
     val separator: String,
+    /** "" for a plain number (as in [AddressEntity.addition]), e.g. "A" for building 8A (DEC-031). */
+    @ColumnInfo(defaultValue = "") val addition: String = "",
 )
 
 /**

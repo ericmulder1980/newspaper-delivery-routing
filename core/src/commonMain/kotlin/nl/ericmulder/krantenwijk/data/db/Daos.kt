@@ -82,7 +82,7 @@ abstract class SegmentDao {
 /** Buildings and their apartments; creating and removing a building each happen in one transaction. */
 @Dao
 abstract class BuildingDao {
-    @Query("SELECT * FROM building WHERE segmentId = :segmentId ORDER BY houseNumber")
+    @Query("SELECT * FROM building WHERE segmentId = :segmentId ORDER BY houseNumber, addition")
     abstract fun observeForSegment(segmentId: Long): Flow<List<BuildingEntity>>
 
     @Query("SELECT * FROM building WHERE id = :id")
@@ -100,66 +100,65 @@ abstract class BuildingDao {
     @Query("DELETE FROM building WHERE id = :id")
     abstract suspend fun delete(id: Long)
 
+    @Query("SELECT COUNT(*) FROM building WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND addition = :addition")
+    protected abstract suspend fun countWithLabel(segmentId: Long, houseNumber: Int, addition: String): Int
+
     @Query("SELECT * FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND buildingId IS NULL")
     protected abstract suspend fun standaloneWithNumber(segmentId: Long, houseNumber: Int): List<AddressEntity>
 
-    @Query("DELETE FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND addition = '' AND buildingId IS NULL")
-    protected abstract suspend fun deletePlainAddress(segmentId: Long, houseNumber: Int)
+    @Query("DELETE FROM address WHERE segmentId = :segmentId AND houseNumber = :houseNumber AND addition = :addition AND buildingId IS NULL")
+    protected abstract suspend fun deleteStandalone(segmentId: Long, houseNumber: Int, addition: String)
 
     @Insert
     protected abstract suspend fun insertAddresses(addresses: List<AddressEntity>)
 
     /**
-     * Replaces the plain address [building].houseNumber with a building and one address per suffix.
-     * Returns the building id, or the conflicting standalone additions (non-empty) without writing.
+     * Replaces the standalone address with [building]'s number and addition (12, or 8A: DEC-031)
+     * with a building and one apartment per stored addition in [apartmentAdditions].
+     * Returns [CreateResult.Created], or what's in the way without writing anything.
      */
     @Transaction
-    open suspend fun createWithUnits(building: BuildingEntity, suffixes: List<String>): Pair<Long?, List<String>> {
+    open suspend fun createWithUnits(building: BuildingEntity, apartmentAdditions: List<String>): CreateResult {
+        if (countWithLabel(building.segmentId, building.houseNumber, building.addition) > 0) return CreateResult.AlreadyExists
         val taken = standaloneWithNumber(building.segmentId, building.houseNumber).map { it.addition }.toSet()
-        val conflicts = suffixes.filter { it in taken }
-        if (conflicts.isNotEmpty()) return null to conflicts
-        deletePlainAddress(building.segmentId, building.houseNumber)
+        val conflicts = apartmentAdditions.filter { it in taken }
+        if (conflicts.isNotEmpty()) return CreateResult.Conflicts(conflicts)
+        deleteStandalone(building.segmentId, building.houseNumber, building.addition)
         val id = insert(building)
-        insertAddresses(
-            suffixes.map { suffix ->
-                AddressEntity(
-                    segmentId = building.segmentId,
-                    buildingId = id,
-                    houseNumber = building.houseNumber,
-                    addition = suffix,
-                    exists = true,
-                    sticker = Sticker.NONE,
-                    exceptionNoNewspaper = false,
-                    exceptionNoLeaflets = false,
-                    note = null,
-                )
-            },
-        )
-        return id to emptyList()
+        insertAddresses(apartmentAdditions.map { newAddress(building.segmentId, id, building.houseNumber, it) })
+        return CreateResult.Created(id)
     }
 
-    /** Deletes the building (apartments cascade) and restores a plain address with its number. */
+    /** Deletes the building (apartments cascade) and restores a standalone address with its label (12 or 8A). */
     @Transaction
     open suspend fun removeAndRestore(buildingId: Long) {
         val building = get(buildingId) ?: return
         delete(buildingId)
-        if (standaloneWithNumber(building.segmentId, building.houseNumber).none { it.addition.isEmpty() }) {
-            insertAddresses(
-                listOf(
-                    AddressEntity(
-                        segmentId = building.segmentId,
-                        buildingId = null,
-                        houseNumber = building.houseNumber,
-                        addition = "",
-                        exists = true,
-                        sticker = Sticker.NONE,
-                        exceptionNoNewspaper = false,
-                        exceptionNoLeaflets = false,
-                        note = null,
-                    ),
-                ),
-            )
+        if (standaloneWithNumber(building.segmentId, building.houseNumber).none { it.addition == building.addition }) {
+            insertAddresses(listOf(newAddress(building.segmentId, null, building.houseNumber, building.addition)))
         }
+    }
+
+    private fun newAddress(segmentId: Long, buildingId: Long?, houseNumber: Int, addition: String) = AddressEntity(
+        segmentId = segmentId,
+        buildingId = buildingId,
+        houseNumber = houseNumber,
+        addition = addition,
+        exists = true,
+        sticker = Sticker.NONE,
+        exceptionNoNewspaper = false,
+        exceptionNoLeaflets = false,
+        note = null,
+    )
+
+    sealed interface CreateResult {
+        data class Created(val id: Long) : CreateResult
+
+        /** A building with this number and addition is already there. */
+        data object AlreadyExists : CreateResult
+
+        /** Standalone addresses already use these stored additions. */
+        data class Conflicts(val additions: List<String>) : CreateResult
     }
 }
 

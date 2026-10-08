@@ -70,6 +70,31 @@ To do (user: pick up at a later stage). Suggested: Even → 2 / 24, Odd → 1 / 
 
 ---
 
+### ISS-002: Converting 8B into a building crashes; 8A became building "8"
+**Reported:** 2026-10-07
+**Status:** Resolved (awaiting device test)
+**Severity:** High
+**Related Feature:** BLD-01
+
+**Symptoms:**
+- Field test on v1.3.0: two buildings 8A and 8B. "Make building" on 8A created a building listed under 8, and 8A stayed as a separate number. Doing the same on 8B crashed the app.
+
+**Root Cause:**
+A building was identified by house number only. `SegmentDetailViewModel.createBuilding` passed `address.houseNumber` and dropped the addition, so 8A became building 8 (replacing a plain 8, if any). For 8B the insert hit the unique index (segmentId, houseNumber) on `building`; only `BuildingConflictException` was caught, so the SQLite constraint exception crashed the app.
+
+**Resolution:**
+DEC-031: building gets its own addition (schema v3, backup format 3), lettered buildings get numbered mailboxes 8A-1…, a duplicate building is reported (BuildingExistsException), and any other failure shows "Couldn't create the building" instead of crashing.
+
+**Prevention:**
+- [x] Added test case (repository, ViewModel, migration 2→3, backup round trip)
+- [x] Added validation (existing-building check in the same transaction)
+- [x] Updated documentation (plan §3.7, ARCHITECTURE)
+
+**Time to Resolution:** same day
+**Related Commits:** (pending)
+
+---
+
 ## Common Patterns
 
 As issues accumulate, document patterns here:

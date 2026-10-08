@@ -79,6 +79,8 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.model.unitLabel
+import nl.ericmulder.krantenwijk.domain.model.label
+import nl.ericmulder.krantenwijk.domain.model.suffixOf
 import nl.ericmulder.krantenwijk.domain.rules.separatorFor
 import nl.ericmulder.krantenwijk.domain.rules.unitsOrNull
 import nl.ericmulder.krantenwijk.ui.theme.KrantenwijkTheme
@@ -406,13 +408,13 @@ internal fun NumberGrid(
 @Composable
 internal fun BuildingRow(summary: BuildingSummary, dimmed: Boolean, onClick: () -> Unit) {
     val building = summary.building
-    val first = summary.apartments.firstOrNull()?.addition
-    val last = summary.apartments.lastOrNull()?.addition
+    val first = summary.apartments.firstOrNull()?.let(building::suffixOf)
+    val last = summary.apartments.lastOrNull()?.let(building::suffixOf)
     val range = if (first != null && last != null) "${building.unitLabel(first)}–${building.unitLabel(last)}" else ""
     val stickers = stickerSummaryText(summary)
     val description = stringResource(
         R.string.building_row_description,
-        building.houseNumber,
+        building.label,
         pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount),
         stickers.ifEmpty { stringResource(R.string.sticker_none) },
     )
@@ -431,7 +433,7 @@ internal fun BuildingRow(summary: BuildingSummary, dimmed: Boolean, onClick: () 
     ) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(building.houseNumber.toString(), style = MaterialTheme.typography.displaySmall)
+                Text(building.label, style = MaterialTheme.typography.displaySmall)
                 Column(Modifier.weight(1f)) {
                     Text(
                         pluralStringResource(R.plurals.apartment_count, summary.existingCount, summary.existingCount) +

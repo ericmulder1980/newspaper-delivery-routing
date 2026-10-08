@@ -62,7 +62,7 @@ abstract class BackupDao {
                 SectionSnapshot(
                     segment = segment.toDomain(),
                     addresses = standaloneBySegment[segment.id].orEmpty().map { it.toDomain() }.sortedBy { it.houseNumber },
-                    buildings = buildingsBySegment[segment.id].orEmpty().sortedBy { it.houseNumber }.map { b ->
+                    buildings = buildingsBySegment[segment.id].orEmpty().sortedWith(compareBy({ it.houseNumber }, { it.addition })).map { b ->
                         BuildingSnapshot(b.toDomain(), apartmentsByBuilding[b.id].orEmpty().map { it.toDomain() })
                     },
                 )
@@ -102,15 +102,7 @@ abstract class BackupDao {
             )
             insertAddresses(section.addresses.map { it.copy(id = 0, segmentId = segmentId, buildingId = null).toEntity() })
             section.buildings.forEach { b ->
-                val buildingId = insertBuilding(
-                    BuildingEntity(
-                        segmentId = segmentId,
-                        houseNumber = b.building.houseNumber,
-                        name = b.building.name,
-                        suffixType = b.building.suffixType,
-                        separator = b.building.separator,
-                    ),
-                )
+                val buildingId = insertBuilding(b.building.copy(id = 0, segmentId = segmentId).toEntity())
                 insertAddresses(
                     b.apartments.map {
                         it.copy(id = 0, segmentId = segmentId, buildingId = buildingId, houseNumber = b.building.houseNumber).toEntity()

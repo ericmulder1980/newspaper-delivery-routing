@@ -17,7 +17,10 @@ import nl.ericmulder.krantenwijk.domain.model.SegmentContents
 import nl.ericmulder.krantenwijk.domain.model.Side
 import nl.ericmulder.krantenwijk.domain.model.Sticker
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
+import nl.ericmulder.krantenwijk.domain.model.apartmentAddition
+import nl.ericmulder.krantenwijk.domain.model.label
 import nl.ericmulder.krantenwijk.domain.repository.BuildingConflictException
+import nl.ericmulder.krantenwijk.domain.repository.BuildingExistsException
 import nl.ericmulder.krantenwijk.domain.repository.DuplicateAddressException
 import nl.ericmulder.krantenwijk.domain.repository.RouteRepository
 import nl.ericmulder.krantenwijk.domain.rules.AddressNumberOrder
@@ -123,20 +126,28 @@ class FakeRouteRepository : RouteRepository {
     override suspend fun createBuilding(
         segmentId: Long,
         houseNumber: Int,
+        addition: String?,
         suffixType: SuffixType,
         fromSuffix: String,
         toSuffix: String,
     ): Long {
-        val suffixes = generateUnits(fromSuffix, toSuffix, suffixType)
+        maybeFail()
+        val cleanAddition = addition?.trim()?.ifEmpty { null }
+        require(cleanAddition == null || suffixType == SuffixType.NUMBER) { "A building with an addition has numbered units" }
+        val building = Building(segmentId, houseNumber, suffixType, separatorFor(suffixType), addition = cleanAddition)
+        if (buildings.value.any { it.segmentId == segmentId && it.houseNumber == houseNumber && it.addition == cleanAddition }) {
+            throw BuildingExistsException(building.label)
+        }
+        val additions = generateUnits(fromSuffix, toSuffix, suffixType).map(building::apartmentAddition)
         val conflicts = addresses.value
-            .filter { it.segmentId == segmentId && it.houseNumber == houseNumber && it.buildingId == null && it.addition in suffixes }
+            .filter { it.segmentId == segmentId && it.houseNumber == houseNumber && it.buildingId == null && it.addition in additions }
             .map { "$houseNumber${it.addition}" }
         if (conflicts.isNotEmpty()) throw BuildingConflictException(conflicts)
         val id = nextId++
-        buildings.value += Building(segmentId, houseNumber, suffixType, separatorFor(suffixType), id = id)
+        buildings.value += building.copy(id = id)
         addresses.value = addresses.value.filterNot {
-            it.segmentId == segmentId && it.houseNumber == houseNumber && it.addition == null && it.buildingId == null
-        } + suffixes.map { Address(houseNumber, it, segmentId = segmentId, buildingId = id, id = nextId++) }
+            it.segmentId == segmentId && it.houseNumber == houseNumber && it.addition == cleanAddition && it.buildingId == null
+        } + additions.map { Address(houseNumber, it, segmentId = segmentId, buildingId = id, id = nextId++) }
         return id
     }
 
@@ -153,7 +164,7 @@ class FakeRouteRepository : RouteRepository {
 
     override suspend fun addApartment(buildingId: Long, suffix: String): Long {
         val building = buildings.value.single { it.id == buildingId }
-        val clean = requireNotNull(normaliseSuffix(suffix, building.suffixType))
+        val clean = building.apartmentAddition(requireNotNull(normaliseSuffix(suffix, building.suffixType)))
         if (addresses.value.any { it.buildingId == buildingId && it.addition == clean }) {
             throw DuplicateAddressException(building.houseNumber, clean)
         }

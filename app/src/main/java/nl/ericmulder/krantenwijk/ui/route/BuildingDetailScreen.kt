@@ -40,6 +40,8 @@ import nl.ericmulder.krantenwijk.domain.model.Address
 import nl.ericmulder.krantenwijk.domain.model.Building
 import nl.ericmulder.krantenwijk.domain.model.SuffixType
 import nl.ericmulder.krantenwijk.domain.model.unitLabel
+import nl.ericmulder.krantenwijk.domain.model.label
+import nl.ericmulder.krantenwijk.domain.model.suffixOf
 import nl.ericmulder.krantenwijk.ui.common.AccentButton
 import nl.ericmulder.krantenwijk.ui.common.MinTouchTarget
 import nl.ericmulder.krantenwijk.ui.common.TargetSpacing
@@ -77,12 +79,12 @@ fun BuildingDetailScreen(
     val ready = state as? BuildingDetailUiState.Ready
     val building = ready?.building
     ScreenScaffold(
-        title = building?.let { stringResource(R.string.number_sheet_title, it.houseNumber.toString()) } ?: "",
+        title = building?.let { stringResource(R.string.number_sheet_title, it.label) } ?: "",
         onBack = if (ready?.selecting == true) viewModel::stopSelecting else onBack,
     ) {
         if (ready == null || building == null) return@ScreenScaffold
         Text(
-            text = stringResource(R.string.building_kicker, ready.streetName, building.houseNumber),
+            text = stringResource(R.string.building_kicker, ready.streetName, building.label),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -155,7 +157,7 @@ fun BuildingDetailScreen(
             }
             StickerSheet(
                 title = if (targets.size == 1 && !sheetForSelection) {
-                    stringResource(R.string.number_sheet_title, building.unitLabel(targets.single().addition.orEmpty()))
+                    stringResource(R.string.number_sheet_title, building.unitLabel(building.suffixOf(targets.single())))
                 } else {
                     pluralStringResource(R.plurals.apartments_selected, targets.size, targets.size)
                 },
@@ -211,7 +213,7 @@ private fun MailboxGrid(ready: BuildingDetailUiState.Ready, showAddTile: Boolean
                         if (apartment == null) {
                             AddTile(onAdd, compact = true)
                         } else {
-                            val suffix = apartment.addition.orEmpty()
+                            val suffix = ready.building.suffixOf(apartment)
                             StickerTile(
                                 address = apartment,
                                 label = if (ready.building.suffixType == SuffixType.NUMBER) "${ready.building.separator}$suffix" else suffix,
@@ -236,7 +238,7 @@ private fun AddApartmentSheet(building: Building, error: AddApartmentError?, onA
     val letters = building.suffixType == SuffixType.LETTER
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.apartment_add_title, building.houseNumber), style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.apartment_add_title, building.label), style = MaterialTheme.typography.headlineMedium)
             OutlinedTextField(
                 value = value,
                 onValueChange = { v -> value = if (letters) v.uppercase().take(1) else v.filter(Char::isDigit).take(3) },

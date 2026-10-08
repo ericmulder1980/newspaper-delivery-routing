@@ -56,7 +56,7 @@ Exact library versions are pinned in `gradle/libs.versions.toml` (created in FND
 |---|---|
 | Route | The single route (name, town) |
 | Segment | Part of a street, one side or both, one direction; `position` = walking order |
-| Building | Apartment building at a house number within a segment |
+| Building | Apartment building at a house number (optionally with its own addition, e.g. 8A: schema v3, DEC-031) within a segment |
 | Address | House number + addition, sticker, exists flag, exceptions, note; optional `buildingId` |
 | CompletedRound | A finished round: start, end, newspaper and leaflet counts (schema v2, DEC-030) |
 
