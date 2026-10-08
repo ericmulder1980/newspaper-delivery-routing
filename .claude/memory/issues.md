@@ -91,7 +91,7 @@ DEC-031: building gets its own addition (schema v3, backup format 3), lettered b
 - [x] Updated documentation (plan §3.7, ARCHITECTURE)
 
 **Time to Resolution:** same day
-**Related Commits:** (pending)
+**Related Commits:** 4cf4e8f
 
 ---
 
